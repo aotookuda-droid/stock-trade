@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第67回 宝塚記念(GI) ビジュアル・シミュレーション</title>
+<style>
+  :root { --turf:#2f7d32; --turf2:#379a3c; --rail:#f4f4f4; --bg:#0d1b24; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg);
+    color: #e8eef2; font-family: "Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 14px; }
+  h1 { font-size: 20px; margin: 6px 0 2px; letter-spacing: .02em; }
+  .sub { color: #9fb3c0; font-size: 13px; margin-bottom: 10px; }
+  .topbar {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    background: #12242f; border: 1px solid #203a48; border-radius: 10px;
+    padding: 10px 14px; margin-bottom: 10px; font-size: 13px;
+  }
+  .topbar .chip { background:#0e2e1a; border:1px solid #2f6d3f; padding:3px 10px; border-radius:20px; }
+  .topbar .chip.warn { background:#33260e; border-color:#7d5a23; }
+  .topbar .chip b { color:#ffd76a; }
+  .stage { display: flex; gap: 12px; flex-wrap: wrap; }
+  .canvas-card { background:#0a161d; border:1px solid #203a48; border-radius:12px; padding:8px; }
+  canvas { display:block; border-radius:8px; background:#0a161d; width:100%; height:auto; }
+  .side { flex:1; min-width: 280px; }
+  .controls { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
+  button {
+    background:#1f6feb; color:#fff; border:none; padding:9px 16px; border-radius:8px;
+    font-size:14px; cursor:pointer; font-weight:600;
+  }
+  button.sec { background:#2d4150; }
+  button:active { transform: translateY(1px); }
+  button:disabled { opacity:.5; cursor:default; }
+  .board { background:#12242f; border:1px solid #203a48; border-radius:10px; padding:8px 10px; }
+  .board h3 { margin:4px 0 8px; font-size:14px; color:#9fb3c0; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  th,td { padding:3px 5px; text-align:left; border-bottom:1px solid #1b313d; white-space:nowrap; }
+  th { color:#7e94a2; font-weight:600; }
+  .dot { display:inline-block; width:13px; height:13px; border-radius:50%; vertical-align:middle;
+         border:1px solid rgba(255,255,255,.5); margin-right:4px; }
+  .num { display:inline-block; width:20px; height:18px; line-height:18px; text-align:center;
+         border-radius:3px; font-weight:700; color:#111; font-size:11px; }
+  .pace { font-weight:700; }
+  .foot { color:#7e94a2; font-size:11.5px; margin-top:12px; line-height:1.7; }
+  .foot a { color:#6fb7ff; }
+  .res-win { color:#ffd76a; font-weight:700; }
+  .legend { font-size:11.5px; color:#9fb3c0; margin-top:6px; }
+  .cards { display:grid; grid-template-columns: repeat(auto-fill,minmax(168px,1fr)); gap:6px; margin-top:8px; }
+  .hc { background:#0e1f29; border:1px solid #1d3543; border-radius:8px; padding:6px 8px; font-size:11.5px; }
+  .hc .hn { font-weight:700; font-size:12.5px; }
+  .hc .meta { color:#9fb3c0; }
+  .grade { font-weight:700; }
+  .g-good { color:#7ee08a; } .g-mid { color:#ffd76a; } .g-low { color:#9fb3c0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>第67回 宝塚記念 (GI) ビジュアル・シミュレーション</h1>
+  <div class="sub">2026年6月14日(日) 15:40発走 / 阪神競馬場 芝・内回り2200m・右回り / 3歳上 国際GI / 18頭立て</div>
+
+  <div class="topbar" id="topbar">
+    <span class="chip">天気 <b>晴のち曇</b></span>
+    <span class="chip">気温 <b>28℃</b></span>
+    <span class="chip warn">降水確率 <b>40%</b>（午後にわか雨の可能性）</span>
+    <span class="chip" id="goingChip">馬場 <b>良</b>（含水回復）</span>
+    <span class="chip">風 <b>南 弱</b></span>
+    <span class="chip pace" id="paceChip">想定ペース <b>—</b></span>
+  </div>
+
+  <div class="stage">
+    <div class="canvas-card">
+      <canvas id="track" width="700" height="470"></canvas>
+      <div class="controls">
+        <button id="btnStart">▶ スタート</button>
+        <button id="btnAgain" class="sec">🔁 もう一度（別レース）</button>
+        <button id="btnSpeed" class="sec">再生速度: 5倍</button>
+      </div>
+      <div class="legend">
+        ● = 各馬（丸の中の数字＝馬番／色＝勝負服イメージ）。前半は脚質で隊列が決まり、
+        直線（画面下のゴール前）で能力・馬体・追い切り・展開（ペース）に応じて伸びます。
+        「もう一度」で乱数を変えて別の決着を再生します。
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="board">
+        <h3 id="boardTitle">📊 リアルタイム順位</h3>
+        <table id="board"><tbody></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="board" style="margin-top:12px;">
+    <h3>🐎 出走馬カード（調教後馬体重・脚質・仕上がり）</h3>
+    <div class="cards" id="cards"></div>
+  </div>
+
+  <div class="foot">
+    ※ 本シミュレーションは予想オッズ・確定枠順・脚質・調教後馬体重・追い切り評価・当日の天気/馬場想定から
+    構築した確率モデル（プラケット=ルース型＋ペース展開）に基づく試算であり、的中・利益を保証するものではありません。<br>
+    出典: JRA / netkeiba（枠順・調教後馬体重）/ 東スポ競馬 / 競馬ナビ（追い切り）/ tenki.jp・ウェザーニュース（宝塚市の天気予報）。
+  </div>
+</div>
+
+<script>
+// ===========================================================================
+//  出走馬データ（2026/06/14 枠順確定・想定騎手・予想オッズ・脚質・調教後馬体重）
+//  weight: 調教後馬体重(kg)  diff: 前走比  est:推定値  oikiri: 追い切り評価
+// ===========================================================================
+const HORSES = [
+  {num:1, draw:1, name:"ダノンデサイル",   jk:"戸崎圭", odds:8.0,  style:"差し", w:522, diff:"+6",  est:false, oikiri:"◎", color:"#ffd23f"},
+  {num:2, draw:1, name:"ミュージアムマイル", jk:"レーン",  odds:4.8,  style:"先行", w:510, diff:"+8",  est:false, oikiri:"○", color:"#1f6feb"},
+  {num:3, draw:2, name:"シュガークン",     jk:"吉村誠", odds:60,   style:"先行", w:474, diff:"±0",  est:true,  oikiri:"○", color:"#111111"},
+  {num:4, draw:2, name:"ミクニインスパイア", jk:"丹内",   odds:46,   style:"先行", w:488, diff:"+2",  est:true,  oikiri:"▲", color:"#111111"},
+  {num:5, draw:3, name:"クロワデュノール", jk:"北村友", odds:2.5,  style:"先行", w:516, diff:"+2",  est:false, oikiri:"◎", color:"#e23b3b"},
+  {num:6, draw:3, name:"ビザンチンドリーム", jk:"西村淳", odds:14,   style:"追込", w:470, diff:"帰国", est:false, oikiri:"○", color:"#e23b3b"},
+  {num:7, draw:4, name:"ファミリータイム", jk:"幸",    odds:80,   style:"先行", w:490, diff:"+4",  est:true,  oikiri:"▲", color:"#1aa3a3"},
+  {num:8, draw:4, name:"タガノデュード",   jk:"高杉",   odds:120,  style:"差し", w:480, diff:"-2",  est:true,  oikiri:"▲", color:"#1aa3a3"},
+  {num:9, draw:5, name:"コスモキュランダ", jk:"横山武", odds:14,   style:"差し", w:526, diff:"+6",  est:false, oikiri:"○", color:"#f4a124"},
+  {num:10,draw:5, name:"ジューンテイク",   jk:"松山",   odds:55,   style:"逃げ", w:482, diff:"±0",  est:true,  oikiri:"▲", color:"#f4a124"},
+  {num:11,draw:6, name:"シンエンペラー",   jk:"坂井",   odds:30,   style:"先行", w:492, diff:"+2",  est:true,  oikiri:"○", color:"#3fbf4f"},
+  {num:12,draw:6, name:"マイネルエンペラー",jk:"川田",   odds:50,   style:"先行", w:498, diff:"+4",  est:true,  oikiri:"▲", color:"#3fbf4f"},
+  {num:13,draw:7, name:"シェイクユアハート",jk:"古川吉", odds:90,   style:"差し", w:456, diff:"-2",  est:true,  oikiri:"▲", color:"#e76fb0"},
+  {num:14,draw:7, name:"スティンガーグラス",jk:"岩田望", odds:41,   style:"差し", w:472, diff:"±0",  est:true,  oikiri:"○", color:"#e76fb0"},
+  {num:15,draw:7, name:"マイユニバース",   jk:"横山典", odds:17,   style:"差し", w:478, diff:"+2",  est:true,  oikiri:"◎", color:"#e76fb0"},
+  {num:16,draw:8, name:"メイショウタバル", jk:"武豊",   odds:5.0,  style:"逃げ", w:506, diff:"+6",  est:false, oikiri:"◎", color:"#ffffff"},
+  {num:17,draw:8, name:"レガレイラ",       jk:"ルメール",odds:9.5,  style:"追込", w:494, diff:"+12", est:false, oikiri:"○", color:"#ffffff"},
+  {num:18,draw:8, name:"ミステリーウェイ", jk:"松本",   odds:120,  style:"差し", w:484, diff:"+2",  est:true,  oikiri:"▲", color:"#ffffff"},
+];
+
+// ---- モデル・パラメータ ----------------------------------------------------
+const STYLE = {
+  "逃げ": {early:1.085, kickSens:-0.95},
+  "先行": {early:1.040, kickSens:-0.50},
+  "差し": {early:0.985, kickSens:+0.55},
+  "追込": {early:0.950, kickSens:+0.95},
+};
+const PACE_CENTER = 4.70, PACE_GAIN = 0.40;
+const TRACK_M = 2200, V0 = 17.0, DT = 0.06;     // 物理: 基準速度 / 刻み(秒)
+
+// 馬場補正（良=0。稍重以上で先行有利を少し）
+let GOING = "良", GOING_LEAD_BONUS = 0.0;
+
+// ---- 乱数 (seed可変) -------------------------------------------------------
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+let rng = mulberry32(20260614);
+function gauss(){let u=0,v=0;while(u===0)u=rng();while(v===0)v=rng();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function gumbel(){let u=rng();while(u<=0)u=rng();return -Math.log(-Math.log(u));}
+
+// ---- 能力レーティング（予想オッズ→正規化勝率→ln + 馬体/追い切り補正）-------
+function assignRatings(){
+  const raw = HORSES.map(h=>1/h.odds), tot = raw.reduce((a,b)=>a+b,0);
+  HORSES.forEach((h,i)=>{
+    let r = Math.log(raw[i]/tot);
+    // 追い切り評価ボーナス
+    r += (h.oikiri==="◎"?0.12 : h.oikiri==="○"?0.0 : -0.08);
+    // 馬体重: 大幅増(+8以上)はわずかに割引、適度な成長(+2〜+6)は中立寄り
+    const d = parseInt(h.diff)||0;
+    if (d>=8) r -= 0.05; else if (d<=-4) r -= 0.04;
+    h.rating = r;
+  });
+}
+
+function drawBias(draw){
+  if(draw<=2)return 0.08; if(draw===3)return 0.05;
+  if(draw===4||draw===5)return 0; if(draw===6)return -0.02;
+  if(draw===7)return -0.05; return -0.08;
+}
+
+// ---- 1レース分のトラジェクトリを事前計算 ----------------------------------
+//  「集団基準位置 fieldPos + 各馬のギャップ」方式。
+//  ギャップは序盤=脚質（逃げ/先行が前、差し/追込が後ろ）、
+//  直線で merit（能力＋ペース＋枠＋仕上がり）に滑らかに移行させ、
+//  最終的な着順が merit 順＝統計モデルと一致するようにする。
+let traj=[], finishOrder=[], raceDur=0, paceLabel="";
+function smoothstep(a,b,x){x=Math.max(0,Math.min(1,(x-a)/(b-a)));return x*x*(3-2*x);}
+
+function buildRace(){
+  assignRatings();
+  // ペース（隊列前圧）
+  let press=0; HORSES.forEach(h=>{press += h.style==="逃げ"?1.0 : h.style==="先行"?0.45:0;});
+  const pace = (press-PACE_CENTER) + gauss()*0.85;
+  paceLabel = pace>0.8?"ハイ" : pace<-0.5?"スロー":"平均";
+
+  const N=HORSES.length;
+  const merit=[], earlyGap=[];
+  HORSES.forEach(h=>{
+    const s=STYLE[h.style];
+    const m = h.rating + PACE_GAIN*pace*s.kickSens + drawBias(h.draw)
+            + GOING_LEAD_BONUS*(s.kickSens<0?0.4:-0.4) + gumbel()*0.95;
+    merit.push(m);
+    // 序盤の隊列ギャップ(m)：逃げが前、追込が後ろ。スローだと前が大きく離す。
+    let eg = (h.style==="逃げ"?14 : h.style==="先行"?7 : h.style==="差し"?-5 : -11);
+    eg *= (1 - 0.18*pace);                 // スロー(pace<0)で前圧拡大
+    eg += (4.5-h.draw)*0.4;                 // 内枠やや前
+    earlyGap.push(eg);
+  });
+  const meanM = merit.reduce((a,b)=>a+b,0)/merit.length;
+  const finalGap = merit.map(m => 8.0*(m-meanM));   // 着差(m)。約2.4mで1馬身
+
+  // 時間積分（fieldPos を進め、各馬位置 = fieldPos + 補間ギャップ）
+  traj=[]; finishOrder=[];
+  let fieldPos=0, t=0; const done=new Array(N).fill(false), wob=new Array(N).fill(0);
+  while(finishOrder.length<N && t<200){
+    const fp = fieldPos/TRACK_M;
+    const vfield = V0*(fp<0.10 ? 0.86+fp*1.4 : fp>0.90 ? 1.05 : 1.0); // 発走加速→直線
+    fieldPos += vfield*DT;
+    const w = smoothstep(0.45, 1.0, Math.min(1, fieldPos/TRACK_M));
+    const frame=new Array(N);
+    for(let i=0;i<N;i++){
+      wob[i] = wob[i]*0.88 + gauss()*0.6;          // 滑らかな位置取りの揺らぎ
+      let s = fieldPos + earlyGap[i]*(1-w) + finalGap[i]*w + wob[i]*(1-0.5*w);
+      if(s<0) s=0;
+      if(!done[i] && s>=TRACK_M){ done[i]=true; finishOrder.push({i,t}); }
+      frame[i]=Math.min(s, TRACK_M+6);
+    }
+    traj.push(frame); t+=DT;
+  }
+  for(let i=0;i<N;i++) if(!done[i]) finishOrder.push({i,t});
+  finishOrder.sort((a,b)=> (a.t-b.t) || (traj[traj.length-1][b.i]-traj[traj.length-1][a.i]));
+  raceDur = t;
+}
+
+// ===========================================================================
+//  描画（阪神 右回りオーバル）
+// ===========================================================================
+const cv=document.getElementById("track"), ctx=cv.getContext("2d");
+const W=cv.width, H=cv.height;
+// オーバル幾何（中心, 直線長, 半径）— 右回り(時計回り)
+const CX=W/2, CY=H/2-6, RX=W/2-70, RY=H/2-60;   // 楕円近似トラック
+// 楕円周上の点（角度theta, 半径方向オフセットoff）
+function ovalPoint(theta, off){
+  const rx=RX-off, ry=RY-off;
+  return {x:CX+rx*Math.cos(theta), y:CY+ry*Math.sin(theta)};
+}
+// 進行率 f(0..1, 1周) → 角度。ゴールを画面下中央(θ=π/2)に、右回り。
+// スタートは0.1周手前（バックストレッチ寄り）。距離2200m=1.1周。
+const LAPS=1.1, FINISH_THETA=Math.PI/2;
+function progressToTheta(prog){            // prog: 0..1 (= s/2200)
+  // 右回り: thetaが減る向きに進む。1.1周してθ=FINISH。
+  const total = prog*LAPS*2*Math.PI;
+  return FINISH_THETA + (LAPS*2*Math.PI) - total;  // start→finish
+}
+
+function drawTrack(){
+  ctx.clearRect(0,0,W,H);
+  // 芝
+  ctx.save();
+  // 外柵
+  ctx.lineWidth=46; ctx.strokeStyle="#2f7d32";
+  ctx.beginPath();
+  for(let k=0;k<=64;k++){const t=k/64*2*Math.PI;const p=ovalPoint(t,0);k?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y);}
+  ctx.closePath(); ctx.stroke();
+  // 芝の濃淡ストライプ
+  ctx.lineWidth=46; ctx.strokeStyle="#379a3c";
+  ctx.setLineDash([26,26]);
+  ctx.beginPath();
+  for(let k=0;k<=64;k++){const t=k/64*2*Math.PI;const p=ovalPoint(t,0);k?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y);}
+  ctx.closePath(); ctx.stroke();
+  ctx.setLineDash([]);
+  // 内ラチ
+  ctx.lineWidth=2.5; ctx.strokeStyle="#dfe7ec";
+  ctx.beginPath();
+  for(let k=0;k<=64;k++){const t=k/64*2*Math.PI;const p=ovalPoint(t,23);k?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y);}
+  ctx.closePath(); ctx.stroke();
+  // 外ラチ
+  ctx.beginPath();
+  for(let k=0;k<=64;k++){const t=k/64*2*Math.PI;const p=ovalPoint(t,-23);k?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y);}
+  ctx.closePath(); ctx.stroke();
+  ctx.restore();
+
+  // ゴール線（画面下中央）
+  const g1=ovalPoint(FINISH_THETA,23), g2=ovalPoint(FINISH_THETA,-23);
+  ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(g1.x,g1.y); ctx.lineTo(g2.x,g2.y); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle="#fff"; ctx.font="bold 12px sans-serif"; ctx.textAlign="center";
+  ctx.fillText("ゴール", CX, CY+RY+8);
+
+  // スタート位置（2200m: ゴールの0.1周手前）
+  const st=progressToTheta(0); const sp=ovalPoint(st,0);
+  ctx.fillStyle="#ffd76a"; ctx.font="11px sans-serif";
+  ctx.fillText("スタート(2200m)", sp.x, sp.y - (sp.y>CY? -16:16));
+
+  // 中央ラベル
+  ctx.fillStyle="#cfe8d3"; ctx.textAlign="center";
+  ctx.font="bold 15px sans-serif"; ctx.fillText("阪神競馬場", CX, CY-8);
+  ctx.font="12px sans-serif"; ctx.fillStyle="#9fb3c0";
+  ctx.fillText("芝2200m・右回り（内回り）", CX, CY+12);
+  ctx.fillText("第67回 宝塚記念", CX, CY+30);
+}
+
+function drawHorses(frame){
+  // 後方の馬から描く（重なり順）
+  const idx=[...frame.keys()].sort((a,b)=>frame[a]-frame[b]);
+  for(const i of idx){
+    const h=HORSES[i];
+    const prog=Math.min(1, frame[i]/TRACK_M);
+    const th=progressToTheta(prog);
+    // レーン: 枠順で内外に少しずらす（内枠=内ラチ寄り）
+    const off = 2 + (h.draw-1)*2.4;
+    const p=ovalPoint(th, off);
+    // 影
+    ctx.beginPath(); ctx.arc(p.x+1.5,p.y+2,9,0,2*Math.PI);
+    ctx.fillStyle="rgba(0,0,0,.35)"; ctx.fill();
+    // 本体
+    ctx.beginPath(); ctx.arc(p.x,p.y,9,0,2*Math.PI);
+    ctx.fillStyle=h.color; ctx.fill();
+    ctx.lineWidth=1.5; ctx.strokeStyle="rgba(0,0,0,.55)"; ctx.stroke();
+    // 馬番
+    ctx.fillStyle=(h.color==="#ffffff"||h.color==="#ffd23f"||h.color==="#f4a124")?"#111":"#fff";
+    ctx.font="bold 10px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText(h.num, p.x, p.y+0.5);
+    ctx.textBaseline="alphabetic";
+  }
+}
+
+// ---- 順位ボード ------------------------------------------------------------
+function renderBoard(frame, finished){
+  const order=[...frame.keys()].sort((a,b)=>frame[b]-frame[a]);
+  const lead=frame[order[0]];
+  let rows="";
+  order.forEach((i,rk)=>{
+    const h=HORSES[i];
+    const gap = rk===0 ? "—" : ("-"+((lead-frame[i])/2.4).toFixed(1)+"馬身");
+    const cls = finished && rk===0 ? "res-win":"";
+    rows+=`<tr class="${cls}"><td>${rk+1}</td>
+      <td><span class="dot" style="background:${h.color}"></span><span class="num" style="background:${h.color}">${h.num}</span></td>
+      <td>${h.name}</td><td>${h.jk}</td><td>${gap}</td></tr>`;
+  });
+  document.getElementById("board").innerHTML=
+    `<thead><tr><th>着</th><th></th><th>馬名</th><th>騎手</th><th>差</th></tr></thead><tbody>${rows}</tbody>`;
+}
+
+// ---- 馬カード --------------------------------------------------------------
+function renderCards(){
+  const sortByOdds=[...HORSES].sort((a,b)=>a.odds-b.odds);
+  document.getElementById("cards").innerHTML = sortByOdds.map(h=>{
+    const g = h.oikiri==="◎"?"g-good":h.oikiri==="○"?"g-mid":"g-low";
+    return `<div class="hc">
+      <div class="hn"><span class="num" style="background:${h.color}">${h.num}</span> ${h.name}</div>
+      <div class="meta">${h.jk}／${h.style}／単${h.odds}倍</div>
+      <div class="meta">馬体 ${h.est?"≈":""}${h.w}kg(${h.diff})　追切 <span class="grade ${g}">${h.oikiri}</span></div>
+    </div>`;
+  }).join("");
+}
+
+// ===========================================================================
+//  再生制御
+// ===========================================================================
+let playing=false, playT=0, speed=5, finished=false, lastTs=0;
+const speeds=[1,2,5], speedLabels=["等倍","2倍","5倍"]; let spIdx=2;
+
+function showResultBoard(){
+  let rows="";
+  finishOrder.forEach((o,rk)=>{
+    const h=HORSES[o.i];
+    const cls = rk===0?"res-win":"";
+    rows+=`<tr class="${cls}"><td>${rk+1}</td>
+      <td><span class="dot" style="background:${h.color}"></span><span class="num" style="background:${h.color}">${h.num}</span></td>
+      <td>${h.name}</td><td>${h.jk}</td><td>${h.odds}倍</td></tr>`;
+  });
+  document.getElementById("board").innerHTML=
+    `<thead><tr><th>着</th><th></th><th>馬名</th><th>騎手</th><th>単</th></tr></thead><tbody>${rows}</tbody>`;
+  document.getElementById("boardTitle").textContent="🏁 確定（このレースの結果）";
+}
+
+function frameAt(time){
+  const fi=Math.min(traj.length-1, Math.floor(time/DT));
+  return traj[fi];
+}
+
+function tick(ts){
+  if(!playing){ lastTs=ts; return; }
+  const dt=Math.min(0.05,(ts-lastTs)/1000); lastTs=ts;
+  playT += dt*speed;
+  const frame=frameAt(playT);
+  drawTrack(); drawHorses(frame);
+  if(playT < raceDur){
+    renderBoard(frame,false);
+    requestAnimationFrame(tick);
+  } else {
+    // 終了
+    const last=traj[traj.length-1];
+    drawTrack(); drawHorses(last);
+    showResultBoard();
+    playing=false; finished=true;
+    document.getElementById("btnStart").disabled=false;
+    document.getElementById("btnStart").textContent="▶ 最初から";
+  }
+}
+
+function startPlay(){
+  playT=0; finished=false; playing=true;
+  document.getElementById("boardTitle").textContent="📊 リアルタイム順位";
+  document.getElementById("btnStart").disabled=true;
+  document.getElementById("paceChip").querySelector("b").textContent=paceLabel;
+  lastTs=performance.now();
+  requestAnimationFrame(tick);
+}
+
+function newRace(seed){
+  rng = mulberry32(seed>>>0);
+  buildRace();
+  document.getElementById("paceChip").querySelector("b").textContent=paceLabel;
+  drawTrack(); drawHorses(traj[0]); renderBoard(traj[0],false);
+  document.getElementById("boardTitle").textContent="📊 リアルタイム順位（スタート前）";
+}
+
+// ---- イベント --------------------------------------------------------------
+document.getElementById("btnStart").onclick=()=>{ if(!playing) startPlay(); };
+document.getElementById("btnAgain").onclick=()=>{
+  playing=false;
+  newRace((Math.random()*1e9)|0);
+  document.getElementById("btnStart").textContent="▶ スタート";
+  document.getElementById("btnStart").disabled=false;
+};
+document.getElementById("btnSpeed").onclick=()=>{
+  spIdx=(spIdx+1)%speeds.length; speed=speeds[spIdx];
+  document.getElementById("btnSpeed").textContent="再生速度: "+speedLabels[spIdx];
+};
+
+// ---- 初期化 ----------------------------------------------------------------
+renderCards();
+newRace(20260614);
+</script>
+</body>
+</html>
