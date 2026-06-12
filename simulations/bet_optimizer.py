@@ -240,8 +240,11 @@ def evaluate(name: str, plan: list, n: int = N_SIMS) -> dict:
     exp_pay = sum(payouts) / n
     roi = exp_pay / total_stake * 100
     p_hit = hit_any / n * 100
+    two_x = sum(1 for p in payouts if p >= 2 * total_stake) / n * 100
+    band = sum(1 for p in payouts if 2 * total_stake <= p <= 5 * total_stake) / n * 100
     print(f" 合計掛金 {total_stake:,}円 / 期待払戻 {exp_pay:,.0f}円 / "
           f"回収率 {roi:.1f}% / いずれか的中 {p_hit:.1f}%")
+    print(f" ★払戻が2倍以上になる確率 {two_x:.1f}% / うち2〜5倍に収まる確率 {band:.1f}%")
     # 当たったときの払戻（条件付き）分位点
     wins = [p for p in payouts if p > 0]
     if wins:
@@ -287,6 +290,15 @@ PLAN_IMP = [  # 改善案（クロワ軸＋妙味ダノン/ビザンチン上乗
     ("馬連", (5, 6), 1500),
     ("3連複", (5, 1, 2), 1500), ("3連複", (5, 1, 16), 1000), ("3連複", (5, 1, 6), 1000),
 ]
+# 最終推奨案：払戻「2〜5倍」になる確率を最大化（最頻ペアを各馬券ちょうど2倍超で詰め込み）。
+# 当日ルール: 各掛金 = 切り上げ(20000 / 実オッズ)。合計が1万を超えたら出現率の低い順(⑤→④)に削る。
+PLAN_FINAL = [
+    ("馬連", (5, 2), 3100),   # クロワ-ミュージアム（最頻ペア）
+    ("馬連", (5, 16), 3000),  # クロワ-タバル
+    ("馬連", (5, 1), 1600),   # クロワ-ダノン
+    ("馬連", (5, 6), 1500),   # クロワ-ビザンチン
+    ("馬連", (16, 1), 800),   # タバル-ダノン（クロワ崩壊の保険）
+]
 
 
 def main() -> None:
@@ -295,7 +307,8 @@ def main() -> None:
           + ("（未登録の券種は推定オッズを使用）" if not ACTUAL_ODDS else ""))
     evaluate("案F（Fable5）: 馬連3点・クロワ-タバル偏重", PLAN_F)
     evaluate("案C（ChatGPT）: 馬連3＋馬単＋3連複5", PLAN_C)
-    res = evaluate("改善案: クロワ軸＋ダノン/ビザンチン妙味", PLAN_IMP)
+    evaluate("改善案: クロワ軸＋ダノン/ビザンチン妙味", PLAN_IMP)
+    res = evaluate("★最終推奨: 2〜5倍の的中確率を最大化（馬連5点）", PLAN_FINAL)
 
     # クロワ-ダノン-ビザンチン決着のシナリオ（改善案で何点当たるか）
     print("\n" + "=" * 76)
