@@ -1,0 +1,17 @@
+{
+  "logo": "GRAVIA",
+  "issue": "2026年8月号 No.42",
+  "main_copy": "真夏の\nポートレート大特集",
+  "model_name": "山田 花子",
+  "sublines": [
+    "巻頭グラビア 20P",
+    "撮り下ろしインタビュー",
+    "夏コーデ最前線"
+  ],
+  "price": "定価 980円（税込）",
+  "accent_color": "#e6007e",
+  "sub_color": "#ffe600",
+  "photo": null,
+  "font_path": null,
+  "output": "cover.png"
+}

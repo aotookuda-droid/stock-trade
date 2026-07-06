@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>グラビア誌表紙デザイナー</title>
+<style>
+  :root {
+    --accent: #e6007e;
+    --accent2: #ffe600;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif;
+    background: #2b2b2e;
+    color: #eee;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ===== 操作パネル ===== */
+  #panel {
+    width: 320px;
+    flex-shrink: 0;
+    padding: 20px;
+    background: #1d1d20;
+    overflow-y: auto;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+  }
+  #panel h1 { font-size: 16px; margin-bottom: 16px; color: #fff; }
+  #panel label { display: block; font-size: 12px; color: #aaa; margin: 12px 0 4px; }
+  #panel input[type="text"], #panel textarea, #panel select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    background: #2c2c30;
+    color: #eee;
+    font-size: 13px;
+  }
+  #panel input[type="color"] { width: 48px; height: 28px; border: none; background: none; cursor: pointer; }
+  #panel .row { display: flex; gap: 8px; align-items: center; }
+  #panel button {
+    margin-top: 16px;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  #panel button:hover { opacity: .85; }
+  #panel .hint { font-size: 11px; color: #777; margin-top: 8px; line-height: 1.5; }
+
+  /* ===== プレビュー領域 ===== */
+  #stage {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  /* ===== 表紙本体 (B5判 182×257mm 相当の比率) ===== */
+  #cover {
+    width: 546px;   /* 182mm × 3 */
+    height: 771px;  /* 257mm × 3 */
+    background: #d8d3cc;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.6);
+    flex-shrink: 0;
+  }
+  #photo {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center top;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8a857d;
+    font-size: 14px;
+    letter-spacing: .2em;
+  }
+  #photo.has-image span { display: none; }
+
+  /* 誌名ロゴ */
+  #logo {
+    position: absolute;
+    top: 24px;
+    left: 30px;
+    right: 30px;
+    font-size: 88px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: .02em;
+    color: var(--accent);
+    -webkit-text-stroke: 3px #fff;
+    paint-order: stroke fill;
+    font-style: italic;
+    z-index: 2;
+  }
+  #issue {
+    position: absolute;
+    top: 118px;
+    left: 32px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background: #111;
+    padding: 2px 10px;
+    z-index: 2;
+  }
+
+  /* メイン特集 */
+  #main-copy {
+    position: absolute;
+    bottom: 150px;
+    left: 30px;
+    font-size: 46px;
+    font-weight: 900;
+    line-height: 1.25;
+    color: #fff;
+    text-shadow: 0 0 12px rgba(0,0,0,.55);
+    z-index: 2;
+    white-space: pre-wrap;
+  }
+  #model-name {
+    position: absolute;
+    bottom: 96px;
+    left: 30px;
+    font-size: 26px;
+    font-weight: bold;
+    color: var(--accent2);
+    text-shadow: 0 0 8px rgba(0,0,0,.6);
+    z-index: 2;
+  }
+
+  /* サブ見出し（右側縦積み） */
+  #sublines {
+    position: absolute;
+    top: 170px;
+    right: 24px;
+    width: 190px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 2;
+  }
+  #sublines .sub {
+    background: rgba(255,255,255,.92);
+    color: #111;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 6px 10px;
+    line-height: 1.4;
+    border-left: 6px solid var(--accent);
+  }
+
+  /* 価格・バーコード帯 */
+  #footer-band {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: rgba(255,255,255,.95);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 3;
+  }
+  #price { font-size: 14px; font-weight: bold; color: #111; }
+  #barcode {
+    width: 120px; height: 36px;
+    background: repeating-linear-gradient(90deg, #111 0 2px, #fff 2px 5px, #111 5px 6px, #fff 6px 10px);
+  }
+
+  [contenteditable]:focus { outline: 2px dashed rgba(255,255,255,.7); }
+
+  /* ===== 印刷（PDF書き出し）時は表紙のみ実寸で出力 ===== */
+  @media print {
+    body { background: none; display: block; }
+    #panel, #stage-note { display: none !important; }
+    #stage { padding: 0; }
+    #cover { width: 182mm; height: 257mm; box-shadow: none; }
+    @page { size: 182mm 257mm; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<aside id="panel">
+  <h1>📖 表紙デザイナー</h1>
+
+  <label>誌名ロゴ</label>
+  <input type="text" id="in-logo" value="GRAVIA">
+
+  <label>号数・発行日</label>
+  <input type="text" id="in-issue" value="2026年8月号 No.42">
+
+  <label>メイン特集（改行可）</label>
+  <textarea id="in-main" rows="3">真夏の
+ポートレート大特集</textarea>
+
+  <label>モデル名</label>
+  <input type="text" id="in-model" value="山田 花子">
+
+  <label>サブ見出し（1行=1個）</label>
+  <textarea id="in-subs" rows="4">巻頭グラビア 20P
+撮り下ろしインタビュー
+夏コーデ最前線</textarea>
+
+  <label>価格表記</label>
+  <input type="text" id="in-price" value="定価 980円（税込）">
+
+  <div class="row">
+    <div>
+      <label>テーマカラー</label>
+      <input type="color" id="in-accent" value="#e6007e">
+    </div>
+    <div>
+      <label>サブカラー</label>
+      <input type="color" id="in-accent2" value="#ffe600">
+    </div>
+  </div>
+
+  <label>表紙写真</label>
+  <input type="file" id="in-photo" accept="image/*">
+
+  <button id="btn-export">🖨 PDFとして書き出す（印刷）</button>
+  <p class="hint">
+    ・表紙上のテキストは直接クリックして編集もできます<br>
+    ・書き出しはブラウザの印刷ダイアログで「PDFに保存」を選択（B5実寸 182×257mm）<br>
+    ・PNGが必要な場合は <code>generate.py</code> を使用
+  </p>
+</aside>
+
+<main id="stage">
+  <div id="cover">
+    <div id="photo"><span>ここに表紙写真をドロップ / 左パネルから選択</span></div>
+    <div id="logo" contenteditable>GRAVIA</div>
+    <div id="issue" contenteditable>2026年8月号 No.42</div>
+    <div id="sublines"></div>
+    <div id="main-copy" contenteditable>真夏の
+ポートレート大特集</div>
+    <div id="model-name" contenteditable>山田 花子</div>
+    <div id="footer-band">
+      <div id="price" contenteditable>定価 980円（税込）</div>
+      <div id="barcode"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  const bind = (inputId, targetId) => {
+    $(inputId).addEventListener("input", () => { $(targetId).textContent = $(inputId).value; });
+  };
+  bind("in-logo", "logo");
+  bind("in-issue", "issue");
+  bind("in-main", "main-copy");
+  bind("in-model", "model-name");
+  bind("in-price", "price");
+
+  const renderSubs = () => {
+    const lines = $("in-subs").value.split("\n").map(s => s.trim()).filter(Boolean);
+    $("sublines").innerHTML = lines.map(l => `<div class="sub" contenteditable>${l.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</div>`).join("");
+  };
+  $("in-subs").addEventListener("input", renderSubs);
+  renderSubs();
+
+  $("in-accent").addEventListener("input", e => document.documentElement.style.setProperty("--accent", e.target.value));
+  $("in-accent2").addEventListener("input", e => document.documentElement.style.setProperty("--accent2", e.target.value));
+
+  const setPhoto = (file) => {
+    if (!file || !file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      $("photo").style.backgroundImage = `url(${reader.result})`;
+      $("photo").classList.add("has-image");
+    };
+    reader.readAsDataURL(file);
+  };
+  $("in-photo").addEventListener("change", e => setPhoto(e.target.files[0]));
+
+  const cover = $("cover");
+  cover.addEventListener("dragover", e => e.preventDefault());
+  cover.addEventListener("drop", e => { e.preventDefault(); setPhoto(e.dataTransfer.files[0]); });
+
+  $("btn-export").addEventListener("click", () => window.print());
+</script>
+
+</body>
+</html>
