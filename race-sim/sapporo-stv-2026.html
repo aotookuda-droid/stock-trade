@@ -288,9 +288,10 @@ footer a{color:var(--muted)}
   </header>
 
   <p class="notice">
-    <b>レース条件は実際のもの</b>（2026年8月1日 札幌11R ＳＴＶ賞／3歳上3勝クラス・ハンデ／芝右2000m／16頭／15:25発走）です。
-    <b>出走馬名・騎手名・斤量・脚質は架空のサンプル</b>です — 出馬表を掲載しているサイトへの接続がこの実行環境のネットワークポリシーで遮断されているため取得できませんでした。
-    下の「出走馬データを編集」から実際の出馬表を貼り付ければ、そのメンバーで走ります。
+    <b>いま走っている16頭は実在しません。</b>出馬表を掲載しているサイトへの接続が実行環境のネットワークポリシーで
+    遮断されており実データを取得できなかったため、馬名・騎手・斤量・脚質はすべて架空のサンプルです。
+    <b>下の「出走馬データを編集」に実際の出馬表を貼り付ければ</b>、そのメンバーで走ります（サイトからコピーした行をそのまま貼れます）。<br>
+    レース条件のほうは実際のもの — 2026年8月1日（土）1回札幌3日 11R ＳＴＶ賞／3歳以上3勝クラス（混）［指］ハンデ／芝・右2000m／16頭／15:25発走。
   </p>
 
   <main class="stage">
@@ -370,9 +371,11 @@ footer a{color:var(--muted)}
     <summary>出走馬データを編集</summary>
     <div class="editor">
       <p>
-        1行1頭・カンマ区切りで <code>馬番, 馬名, 騎手, 斤量, 脚質, 能力</code> の順に記入してください。
-        脚質は <code>逃げ / 先行 / 差し / 追込</code>、能力は 40〜60 の目安値（大きいほど強い）。
-        実際の出馬表を貼り付ける場合は、斤量と脚質を出馬表どおりに、能力は人気・実績から自分で見積もった値を入れてください。
+        競馬サイトの出馬表を<b>そのまま貼り付け</b>られます（枠・馬番・馬名・性齢・斤量・騎手・オッズ・人気の並び）。
+        馬名だけを馬番順に1行ずつ並べたものでも動きます。読み取れた内容は下の出馬表に反映されるので確認してください。<br>
+        正確に指定したいときは1行1頭・カンマ区切りで <code>馬番, 馬名, 騎手, 斤量, 脚質, 能力</code>。
+        脚質は <code>逃げ / 先行 / 差し / 追込</code>、能力は40〜60の目安値（大きいほど強い）です。
+        <b>脚質はどのサイトの出馬表にも載っていない</b>ため、実際の結果に近づけたい場合はここだけ手で直してください。
       </p>
       <textarea id="rosterText" spellcheck="false" aria-label="出走馬データ"></textarea>
       <div class="controls">
@@ -1228,29 +1231,113 @@ const SIM = (function () {
   function rosterToText(r) {
     return r.map(h => [h.no, h.name, h.jockey, h.weight.toFixed(1), h.style, h.rating].join(", ")).join("\n");
   }
+  /* 出馬表のコピペを解釈する。
+     ・厳密形式  : 馬番, 馬名, 騎手, 斤量, 脚質, 能力
+     ・貼り付け形式: 競馬サイトの行をそのまま（枠 馬番 馬名 性齢 斤量 騎手 … オッズ 人気）
+     ・馬名だけを1行ずつ並べたものも可（馬番順とみなす） */
+  const RE = {
+    kana: /^[ァ-ヶーヴ・]{2,}$/,
+    sexage: /^(牡|牝|セ|せん|騸)\s?\d{1,2}$/,
+    stable: /^(美浦|栗東|地方|海外|\[.*\])/,
+    strip: /^[☆★▲△◇◎○▽\s]+|[☆★▲△◇◎○▽\s]+$/g
+  };
+  const STYLE_ORDER = ["逃げ", "先行", "差し", "追込"];
+
+  function splitCols(line) {
+    if (line.includes("\t")) return line.split("\t").map(s => s.trim()).filter(Boolean);
+    if (/,|、/.test(line)) return line.split(/[,、]/).map(s => s.trim()).filter(Boolean);
+    return line.split(/\s+/).map(s => s.trim()).filter(Boolean);
+  }
+
+  function parseStrict(cols) {
+    if (cols.length < 6 || !SIM.STYLES[cols[4]]) return null;
+    const no = parseInt(cols[0], 10), weight = parseFloat(cols[3]), rating = parseFloat(cols[5]);
+    if (![no, weight, rating].every(Number.isFinite) || !cols[1]) return null;
+    return { no, name: cols[1], jockey: cols[2] || "—", weight, style: cols[4], rating };
+  }
+
+  // サイトからそのまま貼った行から、馬番・馬名・斤量・騎手・人気を拾う
+  function parseLoose(cols, fallbackNo) {
+    const nameIdx = cols.findIndex(c => RE.kana.test(c.replace(RE.strip, "")) && c.length >= 3);
+    if (nameIdx < 0) return null;
+    const name = cols[nameIdx].replace(RE.strip, "");
+
+    const lead = cols.slice(0, nameIdx).map(c => parseInt(c, 10)).filter(v => Number.isFinite(v) && v >= 1 && v <= 18);
+    const no = lead.length >= 2 ? lead[1] : lead.length === 1 ? lead[0] : fallbackNo;
+
+    const tail = cols.slice(nameIdx + 1);
+    let weight = null, jockey = "", pop = null, odds = null;
+    for (const raw of tail) {
+      const c = raw.replace(RE.strip, "");
+      if (!c || RE.sexage.test(c) || RE.stable.test(c)) continue;
+      const num = parseFloat(c);
+      if (/^\d{2}(\.\d)?$/.test(c) && num >= 45 && num <= 65 && weight === null) { weight = num; continue; }
+      if (/^\d+\.\d$/.test(c) && num > 1 && odds === null && weight !== null) { odds = num; continue; }
+      if (/^\d{1,2}$/.test(c) && num >= 1 && num <= 18 && weight !== null) { pop = num; continue; }
+      if (!jockey && !/^[\d.]+$/.test(c) && !RE.kana.test(c)) jockey = c;
+      else if (!jockey && RE.kana.test(c) && c.length <= 4) jockey = c;   // カタカナ表記の騎手名
+    }
+    return { no, name, jockey: jockey || "—", weight, style: null, rating: null, pop, odds };
+  }
+
   function parseRoster(text) {
-    const out = [];
     const lines = text.split(/\r?\n/).map(s => s.trim()).filter(s => s && !s.startsWith("#"));
     if (lines.length < 2) throw new Error("2頭以上を入力してください。");
-    if (lines.length > 18) throw new Error("18頭までです。");
-    lines.forEach((line, i) => {
-      const c = line.split(/[,\t、]/).map(s => s.trim());
-      if (c.length < 6) throw new Error((i + 1) + "行目：項目が6つ必要です（馬番, 馬名, 騎手, 斤量, 脚質, 能力）。");
-      const no = parseInt(c[0], 10), weight = parseFloat(c[3]), rating = parseFloat(c[5]);
-      if (!Number.isFinite(no) || no < 1) throw new Error((i + 1) + "行目：馬番が不正です。");
-      if (!Number.isFinite(weight) || weight < 45 || weight > 65) throw new Error((i + 1) + "行目：斤量は45〜65で入力してください。");
-      if (!Number.isFinite(rating)) throw new Error((i + 1) + "行目：能力が数値ではありません。");
-      if (!SIM.STYLES[c[4]]) throw new Error((i + 1) + "行目：脚質は 逃げ/先行/差し/追込 のいずれかです。");
-      if (!c[1]) throw new Error((i + 1) + "行目：馬名が空です。");
-      out.push({ no, name: c[1], jockey: c[2] || "—", weight, style: c[4], rating: Math.max(30, Math.min(70, rating)) });
+    if (lines.length > 18) throw new Error("18頭までです。1レース18頭が上限です。");
+
+    const notes = [];
+    const rows = lines.map((line, i) => {
+      const cols = splitCols(line);
+      const strict = parseStrict(cols);
+      if (strict) return strict;
+      // 厳密形式のつもりで書かれた行は、黙って推測に回さず理由を返す
+      if (cols.length >= 6 && SIM.STYLES[cols[4]]) {
+        throw new Error((i + 1) + "行目：馬番・斤量・能力は数値で入力してください → " + line.slice(0, 40));
+      }
+      const loose = parseLoose(cols, i + 1);
+      if (!loose) throw new Error((i + 1) + "行目：馬名（カタカナ）が見つかりません → " + line.slice(0, 30));
+      return loose;
     });
+
+    const inferred = { weight: 0, style: 0, rating: 0, fromPop: 0 };
+
+    // 能力：人気やオッズがあればそこから、なければ横一線
+    const ranked = rows.filter(r => r.pop != null || r.odds != null);
+    if (ranked.length === rows.length && rows.some(r => r.rating == null)) {
+      const key = r => (r.pop != null ? r.pop : r.odds);
+      const order = rows.slice().sort((a, b) => key(a) - key(b));
+      order.forEach((r, k) => {
+        if (r.rating == null) { r.rating = 57.5 - k * (13 / Math.max(1, rows.length - 1)); inferred.fromPop++; }
+      });
+    }
+
+    rows.forEach((r, i) => {
+      if (!Number.isFinite(r.no) || r.no < 1 || r.no > 18) r.no = i + 1;
+      if (r.weight == null) { r.weight = 55.0; inferred.weight++; }
+      if (r.rating == null) { r.rating = 50; inferred.rating++; }
+      if (!r.style) {
+        // 脚質不明：逃げ2/先行5/差し6/追込3 程度になるよう機械的に割り振る
+        const q = (i * 7 + 3) % 16;
+        r.style = STYLE_ORDER[q < 2 ? 0 : q < 7 ? 1 : q < 13 ? 2 : 3];
+        inferred.style++;
+      }
+      r.rating = Math.max(30, Math.min(70, r.rating));
+      r.weight = Math.max(45, Math.min(65, r.weight));
+    });
+
     const seen = new Set();
-    for (const h of out) {
+    for (const h of rows) {
       if (seen.has(h.no)) throw new Error("馬番 " + h.no + " が重複しています。");
       seen.add(h.no);
     }
-    out.sort((a, b) => a.no - b.no);
-    return out;
+    rows.sort((a, b) => a.no - b.no);
+
+    if (inferred.weight) notes.push("斤量は" + inferred.weight + "頭ぶん不明のため55.0kgとしました");
+    if (inferred.style) notes.push("脚質は" + inferred.style + "頭ぶん不明のため機械的に割り振りました（要修正）");
+    if (inferred.fromPop) notes.push("能力は人気／オッズから見積もりました");
+    else if (inferred.rating) notes.push("能力の手がかり（人気・オッズ）がないため全頭横一線としました");
+    return { roster: rows.map(({ no, name, jockey, weight, style, rating }) =>
+      ({ no, name, jockey, weight, style, rating: Math.round(rating * 10) / 10 })), notes };
   }
 
   /* ---------- 起動 ---------- */
@@ -1270,10 +1357,13 @@ const SIM = (function () {
   $("#applyRoster").addEventListener("click", () => {
     const msg = $("#rosterMsg");
     try {
-      roster = parseRoster($("#rosterText").value);
+      const parsed = parseRoster($("#rosterText").value);
+      roster = parsed.roster;
       newRace(seed);
       msg.className = "editor__msg ok";
-      msg.textContent = roster.length + "頭で再シミュレートしました。「発走」を押してください。";
+      msg.textContent = roster.length + "頭を読み取りました。「発走」を押してください。"
+        + (parsed.notes.length ? "　※" + parsed.notes.join("／") : "");
+      $("#rosterText").value = rosterToText(roster);
       document.querySelector("#entriesTable caption").textContent = "出馬表";
     } catch (e) {
       msg.className = "editor__msg err";
