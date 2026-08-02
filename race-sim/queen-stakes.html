@@ -110,6 +110,12 @@
   th,td{ padding:6px 8px; text-align:left; border-bottom:1px solid var(--line-soft); white-space:nowrap; }
   thead th{ font-size:10.5px; letter-spacing:.07em; color:var(--ink-3); font-weight:600; padding-top:10px; padding-bottom:8px;
     border-bottom:1px solid var(--line); }
+  th.sortable{ cursor:pointer; user-select:none; }
+  th.sortable:hover{ color:var(--ink); }
+  th.sortable.on{ color:var(--accent); }
+  th.sortable .arw{ font-size:9px; margin-left:3px; opacity:.55; }
+  th.sortable.on .arw{ opacity:1; }
+  th.sortable:focus-visible{ outline:2px solid var(--accent); outline-offset:-2px; }
   tbody tr:hover{ background:var(--panel-2); }
   tbody tr.sel{ background:var(--accent-soft); }
   tbody tr.cut td{ opacity:.4; text-decoration:line-through; text-decoration-color:var(--ink-3); }
@@ -208,7 +214,7 @@
     font-variant-numeric:tabular-nums; margin-left:5px; }
 
   /* ---------- data / bets ---------- */
-  .cols2{ display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:14px; align-items:start; }
+  .cols2{ display:grid; grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr)); gap:14px; align-items:start; }
   .dtab{ font-size:12px; }
   .dtab td.n{ color:var(--ink-3); font-size:11px; }
   .mult{ font-family:ui-monospace,Menlo,monospace; font-variant-numeric:tabular-nums; font-weight:600; }
@@ -271,11 +277,12 @@
       <div class="eyebrow"><b>2026年8月2日(日)</b><span>札幌 11R</span><span>第74回</span><span>夏競馬・牝馬限定</span></div>
       <h1>クイーンステークス<span class="grade">GIII</span></h1>
       <div class="meta">
-        <span class="chip">芝・右 1800m</span>
-        <span class="chip">3歳以上牝馬</span>
-        <span class="chip">別定</span>
+        <span class="chip">発走 15:25</span>
+        <span class="chip">芝・右 1800m（Aコース）</span>
+        <span class="chip">3歳以上牝馬・別定</span>
         <span class="chip">14頭立て</span>
-        <span class="chip">単勝オッズ 8/2 8:20時点</span>
+        <span class="chip">晴・良</span>
+        <span class="chip" style="color:var(--accent);border-color:var(--accent)">オッズ 8/2 14:10時点</span>
       </div>
     </div>
     <div class="ctl" style="align-items:flex-end">
@@ -319,7 +326,7 @@
       <div class="panel-h"><h3>出馬表</h3><span class="sub" id="cardsub"></span></div>
       <div class="scroller"><table id="cardtable">
         <thead><tr>
-          <th>枠</th><th>馬番</th><th>馬名</th><th>騎手</th><th class="r">斤量</th><th class="r">単勝</th>
+          <th>枠</th><th>馬番</th><th>馬名</th><th>騎手</th><th class="r">斤量</th><th class="r">単勝</th><th class="r">複勝</th>
           <th>脚質</th><th>前走</th><th class="r">馬体重</th><th class="c">消</th><th>メモ</th>
         </tr></thead>
         <tbody id="cardbody"></tbody>
@@ -393,10 +400,7 @@
     <div class="panel">
       <div class="panel-h"><h3>評価一覧</h3><span class="sub" id="mcsub"></span></div>
       <div class="scroller"><table id="evaltable">
-        <thead><tr>
-          <th>印</th><th>枠</th><th>馬番</th><th>馬名</th><th class="r">単勝</th>
-          <th>補正</th><th>勝率</th><th class="r">複勝率</th><th class="r">期待値</th><th>フラグ</th>
-        </tr></thead>
+        <thead id="evalhead"></thead>
         <tbody id="evalbody"></tbody>
       </table></div>
       <div id="markcount" class="betsum" style="border-bottom:0;border-top:1px solid var(--line-soft)"></div>
@@ -409,6 +413,10 @@
       <p>券種ごとのルールをそのまま実装してある。<b>推定配当は「オッズだけのモデル」から計算した理論値</b>で、実際の払戻オッズではない。的中率のほうは補正後モデルの数字なので、期待値は「補正が正しければこれだけの差がある」という意味。必ず実際のオッズ板で確認すること。</p></div>
     <div class="panel">
       <div class="panel-h"><h3>買い目</h3>
+        <span class="seg" id="segSort">
+          <button data-v="p" aria-pressed="true">的中率順</button>
+          <button data-v="ev" aria-pressed="false">期待値順</button>
+        </span>
         <span class="seg" id="segBet">
           <button data-v="wide" aria-pressed="true">ワイド</button>
           <button data-v="trio" aria-pressed="false">三連複</button>
@@ -438,9 +446,12 @@
 
   <div class="note">
     <h4>能力の推定</h4>
-    出発点は<b>単勝オッズだけ</b>。控除率21%を割り戻し、人気薄バイアスを補正（p ∝ (1/オッズ)<sup>1.1</sup> を正規化）したものを市場の確率とし、
-    そこにJRAの過去データ・トラックバイアス・危険/一発フラグを対数の足し算で重ねて、ガンベル分布の乱数で着順を引くロジットモデルです。
-    補正を全部切れば、勝率はオッズが示す確率と一致します。
+    出発点は<b>単勝オッズだけ</b>。控除率を割り戻し、人気薄バイアスを補正（p ∝ (1/オッズ)<sup>1.1</sup> を正規化）したものを市場の確率とし、
+    そこにJRAの過去データ・トラックバイアス・危険/一発フラグを対数の足し算で重ねたロジットモデル（Plackett–Luce）です。
+    補正を全部切れば、勝率はオッズが示す確率と一致します。<br>
+    勝率・複勝率・各券種の的中率は<b>シミュレーションではなく厳密計算</b>で、上位3着の順列 14×13×12＝2,184通りを全部足し上げています。
+    そのため何度開いても数字は変わりません（勝率の合計はちょうど100%、複勝率の合計はちょうど300%になります）。
+    レース映像だけは、この分布から1回サンプリングして動かしているので、押すたびに結果が変わります。
 
     <h4>データの扱いについて（重要）</h4>
     <ul>
@@ -449,11 +460,20 @@
       <li><b>単勝人気の補正は既定でオフ</b>にしてあります。人気はオッズそのものなので、市場の確率に掛けると同じ情報を二度数えることになるためです。「1番人気と2番人気が揃って4着以下はない」「10番人気以下も勝つ」といった記述は、確率モデルではなく買い目の組み方（軸と穴のレンジ）のほうに効かせています。</li>
       <li><b>前走クラスと馬体重は自動では入りません。</b>添付の出馬表に載っていないためで、入力するまで補正は1.00のままです。</li>
       <li>脚質・トラックバイアス・危険/一発フラグは、すべてこちらの仮定です。過去の実績から取ったものではありません。</li>
+      <li><b>複勝率まわりは二重に粗いので、差分をそのまま妙味と読まないでください。</b>
+        ひとつは「市場複勝≈」のほうで、複勝は3頭で山分けするためオッズに幅があり、中央値からの換算はあくまで概算です。
+        もうひとつはモデル側で、<b>単勝オッズから組んだPlackett–Luceは人気馬の複勝率を高めに出す</b>性質があります。
+        実際このレースでも1番人気の複勝率はモデル67%に対し市場48%と大きく開きますが、その大半は妙味ではなくこの2つの癖です。
+        複勝率の列は絶対値ではなく、同じ癖がかかった者どうしの<b>並び順</b>として見るのが安全です。</li>
     </ul>
 
     <h4>期待値の読み方</h4>
-    推定配当は「オッズだけのモデル」から券種ごとの払戻率（単複80%・ワイド馬連77.5%・三連複75%・三連単72.5%）で逆算した理論値で、実際のオッズではありません。
+    <b>単勝EVと複勝EVは実オッズを使っています</b>（複勝は下限〜上限の中央値）。基準は1.00ではなく実オッズから逆算した払戻率で、
+    評価一覧のヘッダーに出しています。全馬がその値に並ぶのが補正なしの状態です。<br>
+    いっぽう<b>ワイド・馬連・三連複・三連単の推定配当は理論値</b>で、「オッズだけのモデル」から券種ごとの払戻率
+    （単複80%・ワイド馬連77.5%・三連複75%・三連単72.5%）で逆算したものです。実際のオッズ板とはズレます。
     期待値はそこに「補正後モデルの的中率」を掛けたもので、<b>1.00超＝補正が市場と食い違っている</b>という意味であり、儲かる保証ではありません。
+    期待値順に並べると的中率の低い目が上位に来ますが、それは推定配当が大きい目ほど補正の誤差も増幅されるからです。
     ラップと着差も札幌芝1800mのG3として妥当な範囲から生成した値で、実測ではありません。1回ごとに結果は変わります。
   </div>
 </div>
@@ -479,21 +499,22 @@ const EDGES = [ {s:"転厩", f:"転厩初戦"}, {s:"斤量減", f:"斤量減"}, 
   {s:"体重激変", f:"馬体重の大幅増減"} ];
 const SHORT = {}; RISKS.concat(EDGES).forEach(r => SHORT[r.f] = r.s);
 
+// 単勝・複勝オッズは 8/2 14:10 時点
 const DEF = [
-  {no: 1, waku:1, name:"フレミングフープ",  sex:"牝", age:5, jk:"吉田隼", kg:55.0, odds:39.5, pop:12, style:"差"},
-  {no: 2, waku:2, name:"ケリフレッドアスク", sex:"牝", age:4, jk:"横山武", kg:57.0, odds:13.1, pop: 5, style:"先"},
-  {no: 3, waku:3, name:"カテリーナ",        sex:"牝", age:5, jk:"浜中",   kg:55.0, odds:18.7, pop: 9, style:"差"},
-  {no: 4, waku:3, name:"リラボニート",      sex:"牝", age:5, jk:"鮫島駿", kg:55.0, odds:33.4, pop:11, style:"追"},
-  {no: 5, waku:4, name:"アンゴラブラック",  sex:"牝", age:5, jk:"岩田康", kg:55.0, odds:14.0, pop: 6, style:"先"},
-  {no: 6, waku:4, name:"クリノメイ",        sex:"牝", age:4, jk:"富田",   kg:56.0, odds:91.2, pop:14, style:"逃"},
-  {no: 7, waku:5, name:"ココナッツブラウン", sex:"牝", age:6, jk:"北村友", kg:55.0, odds: 3.5, pop: 2, style:"差"},
-  {no: 8, waku:5, name:"エラトー",          sex:"牝", age:5, jk:"舟山",   kg:55.0, odds:71.3, pop:13, style:"追"},
-  {no: 9, waku:6, name:"エリカエクスプレス", sex:"牝", age:4, jk:"武豊",   kg:55.0, odds: 3.0, pop: 1, style:"先"},
-  {no:10, waku:6, name:"フェスティバルヒル", sex:"牝", age:3, jk:"西村淳", kg:52.0, odds:11.8, pop: 4, style:"差"},
-  {no:11, waku:7, name:"コガネノソラ",      sex:"牝", age:5, jk:"丹内",   kg:56.0, odds: 8.3, pop: 3, style:"先"},
-  {no:12, waku:7, name:"ボンドガール",      sex:"牝", age:5, jk:"佐々木", kg:55.0, odds:14.6, pop: 7, style:"差"},
-  {no:13, waku:8, name:"ルージュソリテール", sex:"牝", age:4, jk:"西塚",   kg:55.0, odds:30.4, pop:10, style:"逃"},
-  {no:14, waku:8, name:"ヴーレヴー",        sex:"牝", age:4, jk:"横山典", kg:55.0, odds:17.0, pop: 8, style:"追"}
+  {no: 1, waku:1, name:"フレミングフープ",  sex:"牝", age:5, jk:"吉田隼", kg:55.0, odds:44.9, pop:12, pl:[6.0, 9.5], style:"差"},
+  {no: 2, waku:2, name:"ケリフレッドアスク", sex:"牝", age:4, jk:"横山武", kg:57.0, odds:12.9, pop: 4, pl:[2.8, 4.2], style:"先"},
+  {no: 3, waku:3, name:"カテリーナ",        sex:"牝", age:5, jk:"浜中",   kg:55.0, odds:19.3, pop: 9, pl:[3.6, 5.6], style:"差"},
+  {no: 4, waku:3, name:"リラボニート",      sex:"牝", age:5, jk:"鮫島駿", kg:55.0, odds:28.1, pop:10, pl:[3.8, 5.8], style:"追"},
+  {no: 5, waku:4, name:"アンゴラブラック",  sex:"牝", age:5, jk:"岩田康", kg:55.0, odds:13.3, pop: 6, pl:[2.8, 4.3], style:"先"},
+  {no: 6, waku:4, name:"クリノメイ",        sex:"牝", age:4, jk:"富田",   kg:56.0, odds:97.7, pop:14, pl:[11.9,18.8], style:"逃"},
+  {no: 7, waku:5, name:"ココナッツブラウン", sex:"牝", age:6, jk:"北村友", kg:55.0, odds: 3.5, pop: 2, pl:[1.3, 1.6], style:"差"},
+  {no: 8, waku:5, name:"エラトー",          sex:"牝", age:5, jk:"舟山",   kg:55.0, odds:65.1, pop:13, pl:[6.9,11.0], style:"追"},
+  {no: 9, waku:6, name:"エリカエクスプレス", sex:"牝", age:4, jk:"武豊",   kg:55.0, odds: 3.1, pop: 1, pl:[1.5, 1.8], style:"先"},
+  {no:10, waku:6, name:"フェスティバルヒル", sex:"牝", age:3, jk:"西村淳", kg:52.0, odds:13.1, pop: 5, pl:[3.5, 5.5], style:"差"},
+  {no:11, waku:7, name:"コガネノソラ",      sex:"牝", age:5, jk:"丹内",   kg:56.0, odds: 7.4, pop: 3, pl:[2.2, 3.2], style:"先"},
+  {no:12, waku:7, name:"ボンドガール",      sex:"牝", age:5, jk:"佐々木", kg:55.0, odds:14.8, pop: 7, pl:[3.1, 4.8], style:"差"},
+  {no:13, waku:8, name:"ルージュソリテール", sex:"牝", age:4, jk:"西塚",   kg:55.0, odds:31.2, pop:11, pl:[4.8, 7.6], style:"逃"},
+  {no:14, waku:8, name:"ヴーレヴー",        sex:"牝", age:4, jk:"横山典", kg:55.0, odds:17.2, pop: 8, pl:[3.7, 5.7], style:"追"}
 ];
 const HORSES = DEF.map(h => ({...h, prev:"不明", wt:null, cut:false, memo:"",
   risks:new Set(), edges:new Set(), mark:"", markAuto:true}));
@@ -555,6 +576,16 @@ const P0 = (() => {
   return raw.map(v => v/s);
 })();
 const PAYBACK = { win:0.80, place:0.80, wide:0.775, quinella:0.775, trio:0.75, tierce:0.725 };
+// 実オッズから逆算した払戻率＝期待値の基準線
+const WIN_BASE = 1 / HORSES.reduce((a,h)=> a + 1/h.odds, 0);
+// 複勝オッズ（下限〜上限の中央値）から市場の複勝率を出す。3頭ぶんなので合計3に正規化する
+const plMid = h => (h.pl[0] + h.pl[1]) / 2;
+const PL_MKT = (() => {
+  const inv = HORSES.map(h => 1/plMid(h));
+  const s = inv.reduce((a,b)=>a+b,0);
+  return inv.map(v => v * 3 / s);
+})();
+const PL_BASE = 3 / HORSES.reduce((a,h)=> a + 1/plMid(h), 0);
 
 const PACE_BONUS = { H:{"逃":-0.55,"先":-0.24,"差":0.26,"追":0.46}, M:{"逃":0,"先":0,"差":0,"追":0},
                      S:{"逃":0.50,"先":0.28,"差":-0.22,"追":-0.50} };
@@ -596,38 +627,42 @@ function rnd(){ seedState = (seedState*1664525 + 1013904223) >>> 0; return seedS
 function gumbel(){ return -Math.log(-Math.log(Math.max(rnd(),1e-12))); }
 function gauss(){ let u=0,v=0; while(!u) u=rnd(); while(!v) v=rnd(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
 
-/* モンテカルロ：上位3頭だけ選抜する（全ソートより速い） */
-function runMC(mu, runs){
-  const win=new Float64Array(N), t2=new Float64Array(N), t3=new Float64Array(N);
-  const pair3=new Float64Array(N*N), pair2=new Float64Array(N*N), tri=new Float64Array(N*N*N);
-  const ord3=new Float64Array(N*N*N);
-  const sc=new Float64Array(N);
-  for(let r=0;r<runs;r++){
-    for(let i=0;i<N;i++) sc[i] = mu[i] + gumbel();
-    let a=-1,b=-1,c=-1;
-    for(let i=0;i<N;i++){
-      const v=sc[i];
-      if(a<0||v>sc[a]){ c=b; b=a; a=i; }
-      else if(b<0||v>sc[b]){ c=b; b=i; }
-      else if(c<0||v>sc[c]){ c=i; }
-    }
-    win[a]++; t2[a]++; t2[b]++; t3[a]++; t3[b]++; t3[c]++;
-    const p=[a,b,c].sort((x,y)=>x-y);
-    pair3[p[0]*N+p[1]]++; pair3[p[0]*N+p[2]]++; pair3[p[1]*N+p[2]]++;
-    const q = a<b ? a*N+b : b*N+a; pair2[q]++;
-    tri[p[0]*N*N + p[1]*N + p[2]]++;
-    ord3[a*N*N + b*N + c]++;
-  }
-  const d = v => { for(let i=0;i<v.length;i++) v[i]/=runs; return v; };
-  return { win:d(win), t2:d(t2), t3:d(t3), pair3:d(pair3), pair2:d(pair2), tri:d(tri), ord3:d(ord3), runs };
-}
 const key2 = (i,j) => i<j ? i*N+j : j*N+i;
 const key3 = (i,j,k) => { const a=[i,j,k].sort((x,y)=>x-y); return a[0]*N*N + a[1]*N + a[2]; };
 
+/* Plackett–Luce なので、上位3着の順列 14×13×12=2184通りを全部たたんで厳密に出せる。
+   モンテカルロだと三連単のような低確率の目が乱数の誤差だらけになるので、こちらを使う。 */
+function exactProbs(mu){
+  const w = mu.map(m => Math.exp(m));
+  const W = w.reduce((a,b)=>a+b,0);
+  const win=new Float64Array(N), t2=new Float64Array(N), t3=new Float64Array(N);
+  const pair3=new Float64Array(N*N), pair2=new Float64Array(N*N);
+  const tri=new Float64Array(N*N*N), ord3=new Float64Array(N*N*N);
+  for(let a=0;a<N;a++){
+    const Wa = W - w[a]; if(!(Wa > 0)) continue;
+    const pa = w[a]/W;
+    for(let b=0;b<N;b++){
+      if(b===a) continue;
+      const Wb = Wa - w[b]; if(!(Wb > 0)) continue;
+      const pab = pa * (w[b]/Wa);
+      for(let c=0;c<N;c++){
+        if(c===a || c===b) continue;
+        const p = pab * (w[c]/Wb);
+        ord3[a*N*N + b*N + c] = p;
+        win[a]+=p; t2[a]+=p; t2[b]+=p; t3[a]+=p; t3[b]+=p; t3[c]+=p;
+        pair2[key2(a,b)] += p;
+        pair3[key2(a,b)] += p; pair3[key2(a,c)] += p; pair3[key2(b,c)] += p;
+        tri[key3(a,b,c)] += p;
+      }
+    }
+  }
+  return { win, t2, t3, pair3, pair2, tri, ord3 };
+}
+
 let MC = null, MKT = null;
 function recompute(){
-  MC  = runMC(buildMu(true), 20000);
-  MKT = runMC(buildMu(false), 30000);
+  MC  = exactProbs(buildMu(true));    // JRAデータ等で補正したモデル
+  MKT = exactProbs(buildMu(false));   // オッズだけのモデル（推定配当の元）
   renderEval(); renderBets(); renderData(); renderReads();
 }
 
@@ -754,6 +789,7 @@ function buildCard(){
       <td>${h.jk}</td>
       <td class="r odds">${h.kg.toFixed(1)}</td>
       <td class="r odds ${h.pop<=3?"fav":""}">${h.odds.toFixed(1)}<span class="pop">${h.pop}人気</span></td>
+      <td class="r odds" style="color:var(--ink-3)">${h.pl[0].toFixed(1)}-${h.pl[1].toFixed(1)}</td>
       <td><select data-k="style" data-i="${i}" aria-label="${h.name} の脚質">${
         STYLES.map(s=>`<option${s===h.style?" selected":""}>${s}</option>`).join("")}</select></td>
       <td><select data-k="prev" data-i="${i}" aria-label="${h.name} の前走">${
@@ -839,15 +875,56 @@ function markClass(m){
   if(m === "抑") return "mk-r";
   return "";
 }
+/* 並べ替え。数値列は初回クリックで降順（強い順）にする */
+const EVAL_COLS = [
+  {k:"mark",  lab:"印"},
+  {k:"waku",  lab:"枠"},
+  {k:"no",    lab:"馬番",     s:(i)=>HORSES[i].no,               dir:1},
+  {k:"name",  lab:"馬名"},
+  {k:"odds",  lab:"単勝",     s:(i)=>HORSES[i].odds,  cls:"r",   dir:1},
+  {k:"mult",  lab:"補正",     s:(i)=>Math.exp(adjustments(HORSES[i],i).total), dir:-1},
+  {k:"win",   lab:"勝率",     s:(i)=>MC.win[i],                  dir:-1},
+  {k:"t3",    lab:"複勝率",   s:(i)=>MC.t3[i],        cls:"r",   dir:-1},
+  {k:"plm",   lab:"市場複勝≈", s:(i)=>PL_MKT[i],      cls:"r",   dir:-1},
+  {k:"evw",   lab:"単勝EV",   s:(i)=>MC.win[i]*HORSES[i].odds,   cls:"r", dir:-1},
+  {k:"evp",   lab:"複勝EV",   s:(i)=>MC.t3[i]*plMid(HORSES[i]),  cls:"r", dir:-1},
+  {k:"flag",  lab:"フラグ"}
+];
+let sortKey = "no", sortDir = 1;
+function buildEvalHead(){
+  $("#evalhead").innerHTML = "<tr>" + EVAL_COLS.map(c => c.s
+    ? `<th class="${c.cls||""} sortable${sortKey===c.k?" on":""}" data-sk="${c.k}"
+         role="button" tabindex="0" aria-label="${c.lab}で並べ替え">${c.lab}<span class="arw">${
+         sortKey===c.k ? (sortDir<0?"▼":"▲") : "⇅"}</span></th>`
+    : `<th class="${c.cls||""}">${c.lab}</th>`).join("") + "</tr>";
+  $("#evalhead").querySelectorAll(".sortable").forEach(th => {
+    const go = () => {
+      const c = EVAL_COLS.find(x=>x.k===th.dataset.sk);
+      sortDir = sortKey === c.k ? -sortDir : (c.dir || -1);
+      sortKey = c.k;
+      buildEvalHead(); renderEval();
+    };
+    th.addEventListener("click", go);
+    th.addEventListener("keydown", e => { if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go(); } });
+  });
+}
 function renderEval(){
   const auto = autoMarks();
   HORSES.forEach((h,i)=>{ if(h.markAuto) h.mark = auto[i] || ""; });
   const maxWin = Math.max(...MC.win) || 1;
+  const col = EVAL_COLS.find(c => c.k === sortKey);
+  const order = HORSES.map((h,i)=>i).sort((a,b)=>{
+    const d = (col.s(a) - col.s(b)) * sortDir;
+    return d !== 0 ? d : HORSES[a].no - HORSES[b].no;
+  });
   const b = $("#evalbody"); b.innerHTML = "";
-  HORSES.forEach((h,i)=>{
+  order.forEach(i => {
+    const h = HORSES[i];
     const a = adjustments(h,i), m = Math.exp(a.total);
-    const ev = MC.win[i] * (MKT.win[i] > 0 ? PAYBACK.win/MKT.win[i] : 0);
+    const ev = MC.win[i] * h.odds;
+    const evp = MC.t3[i] * plMid(h);
     const dWin = MC.win[i] - MKT.win[i];
+    const dPl = MC.t3[i] - PL_MKT[i];
     const tags = [...h.risks].map(r=>`<span class="tag risk" title="${r}">${SHORT[r]||r}</span>`).join("")
                + [...h.edges].map(r=>`<span class="tag edge" title="${r}">${SHORT[r]||r}</span>`).join("");
     const barW = Math.min(50, Math.abs(Math.log(m))*80);
@@ -867,8 +944,15 @@ function renderEval(){
       <td><div class="meter"><div class="track2"><div class="val" style="width:${(MC.win[i]/maxWin*100).toFixed(1)}%"></div></div>
         <span class="pct">${pct(MC.win[i])}</span></div>
         <span class="delta ${dWin>0.004?"up":dWin<-0.004?"dn":""}">${dWin>=0?"+":""}${(dWin*100).toFixed(1)}</span></td>
-      <td class="r odds">${(MC.t3[i]*100).toFixed(0)}%</td>
-      <td class="r"><span class="ev ${ev>=1.08?"hi":ev<=0.68?"lo":""}">${ev.toFixed(2)}</span></td>
+      <td class="r odds">${(MC.t3[i]*100).toFixed(0)}%
+        <span class="delta ${dPl>0.02?"up":dPl<-0.02?"dn":""}">${dPl>=0?"+":""}${(dPl*100).toFixed(0)}</span></td>
+      <td class="r odds" style="color:var(--ink-3)"
+        title="複勝オッズ ${h.pl[0].toFixed(1)}〜${h.pl[1].toFixed(1)}倍の中央値から出した概算。実際の複勝は3頭で山分けするため、この換算は粗い">
+        ${(PL_MKT[i]*100).toFixed(0)}%<span class="pop">${h.pl[0].toFixed(1)}-${h.pl[1].toFixed(1)}</span></td>
+      <td class="r"><span class="ev ${ev>=WIN_BASE*1.12?"hi":ev<=WIN_BASE*0.85?"lo":""}"
+        title="勝率 ${pct(MC.win[i])} × 単勝 ${h.odds.toFixed(1)}倍">${ev.toFixed(2)}</span></td>
+      <td class="r"><span class="ev ${evp>=PL_BASE*1.12?"hi":evp<=PL_BASE*0.85?"lo":""}"
+        title="複勝率 ${(MC.t3[i]*100).toFixed(0)}% × 複勝 ${plMid(h).toFixed(2)}倍（中央値）">${evp.toFixed(2)}</span></td>
       <td>${tags || '<span style="color:var(--ink-3);font-size:11px">—</span>'}</td>`;
     tr.addEventListener("click", e => { if(e.target.tagName!=="SELECT") select(i===selected?null:i); });
     b.appendChild(tr);
@@ -879,8 +963,8 @@ function renderEval(){
     renderMarkCount(); renderBets();
   }));
   renderMarkCount();
-  $("#mcsub").textContent = `${MC.runs.toLocaleString()}回試行・想定${PACE_LABEL[currentPace()]}`
-    + `・期待値の基準 ${PAYBACK.win.toFixed(2)}`;
+  $("#mcsub").textContent = `厳密計算（上位3着の全2,184通り）・想定${PACE_LABEL[currentPace()]}`
+    + `・期待値の基準は単勝 ${WIN_BASE.toFixed(2)} / 複勝 ${PL_BASE.toFixed(2)}（実オッズの払戻率）`;
 }
 function renderMarkCount(){
   const marked = HORSES.filter(h=>!h.cut && h.mark);
@@ -901,6 +985,12 @@ const oddsOf = (p, rate) => p > 0 ? rate/p : Infinity;
 
 const BETHEAD = `<div class="bet bethead"><span>買い目</span><span class="p">的中率</span>`
   + `<span class="o">推定配当</span><span class="e">期待値</span></div>`;
+let betSort = "p";
+/* 的中率順 or 期待値順。配当が推定できない（試行で一度も出ない）買い目は末尾へ回す */
+function sortBets(rows){
+  const key = r => betSort === "ev" ? (isFinite(r.p*r.o) ? r.p*r.o : -1) : r.p;
+  return rows.sort((x,y)=> key(y)-key(x));
+}
 function comboRow(idx, p, o){
   const ev = p * o;
   return `<div class="bet"><div class="combo">${idx.map(sqTag).join('<em>-</em>')}</div>
@@ -939,6 +1029,7 @@ function betsWide(){
   }
   const groups = {};
   rows.forEach(r => (groups[r.g] = groups[r.g] || []).push(r));
+  Object.values(groups).forEach(sortBets);
   return Object.entries(groups).map(([g,rs]) =>
     `<div class="panel-h" style="border-top:1px solid var(--line-soft)"><h3>${g}</h3>
       <span class="sub">${rs.length}点</span></div>`
@@ -970,7 +1061,7 @@ function betsTrio(){
       const k = key3(a,b,c); if(seen.has(k)) continue; seen.add(k);
       rows.push({idx:[a,b,c].sort((x,y)=>HORSES[x].no-HORSES[y].no), p:MC.tri[k], o:oddsOf(MKT.tri[k],PAYBACK.trio)});
     }
-    rows.sort((x,y)=> y.p-x.p);
+    sortBets(rows);
     const over = rows.length > 20;
     const tot = rows.reduce((a,r)=>a+r.p,0);
     return `<div class="panel-h" style="border-top:1px solid var(--line-soft)"><h3>${lab}</h3>
@@ -997,7 +1088,7 @@ function betsQuinella(){
       const k = key2(fav,b), o = oddsOf(MKT.pair2[k], PAYBACK.quinella);
       if(o >= 10) rows1.push({idx:[fav,b], p:MC.pair2[k], o});
     }
-    rows1.sort((x,y)=> y.p-x.p);
+    sortBets(rows1);
   }
   const top3 = rows1.slice(0,3);
   const ana = bestOf(byPop(5,99), i=>MC.t3[i]).slice(0,2);
@@ -1007,7 +1098,7 @@ function betsQuinella(){
     if(a===b) continue; const k = key2(a,b); if(seen.has(k)) continue; seen.add(k);
     rows2.push({idx:[a,b], p:MC.pair2[k], o:oddsOf(MKT.pair2[k], PAYBACK.quinella)});
   }
-  rows2.sort((x,y)=> y.p-x.p);
+  sortBets(rows2);
   return out.join("")
     + `<div class="panel-h" style="border-top:1px solid var(--line-soft)"><h3>① 1番人気から3番人気以降・10倍以上の3点流し</h3>
        <span class="sub">${top3.length}点</span></div>`
@@ -1023,7 +1114,7 @@ function betsQuinella(){
 
 function betsWin(){
   const pool = HORSES.map((h,i)=>i).filter(i => !HORSES[i].cut && HORSES[i].odds>=4.0 && HORSES[i].odds<=9.9);
-  const rows = bestOf(pool, i => MC.win[i]*HORSES[i].odds).map(i => ({
+  const rows = bestOf(pool, i => betSort==="ev" ? MC.win[i]*HORSES[i].odds : MC.win[i]).map(i => ({
     idx:[i], p:MC.win[i], o:HORSES[i].odds, why:[
       HORSES[i].style==="逃"||HORSES[i].style==="先" ? "逃げ先行" : null,
       HORSES[i].age<=4 ? "若い馬" : null,
@@ -1057,7 +1148,7 @@ function betsTierce(){
     const k = head*N*N + b*N + c;
     rows.push({idx:[head,b,c], p:MC.ord3[k], o:oddsOf(MKT.ord3[k], PAYBACK.tierce)});
   }
-  rows.sort((x,y)=> y.p-x.p);
+  sortBets(rows);
   const tot = rows.reduce((a,r)=>a+r.p,0);
   return `<div class="rule"><b>使い時</b>：◎は絶対に頭、○▲は3着以内は堅いが着順は読めない、
       もう一枠が荒れる——という着順イメージが持てていて、相手も絞れているとき。
@@ -1072,7 +1163,12 @@ function betsTierce(){
 
 function renderBets(){
   const f = { wide:betsWide, trio:betsTrio, quinella:betsQuinella, win:betsWin, tierce:betsTierce }[betTab];
-  $("#betbox").innerHTML = f();
+  const hint = betSort === "ev" && betTab !== "win"
+    ? `<div class="warnbox">期待値順に並べています。上位に来るのは的中率の低い目ほど多くなります
+       ——推定配当が大きいぶん、補正の効きがそのまま増幅されるためです。
+       この並びは「補正を信じたときにどこが一番おいしいか」であって、「当たりやすい順」ではありません。
+       実際に買うなら的中率と資金配分を併せて見てください。</div>` : "";
+  $("#betbox").innerHTML = hint + f();
 }
 
 /* ============================ データ表 ============================ */
@@ -1353,6 +1449,7 @@ seg("#segInner", v => { biasInner = v; recompute(); });
 seg("#segRun",   v => { biasRun = v;   recompute(); });
 seg("#segPace",  v => { paceMode = v;  recompute(); });
 seg("#segBet",   v => { betTab = v;    renderBets(); });
+seg("#segSort",  v => { betSort = v;   renderBets(); });
 
 $("#speed").addEventListener("change", e => speed = +e.target.value);
 $("#run").addEventListener("click", ()=>{ if(!running){ cancelAnimationFrame(raf); startRace(); } });
@@ -1370,7 +1467,7 @@ $("#reset").addEventListener("click", ()=>{
   buildCard(); buildFlags(); recompute(); resetVisual();
 });
 
-buildCard(); buildFlags(); buildRunners(); buildMarks(); buildRuler(); initMap();
+buildCard(); buildFlags(); buildEvalHead(); buildRunners(); buildMarks(); buildRuler(); initMap();
 recompute(); resetVisual();
 window.addEventListener("resize", ()=>{ measureChips(); if(!running) layoutTrack(Math.max(...live.d), live); });
 
