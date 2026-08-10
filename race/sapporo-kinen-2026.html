@@ -94,6 +94,8 @@
   input[type="number"]{ width:70px; font-variant-numeric:tabular-nums; }
   input.tiny{ width:48px; }
   input.odds-in{ width:70px; text-align:right; }
+  input.kg-in{ width:66px; text-align:right; }
+  input.jk-in{ width:64px; }
   .seg{ display:inline-flex; border:1px solid var(--line); border-radius:3px; overflow:hidden; vertical-align:middle; }
   .seg button{ border:0; border-radius:0; padding:7px 12px; font-size:12.5px; background:var(--panel); color:var(--ink-2); }
   .seg button + button{ border-left:1px solid var(--line); }
@@ -299,7 +301,7 @@
     <ul>
       <li><b>馬番</b>：出馬表の「馬番」欄に確定した番号を入れると、その番号を持っていた馬と入れ替わり、枠の色も振り直されます。全頭入れ終えたら「枠順を確定した」にチェックを入れると枠補正が効きはじめます。</li>
       <li><b>単勝・複勝オッズ</b>：出馬表で直接編集できます。人気順・勝率・期待値・買い目はすべてその場で再計算されます。<b>初期値は当方の想定オッズであり、実際のオッズではありません。</b></li>
-      <li><b>斤量</b>は定量（4歳以上 牡・せん57kg／牝55kg）から機械的に置いたもの、<b>騎手は各社の想定</b>、<b>脚質は当方の仮定</b>です。3項目とも変更される前提で見てください。</li>
+      <li><b>騎手・斤量・脚質</b>も出馬表で直接書き換えられます。斤量は定量（4歳以上 牡・せん57kg／牝55kg）から機械的に置いたもの、騎手は各社の想定、脚質は当方の仮定なので、確定・変更のたびに上書きしてください。</li>
     </ul>
   </div>
 
@@ -398,7 +400,7 @@
   <!-- STEP 5 -->
   <section class="step">
     <div class="step-h"><span class="step-n">STEP 5</span><h2>危険な人気馬と、一発のある穴馬</h2>
-      <p>左側は人気馬の危険信号、右側は穴馬の一発条件。チェックした数だけ評価が上下し、印の候補に反映される。牡牝混合戦なので「牝馬限定→牡馬混合」と「去勢明け」も項目に入れてある（この登録メンバーではオニャンコポン・グランディアがせん馬）。</p></div>
+      <p>左側は人気馬の危険信号、右側は穴馬の一発条件。チェックした数だけ評価が上下し、印の候補に反映される。牡牝混合戦なので「牝馬限定→牡馬混合」と「去勢明け」も項目に入れてある（この登録メンバーではオニャンコポン・グランディアがせん馬）。<b>距離替わりと馬体重は両側にある</b>——得意距離への替わりや成長・絞れての好増減なら右（一発）、未経験・実績のない距離や太め残り・不調の馬体変動なら左（危険）と、同じ事象でも中身で入れる欄を分ける。</p></div>
     <div class="panel">
       <div class="panel-h"><h3>詳細入力</h3><span class="sub">危険 1つにつき評価を下げ、一発 1つにつき上げる</span></div>
       <div class="scroller"><table class="vert" id="flagtable">
@@ -428,6 +430,10 @@
       <p>券種ごとのルールをそのまま実装してある。<b>推定配当は「オッズだけのモデル」から計算した理論値</b>で、実際の払戻オッズではない。的中率のほうは補正後モデルの数字なので、期待値は「補正が正しければこれだけの差がある」という意味。<b>いまの初期オッズは想定値なので、この欄の数字は確定オッズを入れ直すまで参考にならない。</b></p></div>
     <div class="panel">
       <div class="panel-h"><h3>買い目</h3>
+        <span class="seg" id="segMode">
+          <button data-v="recipe" aria-pressed="true">買い方から</button>
+          <button data-v="rank" aria-pressed="false">全通りトップ30</button>
+        </span>
         <span class="seg" id="segSort">
           <button data-v="p" aria-pressed="true">的中率順</button>
           <button data-v="ev" aria-pressed="false">期待値順</button>
@@ -447,7 +453,7 @@
   <!-- データ -->
   <section class="step">
     <div class="step-h"><span class="step-n">DATA</span><h2>札幌記念の過去データと、その効かせ方</h2>
-      <p>生の的中率をそのまま掛けると壊れるので、ベースレートに引き戻す縮小推定を使っている。仮想標本 <span id="mLab" class="mono"></span> 件ぶんのベースレートを足してから割り直す方式で、標本が少ない項目ほど自動的に1.00へ寄る。<b>基準となる全体3着内率は 30/150＝20.0%</b>（過去10年の1〜3着延べ30頭 ÷ 延べ出走およそ150頭）に固定してあり、表ごとに集計期間が違っても倍率が比較できるようにしてある。<b>出典で数字が確認できなかった区分は「データ不足」として倍率1.00で置いてある</b>ので、埋まっているところだけが効く。</p></div>
+      <p>生の的中率をそのまま掛けると壊れるので、ベースレートに引き戻す縮小推定を使っている。仮想標本 <span id="mLab" class="mono"></span> 件ぶんのベースレートを足してから割り直す方式で、標本が少ない項目ほど自動的に1.00へ寄る。<b>倍率は各表の全体3着内率を1.00とした相対値</b>で、下の表の「生の3着内率」と「補正後」の差が縮小推定の効き具合そのもの。過去10年の全区分ぶんの着別度数（1着-2着-3着-着外）が入っている。</p></div>
     <div class="panel pad ctl">
       <label class="f">補正の強さ（仮想標本 M）<input type="range" id="mSlider" min="5" max="80" value="25" step="5" style="width:170px"></label>
       <label class="switch"><input type="checkbox" id="fAge" checked>年齢</label>
@@ -475,21 +481,19 @@
         <b>初期値の単勝オッズは当方が想定人気から置いた仮の数字で、実オッズではありません。</b>
         単勝の合計払戻率が実際のJRAの控除率（80%）付近になるよう調整してありますが、それだけの根拠しかありません。</li>
       <li><b>当方の仮定</b>：各馬の脚質、斤量（定量から機械的に付与：4歳以上 牡・せん57kg／牝55kg）、トラックバイアス、危険/一発フラグ。
-        騎手は各社の想定で、netkeibaの想定と他社の想定が食い違っている馬（ローシャムパーク等）は「未定」にしてあります。</li>
+        騎手は各社の想定で、netkeibaの想定と他社の想定が食い違っている馬（ローシャムパーク等）は「未定」にしてあります。
+        馬番・オッズに加えて<b>騎手・斤量・脚質・前走も出馬表で書き換え可能</b>なので、確定情報が出るたびに直してください。</li>
       <li>そのため<b>いまの勝率・期待値・買い目は「枠順とオッズが決まったときに何を見ればいいか」の予行演習</b>であって、
         これを根拠に馬券を買うためのものではありません。木曜以降に馬番とオッズを入れ直して初めて意味を持ちます。</li>
     </ul>
 
     <h4>データの扱いについて（重要）</h4>
     <ul>
-      <li>過去10年＝<b>10レース分</b>です。人気別は1区分あたり10走しかなく、「2番人気【4.1.1.4】＝勝率40%」の95%信頼区間はおよそ17%〜69%あります。生の数字を信じるのは危険です。</li>
-      <li>そこで各項目を <span class="mono">(3着内数 + M×20.0%) ÷ (標本数 + M)</span> で縮めています。標本が少ない項目ほど1.00に近づき、多い項目ほど生の数字に近づきます。Mのスライダーを0に近づけるほど生データを信じることになります。</li>
-      <li><b>集計期間が表ごとに違います。</b>人気別と枠番別は2016〜2025年、年齢別は2015〜2024年、前走レース別は過去10年。出典が異なるものを1つの表にまとめていないぶん、期間はそろっていません。</li>
-      <li><b>枠番別の「5〜8枠」は残差から出した数字です。</b>1〜4枠の公表値と、全体（3着内延べ30頭・延べ出走およそ150頭）との差から逆算しました。延べ出走150頭は各年の頭数から置いた概算なので、この行だけは他より一段粗いです。</li>
-      <li><b>枠番補正は既定でオフ</b>です。枠順が未確定のあいだ、馬番は五十音順に仮置きしてあるだけで、そこから計算した枠に意味はないためです。確定後に「枠順を確定した」をチェックしてください。</li>
-      <li><b>単勝人気の補正も既定でオフ</b>です。人気はオッズそのものなので、市場の確率に掛けると同じ情報を二度数えることになります。「1番人気は過去10年【0.5.3.2】で勝ち星なし・複勝率80%」「優勝馬は全て2〜6番人気」といった性質は、確率モデルではなく買い目の組み方（軸と穴のレンジ）のほうに効かせています。</li>
-      <li><b>前走レース別は3区分しか埋まっていません。</b>安田記念・宝塚記念・函館記念の3つだけが着別度数まで確認できたためで、それ以外は倍率1.00のままです。なお「2014年以降の1〜3着馬36頭のうち25頭が前走GI組」という傾向は、この表には入れずここに書くだけにとどめてあります。</li>
-      <li><b>年齢別も5歳しか埋まっていません。</b>「5歳【3.6.5.25】、2018年から7年連続連対」は確認できましたが、他の年齢は3着内数だけしか分からず標本数が取れませんでした。</li>
+      <li>過去10年＝<b>10レース分</b>です。人気別は1区分あたり約10走しかなく、「2番人気【4.2.0.4】＝勝率40%」の95%信頼区間はおよそ17%〜69%あります。生の数字を信じるのは危険です。</li>
+      <li>そこで各項目を <span class="mono">(3着内数 + M×その表の全体3着内率) ÷ (標本数 + M)</span> で縮めています。標本が少ない項目ほど1.00に近づき、多い項目ほど生の数字に近づきます。Mのスライダーを0に近づけるほど生データを信じることになります。</li>
+      <li><b>前走「GIII・その他」は函館記念を除いた値</b>です。GIII全体は【3.2.2.53】ですが、その内数の函館記念【0.0.0.14】は連対例がなく明確に別扱いすべきなので、行を分けてあります（表に＊印）。前走の欄で函館記念を選ぶと、この弱いほうの区分が当たります。</li>
+      <li><b>枠番補正は既定でオフ</b>です。枠順が未確定のあいだ、馬番は五十音順に仮置きしてあるだけで、そこから計算した枠に意味はないためです。確定後に「枠順を確定した」をチェックしてください。過去10年は1枠【4.0.2.8】が図抜けて良く、内枠有利がはっきり出ています。</li>
+      <li><b>単勝人気の補正も既定でオフ</b>です。人気はオッズそのものなので、市場の確率に掛けると同じ情報を二度数えることになります。「1番人気は過去10年【0.3.3.4】で勝ち星なし・複勝率60%」「3着内延べ30頭のうち23頭が5番人気以内」といった性質は、確率モデルではなく買い目の組み方（軸と穴のレンジ）のほうに効かせています（勝ち馬は2番人気の4勝が最多で、6番人気以下からも2勝あります）。</li>
       <li>脚質・トラックバイアス・危険/一発フラグは、すべてこちらの仮定です。過去の実績から取ったものではありません。</li>
       <li><b>複勝率まわりは二重に粗いので、差分をそのまま妙味と読まないでください。</b>
         ひとつは「市場複勝≈」のほうで、複勝は3頭で山分けするためオッズに幅があり、中央値からの換算はあくまで概算です。
@@ -529,30 +533,32 @@ const WAKU = {
   5:{bg:"#F3D200", fg:"#111", bd:"#D9BC00"}, 6:{bg:"#16A05B", fg:"#fff", bd:"#16A05B"},
   7:{bg:"#F07C1E", fg:"#111", bd:"#F07C1E"}, 8:{bg:"#F5A2C0", fg:"#111", bd:"#F5A2C0"}
 };
-const PREV = ["不明","安田記念","宝塚記念","函館記念","その他GI","その他重賞","OP特別以下"];
+const PREV = ["不明","GI","GII","GIII・その他","函館記念","海外G1","OP特別以下"];
 const RISKS = [ {s:"逃げ好走", f:"前走で逃げて好走"}, {s:"休み明け", f:"半年以上の休み明け"},
   {s:"重不良勝", f:"重・不良など特殊条件での勝ち馬"}, {s:"外枠替り", f:"芝の外枠替わり"},
-  {s:"僅差勝ち", f:"前走2着に0.1秒差の勝ち"}, {s:"牡馬混合", f:"前走牝馬限定戦→今回牡馬混合"} ];
+  {s:"僅差勝ち", f:"前走2着に0.1秒差の勝ち"}, {s:"牡馬混合", f:"前走牝馬限定戦→今回牡馬混合"},
+  {s:"距離不安", f:"未経験・実績のない距離への替わり"},
+  {s:"体重不安", f:"調子を伴わない馬体増減（太め残り・不調の絞れ）"} ];
 const EDGES = [ {s:"転厩", f:"転厩初戦"}, {s:"斤量減", f:"斤量減"}, {s:"乗替", f:"乗り替わり"},
-  {s:"距離短縮", f:"一気の距離短縮"}, {s:"距離延長", f:"一気の距離延長"},
+  {s:"距離短縮", f:"得意な距離への短縮"}, {s:"距離延長", f:"得意な距離への延長"},
   {s:"ブリンカー", f:"初めてのブリンカー着用"}, {s:"本格化", f:"本格化の予兆（突如の連続好走）"},
-  {s:"体重激変", f:"馬体重の大幅増減"}, {s:"去勢明け", f:"去勢明け初戦"} ];
+  {s:"体重増減", f:"成長分の増・絞れての減など良い方向の馬体増減"}, {s:"去勢明け", f:"去勢明け初戦"} ];
 const SHORT = {}; RISKS.concat(EDGES).forEach(r => SHORT[r.f] = r.s);
 
 /* 特別登録16頭。馬番は五十音順の仮置きで、枠順確定後に差し替える前提。
    単勝・複勝オッズは想定人気から置いた仮の値で、実オッズではない。
    斤量は定量（4歳以上 牡・せん57kg／牝55kg）。騎手は各社の想定。脚質は当方の仮定。 */
 const DEF = [
-  {no: 1, name:"アドマイヤテラ",     sex:"牡", age:5, jk:"坂井",   kg:57.0, odds: 4.4, pl:[1.5, 1.9],  style:"差", prev:"その他GI"},
+  {no: 1, name:"アドマイヤテラ",     sex:"牡", age:5, jk:"坂井",   kg:57.0, odds: 4.4, pl:[1.5, 1.9],  style:"差", prev:"GI"},
   {no: 2, name:"アラタ",             sex:"牡", age:9, jk:"大野",   kg:57.0, odds:100.2,pl:[12.9,21.0], style:"差", prev:"不明"},
   {no: 3, name:"イガッチ",           sex:"牡", age:4, jk:"吉田隼", kg:57.0, odds:43.4, pl:[6.9,11.0],  style:"先", prev:"不明"},
   {no: 4, name:"エコロヴァルツ",     sex:"牡", age:5, jk:"横山武", kg:57.0, odds:15.2, pl:[3.3, 5.0],  style:"差", prev:"不明"},
   {no: 5, name:"オニャンコポン",     sex:"せ", age:7, jk:"横山琉", kg:57.0, odds:34.8, pl:[5.9, 9.4],  style:"先", prev:"不明"},
-  {no: 6, name:"グランディア",       sex:"せ", age:7, jk:"西村淳", kg:57.0, odds:17.9, pl:[3.7, 5.7],  style:"差", prev:"その他重賞"},
+  {no: 6, name:"グランディア",       sex:"せ", age:7, jk:"西村淳", kg:57.0, odds:17.9, pl:[3.7, 5.7],  style:"差", prev:"GIII・その他"},
   {no: 7, name:"サクラファレル",     sex:"牡", age:4, jk:"佐々木", kg:57.0, odds:66.5, pl:[9.5,15.4],  style:"先", prev:"不明"},
   {no: 8, name:"シェイクユアハート", sex:"牡", age:6, jk:"古川吉", kg:57.0, odds:27.9, pl:[5.0, 7.9],  style:"追", prev:"不明"},
   {no: 9, name:"ショウヘイ",         sex:"牡", age:4, jk:"川田",   kg:57.0, odds: 3.6, pl:[1.4, 1.7],  style:"先", prev:"不明"},
-  {no:10, name:"ゼンダンハヤブサ",   sex:"牡", age:4, jk:"酒井",   kg:57.0, odds:12.9, pl:[3.0, 4.5],  style:"先", prev:"その他重賞"},
+  {no:10, name:"ゼンダンハヤブサ",   sex:"牡", age:4, jk:"酒井",   kg:57.0, odds:12.9, pl:[3.0, 4.5],  style:"先", prev:"GIII・その他"},
   {no:11, name:"ピンクジン",         sex:"牝", age:6, jk:"未定",   kg:55.0, odds:54.5, pl:[8.2,13.2],  style:"差", prev:"不明"},
   {no:12, name:"ホウオウビスケッツ", sex:"牡", age:6, jk:"岩田康", kg:57.0, odds: 8.9, pl:[2.3, 3.4],  style:"逃", prev:"不明"},
   {no:13, name:"マイネルモーント",   sex:"牡", age:6, jk:"未定",   kg:57.0, odds:81.7, pl:[11.1,18.0], style:"逃", prev:"不明"},
@@ -573,49 +579,42 @@ function reindex(){
         .forEach((i,k)=> HORSES[i].pop = k+1);
 }
 
-/* ---- 札幌記念の過去データ ----
-   w/p/s/o を持つ行は着別度数が確認できたもの。k3+n だけの行は3着内率のみ確認できたもの。
-   n が null の行は標本数が取れなかった行で、倍率は1.00に固定する。          */
-const BASE3 = 30/150;   // 過去10年の1〜3着延べ30頭 ÷ 延べ出走およそ150頭
+/* ---- 札幌記念 過去10年データ（成績は 1着-2着-3着-着外） ----
+   各表の全体3着内率をベースにして縮小推定する。倍率＝縮小後3着内率 ÷ その表の全体3着内率。 */
 const JRA = {
-  pop:{ title:"単勝人気別成績", key:"単勝人気", span:"2016〜2025年（10走ずつ）",
-    rows:[ {lab:"1番人気", w:0,p:5,s:3,o:2}, {lab:"2番人気", w:4,p:1,s:1,o:4},
-           {lab:"3番人気", w:2,p:0,s:0,o:8}, {lab:"4番人気", w:1,p:1,s:3,o:5},
-           {lab:"5番人気", w:2,p:0,s:1,o:7}, {lab:"6番人気", w:1,p:1,s:0,o:8},
-           {lab:"7番人気以下", w:0,p:2,s:2,o:86, note:"延べ出走150頭の残差から算出"} ] },
-  age:{ title:"年齢別成績", key:"年齢", span:"2015〜2024年",
-    rows:[ {lab:"3〜4歳", k3:9, n:null, note:"3着内9頭のみ判明・標本数不明"},
-           {lab:"5歳", w:3,p:6,s:5,o:25, note:"2018年から7年連続で連対"},
-           {lab:"6歳以上", k3:7, n:null, note:"3着内7頭のみ判明・標本数不明"} ] },
+  pop:{ title:"単勝人気別成績", key:"単勝人気", span:"過去10年",
+    rows:[["1番人気",0,3,3,4],["2番人気",4,2,0,4],["3番人気",2,1,0,7],["4番人気",0,1,4,5],
+          ["5番人気",2,0,1,7],["6〜9番人気",1,2,1,36],["10番人気以下",1,1,1,49]] },
+  age:{ title:"年齢別成績", key:"年齢", span:"過去10年",
+    rows:[["3歳",1,1,1,4],["4歳",3,0,2,29],["5歳",4,7,4,24],["6歳",2,1,1,30],["7歳以上",0,1,2,25]] },
   prev:{ title:"前走レース別成績", key:"前走", span:"過去10年",
-    rows:[ {lab:"安田記念", w:2,p:3,s:1,o:5}, {lab:"宝塚記念", w:0,p:2,s:2,o:5},
-           {lab:"函館記念", w:2,p:1,s:1,o:34, note:"1〜2着からの参戦は札幌記念で連対例なし"},
-           {lab:"その他GI", k3:null, n:null}, {lab:"その他重賞", k3:null, n:null},
-           {lab:"OP特別以下", k3:null, n:null} ] },
-  waku:{ title:"枠番別成績", key:"枠番", span:"2016〜2025年",
-    rows:[ {lab:"1枠", w:4,p:0,s:2,o:7}, {lab:"2枠", w:1,p:4,s:0,o:10},
-           {lab:"3枠", k3:4, n:15, note:"3着内率のみ判明"}, {lab:"4枠", k3:1, n:18, note:"3着内率のみ判明"},
-           {lab:"5〜8枠", k3:14, n:89, note:"全体との残差から算出。5枠は連対例なし"} ] }
+    rows:[["GI",4,7,7,27],["GII",1,0,0,7],["GIII・その他",3,2,2,39,"GIII全体は3-2-2-53。うち函館記念を除いた値"],
+          ["函館記念",0,0,0,14,"GIIIの内数。連対例なし"],["海外G1",2,1,1,12],["OP特別以下",0,0,0,13]] },
+  waku:{ title:"枠番別成績", key:"枠番", span:"過去10年",
+    rows:[["1枠",4,0,2,8],["2枠",1,4,0,10],["3枠",0,1,1,13],["4枠",0,1,0,17],
+          ["5枠",1,0,3,16],["6枠",0,2,1,17],["7枠",2,0,2,16],["8枠",2,2,1,15]] }
 };
 for(const k in JRA){
-  JRA[k].rows.forEach(r => {
-    if(r.w != null){ r.k3 = r.w + r.p + r.s; r.n = r.k3 + r.o; }
-    r.known = r.k3 != null && r.n != null && r.n > 0;
-  });
+  const t = JRA[k];
+  t.rows = t.rows.map(r => ({ lab:r[0], w:r[1], p:r[2], s:r[3], o:r[4], note:r[5]||"",
+    n:r[1]+r[2]+r[3]+r[4], k3:r[1]+r[2]+r[3] }));
+  t.N = t.rows.reduce((a,r)=>a+r.n,0);
+  t.K = t.rows.reduce((a,r)=>a+r.k3,0);
+  t.base = t.K / t.N;
 }
-function shrunk(row, M){ return (row.k3 + M*BASE3) / (row.n + M); }
+function shrunk(row, table, M){ return (row.k3 + M*table.base) / (row.n + M); }
 function multOf(table, lab, M){
   const r = table.rows.find(x => x.lab === lab);
-  return (r && r.known) ? shrunk(r, M) / BASE3 : 1;
+  return r ? shrunk(r, table, M) / table.base : 1;
 }
-function ageLab(a){ return a <= 4 ? "3〜4歳" : a === 5 ? "5歳" : "6歳以上"; }
-function wakuLab(w){ return w <= 4 ? w + "枠" : "5〜8枠"; }
-function popLab(p){ return p <= 6 ? p + "番人気" : "7番人気以下"; }
+function ageLab(a){ return a <= 3 ? "3歳" : a >= 7 ? "7歳以上" : a + "歳"; }
+function wakuLab(w){ return w + "枠"; }
+function popLab(p){ return p <= 5 ? p + "番人気" : p <= 9 ? "6〜9番人気" : "10番人気以下"; }
 
 /* ---- 設定 ---- */
 const F = { age:true, waku:false, prev:true, pop:false, wt:true, M:25 };
 let drawFixed = false;
-let biasInner = "flat", biasRun = "flat", paceMode = "auto", betTab = "wide";
+let biasInner = "flat", biasRun = "flat", paceMode = "auto", betTab = "wide", betMode = "recipe";
 const INNER_ADJ = { in:[.30,.30,.15,.15,0,0,-.20,-.20], out:[-.22,-.22,-.10,-.10,.05,.05,.22,.22],
                     flat:[0,0,0,0,0,0,0,0] };
 const RUN_ADJ = { front:{"逃":.35,"先":.20,"差":-.15,"追":-.30}, closer:{"逃":-.35,"先":-.15,"差":.20,"追":.35},
@@ -860,8 +859,9 @@ function buildCard(){
       <td><input type="number" class="tiny" data-k="no" data-i="${i}" min="1" max="${N}" step="1"
         value="${h.no}" aria-label="${h.name} の馬番"></td>
       <td><span class="hname">${h.name}</span><span class="hsub">${h.sex}${h.age}</span></td>
-      <td>${h.jk}</td>
-      <td class="r odds">${h.kg.toFixed(1)}</td>
+      <td><input type="text" class="jk-in" data-k="jk" data-i="${i}" value="${esc(h.jk)}" aria-label="${h.name} の騎手"></td>
+      <td class="r"><input type="number" class="kg-in" data-k="kg" data-i="${i}" min="48" max="62" step="0.5"
+        value="${h.kg.toFixed(1)}" aria-label="${h.name} の斤量"></td>
       <td class="r"><input type="number" class="odds-in" data-k="odds" data-i="${i}" min="1" max="999" step="0.1"
         value="${h.odds.toFixed(1)}" aria-label="${h.name} の単勝オッズ"><span class="pop ${h.pop<=3?"fav":""}">${h.pop}人気</span></td>
       <td class="r"><input type="number" class="odds-in" data-k="pl0" data-i="${i}" min="1" max="999" step="0.1"
@@ -888,7 +888,9 @@ function onCardInput(e){
   if(isNaN(i) || !k) return;
   const h = HORSES[i];
   if(k === "memo"){ h.memo = t.value; return; }
+  if(k === "jk"){ h.jk = t.value; return; }           // 騎手はモデルに効かないので表示だけ更新
   if(k === "no") return;                              // 馬番は change（確定時）だけで処理する
+  else if(k === "kg"){ const v = +t.value; if(v >= 40) h.kg = v; return; }
   else if(k === "odds"){
     const v = +t.value; if(!(v >= 1)) return;
     h.odds = v;
@@ -1145,7 +1147,7 @@ function betsWide(){
     + `<div class="betlist">${BETHEAD}${rs.map(r=>comboRow(r.idx,r.p,r.o)).join("")}</div>`).join("")
     + `<div class="rule"><b>ワイドの条件</b>：①はオッズ5倍以上が絶対条件。単勝1倍台の馬がいる時は、
        その馬以外の人気馬同士の配当が高くなりやすい。③は重・不良、割れたハンデ戦、若手騎手の多いローカルなど
-       波乱条件のときだけで、<b>札幌記念は過去10年の優勝馬が全て2〜6番人気・3着以内も6番人気以内が中心という堅い部類</b>なので、
+       波乱条件のときだけで、<b>札幌記念は過去10年の3着内延べ30頭のうち23頭が5番人気以内という比較的堅い部類</b>なので、
        ③④に寄せるなら馬場が渋ったなど理由が要る。同じ買い目の少額馬連も同時に買っておくと、ダブル的中が3回に1回起きる。</div>`;
 }
 
@@ -1183,7 +1185,7 @@ function betsTrio(){
   }).join("")
   + `<div class="rule"><b>三連複を使う場面</b>：荒れそうなとき。人気馬の不安要素、ハンデ戦、牝馬限定重賞、2歳戦、
      穴馬が複数いるレース。<b>札幌記念は定量のGIIで、条件そのものは合致しにくい</b>——過去10年の1〜3着延べ30頭のうち
-     26頭までが6番人気以内で、7番人気以下は3着内4頭（勝ち星ゼロ）しかありません。
+     23頭が5番人気以内で、6番人気以下は3着内7頭（うち勝ち2）にとどまります。
      荒れると読むなら、その理由が過去傾向以外にあるかを先に確かめる。軸は人気馬から取り、点数は20点以内に絞る。</div>`;
 }
 
@@ -1221,7 +1223,7 @@ function betsQuinella(){
     + `<div class="betlist">${BETHEAD}${rows2.slice(0,6).map(r=>comboRow(r.idx,r.p,r.o)).join("")}</div>`
     + `<div class="rule"><b>3つの約束</b>：6点以上は絶対に買わない（流しても5点まで、それ以上やるなら三連複）。
        単勝1倍台からは買わない。均等買いにせず、予想を反映した資金配分にする。
-       札幌記念は<b>1番人気が過去10年【0.5.3.2】で勝ち星なし・複勝率80%</b>という馬なので、
+       札幌記念は<b>1番人気が過去10年【0.3.3.4】で勝ち星なし・複勝率60%</b>という馬なので、
        頭で買う単勝より、2着づけを含む馬連のほうが形としては噛み合います。
        同じ枠の2頭で決まる枠連は意味は同じで配当が高くなりやすいので、少点数で見合うときだけ割り切って。</div>`;
 }
@@ -1246,8 +1248,8 @@ function betsWin(){
     : `<div class="empty">4.0〜9.9倍のオッズ帯に該当馬がいません。</div>`;
   return `<div class="rule"><b>狙うオッズ帯を4.0〜9.9倍に固定</b>し、前走4〜6着、条件好転、迷ったら若い馬、
       逃げ先行優先、ピンパー体質、危険な人気馬がいるレースを選ぶ。払戻率80%は他券種より高く、
-      思考を1点に集中できて資金も持ちやすい。<b>札幌記念は優勝馬が全て2〜6番人気から出ており、
-      このオッズ帯がちょうど勝ち馬の生息域</b>にあたります。</div>` + body;
+      思考を1点に集中できて資金も持ちやすい。<b>札幌記念は1番人気が過去10年勝ち星なしで、勝ち馬は2番人気以下に散っている</b>ので、
+      このオッズ帯は勝ち馬の生息域と重なります。</div>` + body;
 }
 
 function betsTierce(){
@@ -1269,7 +1271,7 @@ function betsTierce(){
       もう一枠が荒れる——という着順イメージが持てていて、相手も絞れているとき。
       これができずに何点も買うなら、ワイドや馬連でいい。まず三連単で考え、
       どの馬に自信があるのか、何着のイメージなのかを整理するための券種として使う。
-      <b>ただしこのレースの1番人気は過去10年で勝ち星ゼロ・2着5回</b>なので、
+      <b>ただしこのレースの1番人気は過去10年で勝ち星ゼロ・2着3回</b>なので、
       1番人気を1着固定にするなら、その根拠は過去傾向の外から持ってくる必要があります。</div>`
     + (rows.length ? `<div class="betsum"><span>◎ ${HORSES[head].no}番を1着固定</span>
         <span>点数<b>${rows.length}点</b></span><span>合計的中率<b>${(tot*100).toFixed(1)}%</b></span></div>`
@@ -1278,7 +1280,53 @@ function betsTierce(){
       : `<div class="empty">○▲△の印がありません。2・3着候補を決めてください。</div>`);
 }
 
+/* 全通りを券種ごとに列挙して、的中率順 or 期待値順のトップ30を出す */
+const BET_LABEL = { wide:"ワイド", trio:"三連複", quinella:"馬連", win:"単勝", tierce:"三連単" };
+function allCombos(tab){
+  const live = HORSES.map((h,i)=>i).filter(i => !HORSES[i].cut);
+  const L = live.length, rows = [];
+  if(tab === "win"){
+    live.forEach(i => rows.push({idx:[i], p:MC.win[i], o:HORSES[i].odds}));
+  } else if(tab === "quinella" || tab === "wide"){
+    const rate = tab==="wide" ? PAYBACK.wide : PAYBACK.quinella;
+    const P = tab==="wide" ? MC.pair3 : MC.pair2, PM = tab==="wide" ? MKT.pair3 : MKT.pair2;
+    for(let x=0;x<L;x++) for(let y=x+1;y<L;y++){
+      const a=live[x], b=live[y], k=key2(a,b);
+      rows.push({idx:[a,b], p:P[k], o:oddsOf(PM[k], rate)});
+    }
+  } else if(tab === "trio"){
+    for(let x=0;x<L;x++) for(let y=x+1;y<L;y++) for(let z=y+1;z<L;z++){
+      const a=live[x], b=live[y], c=live[z], k=key3(a,b,c);
+      rows.push({idx:[a,b,c], p:MC.tri[k], o:oddsOf(MKT.tri[k], PAYBACK.trio)});
+    }
+  } else if(tab === "tierce"){
+    for(const a of live) for(const b of live) for(const c of live){
+      if(a===b||b===c||a===c) continue;
+      const k = a*N*N + b*N + c;
+      rows.push({idx:[a,b,c], p:MC.ord3[k], o:oddsOf(MKT.ord3[k], PAYBACK.tierce), ordered:true});
+    }
+  }
+  return rows;
+}
+function betsRank(){
+  const rows = allCombos(betTab);
+  sortBets(rows);
+  const top = rows.slice(0,30);
+  const disp = r => r.ordered ? r.idx : r.idx.slice().sort((x,y)=>HORSES[x].no-HORSES[y].no);
+  return `<div class="panel-h" style="border-top:1px solid var(--line-soft)">
+      <h3>${BET_LABEL[betTab]}・${betSort==="ev"?"期待値":"的中率"}トップ30</h3>
+      <span class="sub">全${rows.length.toLocaleString()}通りから上位${Math.min(30,rows.length)}点</span></div>`
+    + `<div class="betlist">${BETHEAD}${top.map(r=>comboRow(disp(r), r.p, r.o)).join("")}</div>`
+    + `<div class="rule"><b>これは「買い方」ではなく全数ランキング</b>です。券種の全組み合わせを${
+        betSort==="ev"?"期待値":"的中率"}で並べた上位30点で、点数を絞る仕組みは入っていません。
+        的中率順は本命サイドに、期待値順は人気薄がらみに寄ります。実際に買うときは上のタブ「買い方から」の型で点数を管理してください。</div>`;
+}
 function renderBets(){
+  if(betMode === "rank"){
+    const stale = `<div class="warnbox">初期値の単勝・複勝オッズは<b>当方の想定値</b>です。推定配当も期待値も、実オッズを入れ直すまでは形式的な数字にすぎません。</div>`;
+    $("#betbox").innerHTML = stale + betsRank();
+    return;
+  }
   const f = { wide:betsWide, trio:betsTrio, quinella:betsQuinella, win:betsWin, tierce:betsTierce }[betTab];
   const stale = `<div class="warnbox">初期値の単勝・複勝オッズは<b>当方の想定値</b>です。
      推定配当も期待値も、実オッズを入れ直すまでは形式的な数字にすぎません。</div>`;
@@ -1295,17 +1343,10 @@ function renderData(){
   const box = $("#databox");
   const used = { pop:F.pop, age:F.age, prev:F.prev, waku:F.waku && drawFixed };
   box.innerHTML = Object.entries(JRA).map(([k,t])=>{
-    let known = 0, kn = 0;
-    t.rows.forEach(r => { if(r.known){ known += r.k3; kn += r.n; } });
     const rows = t.rows.map(r=>{
-      if(!r.known){
-        return `<tr class="nodata"><td>${r.lab}</td><td colspan="3" class="n">データ不足${
-          r.note ? "（"+r.note+"）" : ""}</td><td class="r"><span class="mult" style="opacity:.45">×1.00</span></td></tr>`;
-      }
-      const sh = shrunk(r,F.M), mult = sh/BASE3, raw = r.k3/r.n;
-      const cells = r.w != null ? `${r.w}-${r.p}-${r.s}-${r.o}` : `3着内 ${r.k3}／${r.n}`;
-      return `<tr title="${r.note ? r.note : ""}"><td>${r.lab}</td>
-        <td class="odds" style="color:var(--ink-3)">${cells}</td>
+      const sh = shrunk(r,t,F.M), mult = sh/t.base, raw = r.k3/r.n;
+      return `<tr title="${r.note ? r.note : ""}"><td>${r.lab}${r.note?'<span class="pop">＊</span>':''}</td>
+        <td class="odds" style="color:var(--ink-3)">${r.w}-${r.p}-${r.s}-${r.o}</td>
         <td class="r n">${r.n}走</td>
         <td class="r raw">${(raw*100).toFixed(1)}%</td>
         <td class="r"><span class="mult ${used[k]&&mult>1.02?"up":used[k]&&mult<0.98?"dn":""}"
@@ -1313,7 +1354,7 @@ function renderData(){
     }).join("");
     const state = used[k] ? "適用中" : (k==="waku" && F.waku && !drawFixed ? "枠順未確定のため停止中" : "未適用");
     return `<div class="panel"><div class="panel-h"><h3>${t.title}</h3>
-        <span class="sub">${t.span}・${state}・数字が取れた標本 ${kn}走（うち3着内 ${known}頭）</span></div>
+        <span class="sub">${t.span}・${state}・全体3着内率 ${(t.base*100).toFixed(1)}%</span></div>
       <div class="scroller"><table class="dtab">
         <thead><tr><th>${t.key}</th><th>成績</th><th class="r">標本</th><th class="r">生の3着内率</th><th class="r">補正後</th></tr></thead>
         <tbody>${rows}</tbody></table></div></div>`;
@@ -1583,6 +1624,7 @@ seg("#segRun",   v => { biasRun = v;   recompute(); });
 seg("#segPace",  v => { paceMode = v;  recompute(); });
 seg("#segBet",   v => { betTab = v;    renderBets(); });
 seg("#segSort",  v => { betSort = v;   renderBets(); });
+seg("#segMode",  v => { betMode = v;   renderBets(); });
 
 $("#cardbody").addEventListener("input", onCardInput);
 $("#cardbody").addEventListener("change", onNoChange);
@@ -1607,13 +1649,15 @@ $("#drawFixed").addEventListener("change", e => {
 $("#reset").addEventListener("click", ()=>{
   HORSES.forEach((h,i)=>{ const d = DEF[i];
     h.no = d.no; h.odds = d.odds; h.pl = d.pl.slice(); h.style = d.style; h.prev = d.prev;
-    h.wt = null; h.cut = false; h.memo = "";
+    h.jk = d.jk; h.kg = d.kg; h.wt = null; h.cut = false; h.memo = "";
     h.risks.clear(); h.edges.clear(); h.mark = ""; h.markAuto = true; });
-  biasInner = biasRun = "flat"; paceMode = "auto";
+  biasInner = biasRun = "flat"; paceMode = "auto"; betMode = "recipe"; betSort = "p";
   drawFixed = false; $("#drawFixed").checked = false; syncDrawUI();
   ["#segInner","#segRun"].forEach(s => $(s).querySelectorAll("button")
     .forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v==="flat"))));
   $("#segPace").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v==="auto")));
+  $("#segMode").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v==="recipe")));
+  $("#segSort").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v==="p")));
   recompute(); buildCard(); buildFlags(); buildRunners(); initMap(); resetVisual();
 });
 
