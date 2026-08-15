@@ -96,6 +96,7 @@
   input.odds-in{ width:70px; text-align:right; }
   input.kg-in{ width:66px; text-align:right; }
   input.jk-in{ width:64px; }
+  select.cw-sel{ width:44px; padding-left:5px; }
   .seg{ display:inline-flex; border:1px solid var(--line); border-radius:3px; overflow:hidden; vertical-align:middle; }
   .seg button{ border:0; border-radius:0; padding:7px 12px; font-size:12.5px; background:var(--panel); color:var(--ink-2); }
   .seg button + button{ border-left:1px solid var(--line); }
@@ -281,11 +282,12 @@
       <div class="eyebrow"><b>2026年8月16日(日)</b><span>札幌 11R</span><span>第62回</span><span>サマー2000シリーズ</span></div>
       <h1>札幌記念<span class="grade">GII</span></h1>
       <div class="meta">
-        <span class="chip">発走 15:45（予定）</span>
+        <span class="chip">発走 15:45</span>
         <span class="chip">芝・右 2000m</span>
         <span class="chip">3歳以上オープン・定量</span>
-        <span class="chip">特別登録 16頭（フルゲート16）</span>
-        <span class="chip" style="color:var(--warn);border-color:var(--warn)">枠順・オッズ未確定（8/10時点）</span>
+        <span class="chip">16頭立て</span>
+        <span class="chip" style="color:var(--good);border-color:var(--good)">枠順確定・追い切り反映（8/15）</span>
+        <span class="chip" style="color:var(--warn);border-color:var(--warn)">単勝は予想オッズ</span>
       </div>
     </div>
     <div class="ctl" style="align-items:flex-end">
@@ -295,13 +297,13 @@
   </header>
 
   <div class="banner">
-    <b>このページは前日までの下書き用です。</b>
-    札幌記念の枠順確定は 8/13(木)、オッズが動きはじめるのは前日以降です。8/10 時点で確定しているのは特別登録16頭だけなので、
-    このワークベンチは<b>枠順とオッズを手で入れ替えられる形</b>にしてあります。確定したら次の順で上書きしてください。
+    <b>前日（8/15）版。枠順・騎手・追い切りを反映した最終盤です。</b>
+    8/14に枠順が確定し、デイリーの追い切り評価も出そろいました。それらを織り込んだうえで、確率モデルは<b>枠順確定＝オン</b>、
+    <b>追い切り補正＝オン</b>で走っています。残る未確定は当日オッズだけです。
     <ul>
-      <li><b>馬番</b>：出馬表の「馬番」欄に確定した番号を入れると、その番号を持っていた馬と入れ替わり、枠の色も振り直されます。全頭入れ終えたら「枠順を確定した」にチェックを入れると枠補正が効きはじめます。</li>
-      <li><b>単勝・複勝オッズ</b>：出馬表で直接編集できます。人気順・勝率・期待値・買い目はすべてその場で再計算されます。<b>初期値は当方の想定オッズであり、実際のオッズではありません。</b></li>
-      <li><b>騎手・斤量・脚質</b>も出馬表で直接書き換えられます。斤量は定量（4歳以上 牡・せん57kg／牝55kg）から機械的に置いたもの、騎手は各社の想定、脚質は当方の仮定なので、確定・変更のたびに上書きしてください。</li>
+      <li><b>単勝オッズだけがまだ予想値</b>です（デイリー／競馬の魅力の想定を入れてあります）。当日の実オッズが出たら出馬表の単勝欄を上書きしてください——人気順・勝率・期待値・買い目はその場で再計算されます。複勝は単勝から機械推定した初期値です。</li>
+      <li><b>枠順は確定値</b>（アドマイヤテラ5枠10番、ショウヘイ4枠7番、ローシャムパーク3枠6番…）。馬番・騎手・斤量・脚質・前走・追切はすべて出馬表で書き換えられます。</li>
+      <li><b>追切</b>列はデイリーの評価（A絶好／B標準／C平凡）。A＝ショウヘイ・シェイクユアハート、C＝ピンクジン・マイネルモーント、他はB。評価に応じて能力を上下させています（マウスを乗せると一言コメント）。</li>
     </ul>
   </div>
 
@@ -335,16 +337,16 @@
   <!-- STEP 2 + 3 -->
   <section class="step">
     <div class="step-h"><span class="step-n">STEP 2-3</span><h2>出馬表を埋め、来ない馬を切る</h2>
-      <p>まず<b>馬番とオッズ</b>を確定値に置き換える。厩舎コメントはメモ欄に。<b>加点ではなく減点方式</b>で、近走で大きく離されている馬、距離・コースが極端に合わない馬、ピークを過ぎた馬に「消」を立てる。少しでも迷ったら消さずに保留する。前走と馬体重は手入力（馬体重は発走約50分前に確定）。</p></div>
+      <p>枠順・騎手・追い切りは反映済み。当日の<b>単勝オッズが出たら単勝欄を上書き</b>する。厩舎コメントはメモ欄に。<b>加点ではなく減点方式</b>で、近走で大きく離されている馬、距離・コースが極端に合わない馬、ピークを過ぎた馬に「消」を立てる。少しでも迷ったら消さずに保留する。馬体重は発走約50分前に確定するので手入力。</p></div>
     <div class="panel">
       <div class="panel-h"><h3>出馬表</h3>
-        <label class="switch"><input type="checkbox" id="drawFixed">枠順を確定した（枠補正を有効化）</label>
+        <label class="switch"><input type="checkbox" id="drawFixed" checked>枠順を確定した（枠補正を有効化）</label>
         <span class="sub" id="cardsub"></span></div>
       <div class="scroller"><table id="cardtable">
         <thead><tr>
           <th>枠<span class="prov" id="wakuProv">仮</span></th><th>馬番</th><th>馬名</th><th>騎手</th><th class="r">斤量</th>
           <th class="r">単勝</th><th class="r" colspan="2">複勝（下限／上限）</th>
-          <th>脚質</th><th>前走</th><th class="r">馬体重</th><th class="c">消</th><th>メモ</th>
+          <th>脚質</th><th>前走</th><th>追切</th><th class="r">馬体重</th><th class="c">消</th><th>メモ</th>
         </tr></thead>
         <tbody id="cardbody"></tbody>
       </table></div>
@@ -457,7 +459,7 @@
     <div class="panel pad ctl">
       <label class="f">補正の強さ（仮想標本 M）<input type="range" id="mSlider" min="5" max="80" value="25" step="5" style="width:170px"></label>
       <label class="switch"><input type="checkbox" id="fAge" checked>年齢</label>
-      <label class="switch" id="lWaku"><input type="checkbox" id="fWaku">枠番</label>
+      <label class="switch" id="lWaku"><input type="checkbox" id="fWaku" checked>枠番</label>
       <label class="switch"><input type="checkbox" id="fPrev" checked>前走レース</label>
       <label class="switch"><input type="checkbox" id="fPop">単勝人気</label>
       <label class="switch"><input type="checkbox" id="fWt" checked>馬体重（夏の小型馬）</label>
@@ -468,23 +470,18 @@
   <div class="note">
     <h4>能力の推定</h4>
     出発点は<b>単勝オッズだけ</b>。控除率を割り戻し、人気薄バイアスを補正（p ∝ (1/オッズ)<sup>1.1</sup> を正規化）したものを市場の確率とし、
-    そこに札幌記念の過去データ・トラックバイアス・危険/一発フラグを対数の足し算で重ねたロジットモデル（Plackett–Luce）です。
+    そこに札幌記念の過去データ・追い切り評価・トラックバイアス・危険/一発フラグを対数の足し算で重ねたロジットモデル（Plackett–Luce）です。
     補正を全部切れば、勝率はオッズが示す確率と一致します。<br>
     勝率・複勝率・各券種の的中率は<b>シミュレーションではなく厳密計算</b>で、上位3着の順列 16×15×14＝3,360通りを全部足し上げています。
     そのため何度開いても数字は変わりません（勝率の合計はちょうど100%、複勝率の合計はちょうど300%になります）。
     レース映像だけは、この分布から1回サンプリングして動かしているので、押すたびに結果が変わります。
 
-    <h4>いま何が確定していて、何が確定していないか（8/10時点）</h4>
+    <h4>いま何が確定していて、何が確定していないか（8/15時点）</h4>
     <ul>
-      <li><b>確定</b>：レース条件（8/16 札幌11R・芝2000m・GII・定量・フルゲート16頭）、特別登録の16頭。</li>
-      <li><b>未確定</b>：枠順（8/13木に確定）、馬番、単勝・複勝オッズ、確定騎手、斤量の最終値、出走取消・回避。
-        <b>初期値の単勝オッズは当方が想定人気から置いた仮の数字で、実オッズではありません。</b>
-        単勝の合計払戻率が実際のJRAの控除率（80%）付近になるよう調整してありますが、それだけの根拠しかありません。</li>
-      <li><b>当方の仮定</b>：各馬の脚質、斤量（定量から機械的に付与：4歳以上 牡・せん57kg／牝55kg）、トラックバイアス、危険/一発フラグ。
-        騎手は各社の想定で、netkeibaの想定と他社の想定が食い違っている馬（ローシャムパーク等）は「未定」にしてあります。
-        馬番・オッズに加えて<b>騎手・斤量・脚質・前走も出馬表で書き換え可能</b>なので、確定情報が出るたびに直してください。</li>
-      <li>そのため<b>いまの勝率・期待値・買い目は「枠順とオッズが決まったときに何を見ればいいか」の予行演習</b>であって、
-        これを根拠に馬券を買うためのものではありません。木曜以降に馬番とオッズを入れ直して初めて意味を持ちます。</li>
+      <li><b>確定</b>：レース条件（8/16 札幌11R・芝2000m・GII・定量・16頭立て）、8/14確定の枠順・馬番、デイリーの追い切り評価。騎手はローシャムパーク＝池添、ピンクジン＝丹内まで反映（マイネルモーントのみ想定欄が未定）。</li>
+      <li><b>唯一の未確定＝当日の単勝オッズ</b>です。初期値はデイリー／競馬の魅力の<b>予想オッズ</b>で、実オッズではありません。当日の板が出たら単勝欄を上書きしてください（複勝は単勝からの機械推定）。単勝の合計払戻率が実際のJRAの控除率80%付近になるよう置いてありますが、それ以上の根拠はありません。</li>
+      <li><b>予想オッズの注意</b>：この想定ではサクラファレルが単勝8.0倍（4番人気相当）と強気に置かれています。追い切りは良いものの人気の想定にはばらつきがあるので、実オッズでの確認が特に要ります。</li>
+      <li><b>当方の仮定</b>：各馬の脚質、斤量（定量：4歳以上 牡・せん57kg／牝55kg）、トラックバイアス、危険/一発フラグ。追い切り補正はデイリーのA/B/C評価を能力の対数に足し引き（A＝+0.16／B＝0／C＝−0.13）しているだけの簡易なもので、時計そのものは読み込んでいません。馬番・オッズ・騎手・斤量・脚質・前走・追切はすべて出馬表で書き換えられます。</li>
     </ul>
 
     <h4>データの扱いについて（重要）</h4>
@@ -545,27 +542,33 @@ const EDGES = [ {s:"転厩", f:"転厩初戦"}, {s:"斤量減", f:"斤量減"}, 
   {s:"体重増減", f:"成長分の増・絞れての減など良い方向の馬体増減"}, {s:"去勢明け", f:"去勢明け初戦"} ];
 const SHORT = {}; RISKS.concat(EDGES).forEach(r => SHORT[r.f] = r.s);
 
-/* 特別登録16頭。馬番は五十音順の仮置きで、枠順確定後に差し替える前提。
-   単勝・複勝オッズは想定人気から置いた仮の値で、実オッズではない。
-   斤量は定量（4歳以上 牡・せん57kg／牝55kg）。騎手は各社の想定。脚質は当方の仮定。 */
+/* 8/14 確定の枠順で馬番を確定。騎手も確定/最有力（ローシャムパーク＝池添、ピンクジン＝丹内）。
+   単勝オッズは前日 8/15 時点の予想オッズ（デイリー／競馬の魅力の想定）で、確定オッズが出たら出馬表で上書きする。
+   複勝オッズは単勝から機械推定した初期値。cw＝デイリー追い切り評価（A絶好/B標準/C平凡）。 */
+const CW_ADJ = { A:0.16, B:0, C:-0.13 };
+function estPl(o){                        // 単勝から複勝レンジをざっくり推定
+  const lo = Math.max(1.1, 1 + (o-1)*0.22), hi = Math.max(lo+0.1, 1 + (o-1)*0.38);
+  return [Math.round(lo*10)/10, Math.round(hi*10)/10];
+}
 const DEF = [
-  {no: 1, name:"アドマイヤテラ",     sex:"牡", age:5, jk:"坂井",   kg:57.0, odds: 4.4, pl:[1.5, 1.9],  style:"差", prev:"GI"},
-  {no: 2, name:"アラタ",             sex:"牡", age:9, jk:"大野",   kg:57.0, odds:100.2,pl:[12.9,21.0], style:"差", prev:"不明"},
-  {no: 3, name:"イガッチ",           sex:"牡", age:4, jk:"吉田隼", kg:57.0, odds:43.4, pl:[6.9,11.0],  style:"先", prev:"不明"},
-  {no: 4, name:"エコロヴァルツ",     sex:"牡", age:5, jk:"横山武", kg:57.0, odds:15.2, pl:[3.3, 5.0],  style:"差", prev:"不明"},
-  {no: 5, name:"オニャンコポン",     sex:"せ", age:7, jk:"横山琉", kg:57.0, odds:34.8, pl:[5.9, 9.4],  style:"先", prev:"不明"},
-  {no: 6, name:"グランディア",       sex:"せ", age:7, jk:"西村淳", kg:57.0, odds:17.9, pl:[3.7, 5.7],  style:"差", prev:"GIII・その他"},
-  {no: 7, name:"サクラファレル",     sex:"牡", age:4, jk:"佐々木", kg:57.0, odds:66.5, pl:[9.5,15.4],  style:"先", prev:"不明"},
-  {no: 8, name:"シェイクユアハート", sex:"牡", age:6, jk:"古川吉", kg:57.0, odds:27.9, pl:[5.0, 7.9],  style:"追", prev:"不明"},
-  {no: 9, name:"ショウヘイ",         sex:"牡", age:4, jk:"川田",   kg:57.0, odds: 3.6, pl:[1.4, 1.7],  style:"先", prev:"不明"},
-  {no:10, name:"ゼンダンハヤブサ",   sex:"牡", age:4, jk:"酒井",   kg:57.0, odds:12.9, pl:[3.0, 4.5],  style:"先", prev:"GIII・その他"},
-  {no:11, name:"ピンクジン",         sex:"牝", age:6, jk:"未定",   kg:55.0, odds:54.5, pl:[8.2,13.2],  style:"差", prev:"不明"},
-  {no:12, name:"ホウオウビスケッツ", sex:"牡", age:6, jk:"岩田康", kg:57.0, odds: 8.9, pl:[2.3, 3.4],  style:"逃", prev:"不明"},
-  {no:13, name:"マイネルモーント",   sex:"牡", age:6, jk:"未定",   kg:57.0, odds:81.7, pl:[11.1,18.0], style:"逃", prev:"不明"},
-  {no:14, name:"マジックサンズ",     sex:"牡", age:4, jk:"横山和", kg:57.0, odds:10.2, pl:[2.5, 3.7],  style:"差", prev:"不明"},
-  {no:15, name:"レディネス",         sex:"牡", age:4, jk:"横山典", kg:57.0, odds:22.4, pl:[4.3, 6.7],  style:"差", prev:"不明"},
-  {no:16, name:"ローシャムパーク",   sex:"牡", age:7, jk:"未定",   kg:57.0, odds: 7.1, pl:[2.0, 2.9],  style:"差", prev:"不明"}
+  {no: 1, name:"オニャンコポン",     sex:"せ", age:7, jk:"横山琉", kg:57.0, odds:68.0, style:"先", prev:"GIII・その他", cw:"B", cwEval:"元気一杯", cwNote:"テンポ良く運んでしっかりとした脚取り。前走で好走した反動はなく、元気だ。"},
+  {no: 2, name:"イガッチ",           sex:"牡", age:4, jk:"吉田隼", kg:57.0, odds:33.0, style:"先", prev:"不明",         cw:"B", cwEval:"状態良好", cwNote:"テンポ良くラップを刻んでスムーズに駆けた。馬体の張りも目立ち、気配は◎。"},
+  {no: 3, name:"ピンクジン",         sex:"牝", age:6, jk:"丹内",   kg:55.0, odds:95.0, style:"差", prev:"不明",         cw:"C", cwEval:"やや良化", cwNote:"ひと叩きされ、動きに素軽さが出てきた印象。多少の前進なら可能だろう。"},
+  {no: 4, name:"マジックサンズ",     sex:"牡", age:4, jk:"横山和", kg:57.0, odds:22.5, style:"差", prev:"不明",         cw:"B", cwEval:"末脚良し", cwNote:"しっかりとした脚取りでスムーズに加速。ラストは余力十分に最先着した（11.4）。"},
+  {no: 5, name:"エコロヴァルツ",     sex:"牡", age:5, jk:"横山武", kg:57.0, odds:13.0, style:"差", prev:"不明",         cw:"B", cwEval:"追每良化", cwNote:"セーブしながらの最終調整も数字以上に推進力がある気配。馬体は文句なし。"},
+  {no: 6, name:"ローシャムパーク",   sex:"牡", age:7, jk:"池添",   kg:57.0, odds: 9.5, style:"差", prev:"海外G1",       cw:"B", cwEval:"仕上良好", cwNote:"海外帰りを感じさせないリラックスしたムード。乗り込み量も十分で好態勢。"},
+  {no: 7, name:"ショウヘイ",         sex:"牡", age:4, jk:"川田",   kg:57.0, odds: 4.5, style:"先", prev:"不明",         cw:"A", cwEval:"動き絶好", cwNote:"栗東でしっかりと乗り込まれて函館入り。活気十分の動きで気配は絶好。"},
+  {no: 8, name:"サクラファレル",     sex:"牡", age:4, jk:"佐々木", kg:57.0, odds: 8.0, style:"先", prev:"不明",         cw:"B", cwEval:"態勢整う", cwNote:"久々を感じさせない力強い動きで豪快に先着。乗り込みも十分で態勢整う。"},
+  {no: 9, name:"マイネルモーント",   sex:"牡", age:6, jk:"未定",   kg:57.0, odds:95.0, style:"逃", prev:"不明",         cw:"C", cwEval:"伸び一息", cwNote:"大きく追走した分もあるが、手応えほどはじけ切れず。動き自体は地味に映る。"},
+  {no:10, name:"アドマイヤテラ",     sex:"牡", age:5, jk:"坂井",   kg:57.0, odds: 3.0, style:"差", prev:"GI",           cw:"B", cwEval:"態勢整う", cwNote:"長めからしっかりと折り合い、最後まで集中力を保ったいい走り。好仕上がり。"},
+  {no:11, name:"アラタ",             sex:"牡", age:9, jk:"大野",   kg:57.0, odds:120.0,style:"差", prev:"不明",         cw:"B", cwEval:"好調子",   cwNote:"年齢を感じさせない力強い動きで軽快に駆けた。ひと叩きされて出来は上向き。"},
+  {no:12, name:"ゼンダンハヤブサ",   sex:"牡", age:4, jk:"酒井",   kg:57.0, odds:45.0, style:"先", prev:"GIII・その他", cw:"B", cwEval:"出来安定", cwNote:"気負うことなくスムーズに駆けた。馬体の張りや気合乗りも上々。出来は安定。"},
+  {no:13, name:"グランディア",       sex:"せ", age:7, jk:"西村淳", kg:57.0, odds:20.0, style:"差", prev:"GIII・その他", cw:"B", cwEval:"先週完成", cwNote:"直前は必死に抑え込んでオーバーワークを避けた。先週までに完璧につくった。"},
+  {no:14, name:"レディネス",         sex:"牡", age:4, jk:"横山典", kg:57.0, odds:32.5, style:"差", prev:"不明",         cw:"B", cwEval:"上積十分", cwNote:"先週もど迫力。今週も脚色は乱れずまとめた。太めが解消し全てが大幅アップ。"},
+  {no:15, name:"シェイクユアハート", sex:"牡", age:6, jk:"古川吉", kg:57.0, odds:15.0, style:"追", prev:"不明",         cw:"A", cwEval:"文句なし", cwNote:"先週に意欲的に運んで好時計。余力十分にしっかり伸びた今週も◎。態勢万全。"},
+  {no:16, name:"ホウオウビスケッツ", sex:"牡", age:6, jk:"岩田康", kg:57.0, odds:25.5, style:"逃", prev:"不明",         cw:"B", cwEval:"態勢整う", cwNote:"入念に併せ馬を消化し、力強い動きを連発。馬体もすっきりと仕上がった。"}
 ];
+DEF.forEach(d => d.pl = estPl(d.odds));
 const HORSES = DEF.map(h => ({...h, pl:h.pl.slice(), wt:null, cut:false, memo:"",
   risks:new Set(), edges:new Set(), mark:"", markAuto:true, pop:1, waku:1}));
 const N = HORSES.length;
@@ -612,8 +615,8 @@ function wakuLab(w){ return w + "枠"; }
 function popLab(p){ return p <= 5 ? p + "番人気" : p <= 9 ? "6〜9番人気" : "10番人気以下"; }
 
 /* ---- 設定 ---- */
-const F = { age:true, waku:false, prev:true, pop:false, wt:true, M:25 };
-let drawFixed = false;
+const F = { age:true, waku:true, prev:true, pop:false, wt:true, M:25 };
+let drawFixed = true;   // 8/14に枠順確定済み
 let biasInner = "flat", biasRun = "flat", paceMode = "auto", betTab = "wide", betMode = "recipe";
 const INNER_ADJ = { in:[.30,.30,.15,.15,0,0,-.20,-.20], out:[-.22,-.22,-.10,-.10,.05,.05,.22,.22],
                     flat:[0,0,0,0,0,0,0,0] };
@@ -664,16 +667,17 @@ function currentPace(){ return paceMode === "auto" ? autoPace() : paceMode; }
 
 // 補正の内訳（対数）
 function adjustments(h, i){
-  const a = { age:0, waku:0, prev:0, pop:0, wt:0, bias:0, risk:0, edge:0 };
+  const a = { age:0, waku:0, prev:0, pop:0, wt:0, cw:0, bias:0, risk:0, edge:0 };
   if(F.age)  a.age  = Math.log(multOf(JRA.age,  ageLab(h.age), F.M));
   if(F.waku && drawFixed) a.waku = Math.log(multOf(JRA.waku, wakuLab(h.waku), F.M));
   if(F.prev && h.prev !== "不明") a.prev = Math.log(multOf(JRA.prev, h.prev, F.M));
   if(F.pop)  a.pop  = Math.log(multOf(JRA.pop,  popLab(h.pop), F.M));
   if(F.wt)   a.wt   = wtAdj(h);
+  a.cw   = CW_ADJ[h.cw] || 0;
   a.bias = INNER_ADJ[biasInner][h.waku-1] + RUN_ADJ[biasRun][h.style];
   a.risk = h.risks.size * RISK_PEN;
   a.edge = h.edges.size * EDGE_BON;
-  a.total = a.age + a.waku + a.prev + a.pop + a.wt + a.bias + a.risk + a.edge;
+  a.total = a.age + a.waku + a.prev + a.pop + a.wt + a.cw + a.bias + a.risk + a.edge;
   return a;
 }
 function buildMu(useAdj){
@@ -872,6 +876,8 @@ function buildCard(){
         STYLES.map(s=>`<option${s===h.style?" selected":""}>${s}</option>`).join("")}</select></td>
       <td><select data-k="prev" data-i="${i}" aria-label="${h.name} の前走">${
         PREV.map(s=>`<option${s===h.prev?" selected":""}>${s}</option>`).join("")}</select></td>
+      <td title="${esc(h.cwNote||"")}"><select data-k="cw" data-i="${i}" class="cw-sel" aria-label="${h.name} の追い切り評価">${
+        ["A","B","C"].map(s=>`<option${s===h.cw?" selected":""}>${s}</option>`).join("")}</select><span class="pop">${esc(h.cwEval||"")}</span></td>
       <td class="r"><input type="number" data-k="wt" data-i="${i}" min="380" max="600" step="2"
         placeholder="—" value="${h.wt ?? ""}" aria-label="${h.name} の馬体重"></td>
       <td class="c"><input type="checkbox" data-k="cut" data-i="${i}" aria-label="${h.name} を消す"${h.cut?" checked":""}></td>
@@ -902,6 +908,7 @@ function onCardInput(e){
   }
   else if(k === "style") h.style = t.value;
   else if(k === "prev") h.prev = t.value;
+  else if(k === "cw") h.cw = t.value;
   else if(k === "wt") h.wt = t.value === "" ? null : +t.value;
   else if(k === "cut"){ h.cut = t.checked; t.closest("tr").classList.toggle("cut", h.cut); }
   HORSES.forEach(x => { if(x.markAuto) x.mark = ""; });
@@ -1369,7 +1376,7 @@ function renderReads(){
   const wt = HORSES.filter(h=>h.wt!=null).length;
   const pv = HORSES.filter(h=>h.prev!=="不明").length;
   $("#cardsub").textContent = `前走 ${pv}/${N}頭 入力済・馬体重 ${wt}/${N}頭 入力済`
-    + (drawFixed ? "・枠順確定" : "・枠順は仮（五十音順）");
+    + (drawFixed ? "・枠順確定" : "・枠順は仮");
   $("#wakuProv").style.display = drawFixed ? "none" : "";
 }
 
@@ -1649,10 +1656,10 @@ $("#drawFixed").addEventListener("change", e => {
 $("#reset").addEventListener("click", ()=>{
   HORSES.forEach((h,i)=>{ const d = DEF[i];
     h.no = d.no; h.odds = d.odds; h.pl = d.pl.slice(); h.style = d.style; h.prev = d.prev;
-    h.jk = d.jk; h.kg = d.kg; h.wt = null; h.cut = false; h.memo = "";
+    h.jk = d.jk; h.kg = d.kg; h.cw = d.cw; h.wt = null; h.cut = false; h.memo = "";
     h.risks.clear(); h.edges.clear(); h.mark = ""; h.markAuto = true; });
   biasInner = biasRun = "flat"; paceMode = "auto"; betMode = "recipe"; betSort = "p";
-  drawFixed = false; $("#drawFixed").checked = false; syncDrawUI();
+  drawFixed = true; $("#drawFixed").checked = true; F.waku = true; $("#fWaku").checked = true; syncDrawUI();
   ["#segInner","#segRun"].forEach(s => $(s).querySelectorAll("button")
     .forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v==="flat"))));
   $("#segPace").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v==="auto")));
