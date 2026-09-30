@@ -1,0 +1,26 @@
+{
+  "race": "YYYY/MM/DD 競馬場 レース名(G?)",
+  "surface": "芝",
+  "bias": {
+    "results": [
+      {"num": 2, "field_size": 16, "corner4": 1},
+      {"num": 5, "field_size": 16, "corner4": 3}
+    ]
+  },
+  "horses": [
+    {
+      "num": 1, "name": "馬名", "ability": 70, "style": "先行", "gate_zone": "内",
+      "early_positions": [2, 1, 3, 2, 4],
+      "minus": [], "plus": ["top_jockey_switch"],
+      "notes": "敗因精査・レースレベル・調教・コメントの要約"
+    }
+  ],
+  "odds": {
+    "win": {"1": 5.2},
+    "place": {"1": [1.8, 2.6]},
+    "wide": {"1-2": [3.1, 3.8]},
+    "umaren": {"1-2": 9.8},
+    "sanrenpuku": {"1-2-3": 24.5}
+  },
+  "payout": null
+}
