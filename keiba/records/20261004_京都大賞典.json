@@ -1,0 +1,416 @@
+{
+  "race": "2026/10/04 京都11R 京都大賞典(G2) 芝2400外 15:30発走",
+  "surface": "芝",
+  "status": "draft_0930（特別登録段階。枠順・馬番・gate_zone・枠替わり加減点・調教/厩舎コメントは10/2に確定）",
+  "bias": {
+    "results": []
+  },
+  "odds": {},
+  "payout": null,
+  "pace_note": "逃げ候補4頭（キングスコール・ナムラエイハブ・ファミリータイム・ミステリーウェイ）→ ハイ。登録21頭でフルゲート18のため除外3頭で変動しうる（10/2再計算）",
+  "horses": [
+    {
+      "num": null,
+      "gate": null,
+      "name": "ヘデントール",
+      "ability": 81,
+      "style": "差し",
+      "gate_zone": null,
+      "early_positions": [
+        5,
+        6,
+        11,
+        9
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "2025天皇賞春勝ち、2026春5着0.4。5ヵ月休養明け（半年未満）。58kg。2400は京都記念8着と短い可能性",
+      "pred_odds_0930": 10.1
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ディープモンスター",
+      "ability": 80,
+      "style": "差し",
+      "gate_zone": null,
+      "early_positions": [
+        7,
+        6
+      ],
+      "minus": [
+        "old_no_record"
+      ],
+      "plus": [
+        "course_repeater"
+      ],
+      "notes": "昨年京都大賞典1着。カタールGII勝ち・香港GI3着と海外好走。8歳58kg（コース実績はあるのでold_no_recordは外す判断もあり、10/2検討）",
+      "pred_odds_0930": 4.4
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ダノンシーマ",
+      "ability": 79,
+      "style": "差し",
+      "gate_zone": null,
+      "early_positions": [
+        5,
+        6,
+        8,
+        4
+      ],
+      "minus": [],
+      "plus": [
+        "second_start"
+      ],
+      "notes": "目黒記念3着・新潟記念3着(1人)ともタイム差なし。休養明けを叩いて2戦目。川田",
+      "pred_odds_0930": 3.3
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "アクアヴァーナル",
+      "ability": 76,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        2,
+        4,
+        8,
+        6
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "天皇賞春4着0.2・阪神大賞典2着。牝5・55kg。5ヵ月休養明け",
+      "pred_odds_0930": 6.4
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ヴェルテンベルク",
+      "ability": 74,
+      "style": "追込",
+      "gate_zone": null,
+      "early_positions": [
+        8,
+        11,
+        15,
+        12
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "天皇賞春2着(12人)タイム差なし。KGVI&QES9着は海外遠征。昨年京都大賞典7着",
+      "pred_odds_0930": 17.0
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ショウナンラプンタ",
+      "ability": 72,
+      "style": "差し",
+      "gate_zone": null,
+      "early_positions": [
+        8,
+        11,
+        8,
+        11,
+        16
+      ],
+      "minus": [
+        "long_layoff"
+      ],
+      "plus": [],
+      "notes": "1年休養明け。昨年京都大賞典5着0.3・2025天皇賞春3着",
+      "pred_odds_0930": 23.7
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ミクニインスパイア",
+      "ability": 72,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        1,
+        9,
+        5,
+        7
+      ],
+      "minus": [],
+      "plus": [
+        "jockey_switch"
+      ],
+      "notes": "日経賞2着0.2。宝塚12着は重馬場。M.デムーロへ乗り替わり",
+      "pred_odds_0930": 13.3
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ウエストナウ",
+      "ability": 70,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        5,
+        4,
+        8,
+        8,
+        7
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "メトロポリタンS(東京2400)勝ち。小倉記念8着0.7",
+      "pred_odds_0930": 21.3
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "キングスコール",
+      "ability": 70,
+      "style": "逃げ",
+      "gate_zone": null,
+      "early_positions": [
+        1,
+        9,
+        15,
+        1
+      ],
+      "minus": [
+        "front_runner_bad_pace"
+      ],
+      "plus": [],
+      "notes": "目黒記念で逃げて5着0.2差。ハイペース想定で展開不向き",
+      "pred_odds_0930": 27.6
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ファミリータイム",
+      "ability": 69,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        6,
+        1,
+        2,
+        9
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "日経新春杯(京都2400)逃げて2着。宝塚6着(18人)は重で健闘",
+      "pred_odds_0930": 30.3
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "サヴォーナ",
+      "ability": 68,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        3,
+        6,
+        3,
+        6,
+        1
+      ],
+      "minus": [
+        "front_runner_bad_pace"
+      ],
+      "plus": [],
+      "notes": "新潟記念逃げて4着0.2。6歳。2400は1年半ぶり",
+      "pred_odds_0930": 29.2
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "マイネルエンペラー",
+      "ability": 68,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        7,
+        15,
+        5,
+        3
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "阪神大賞典5着1.0。宝塚10着は重",
+      "pred_odds_0930": 30.1
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "エコロディノス",
+      "ability": 66,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        5,
+        3,
+        3,
+        4
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "京都記念3着0.3。大阪杯15着は大差で度外視、函館記念9着",
+      "pred_odds_0930": 37.5
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "リビアングラス",
+      "ability": 64,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        3,
+        3,
+        9,
+        7,
+        9
+      ],
+      "minus": [],
+      "plus": [
+        "short_interval_unfulfilled"
+      ],
+      "notes": "中1週。オールカマー10着は重馬場で力を出し切れず。日経新春杯3着",
+      "pred_odds_0930": 93.4
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ラスカンブレス",
+      "ability": 63,
+      "style": "差し",
+      "gate_zone": null,
+      "early_positions": [
+        13,
+        15,
+        5,
+        12,
+        12
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "札幌日経OP4着。重賞では足りず",
+      "pred_odds_0930": 78.0
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ナムラエイハブ",
+      "ability": 62,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        2,
+        3,
+        2,
+        2,
+        3
+      ],
+      "minus": [],
+      "plus": [
+        "big_distance_change"
+      ],
+      "notes": "1800〜2000で先行。2400は初距離級（+400m）",
+      "pred_odds_0930": 89.4
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ミステリーウェイ",
+      "ability": 62,
+      "style": "逃げ",
+      "gate_zone": null,
+      "early_positions": [
+        2,
+        1,
+        1,
+        11
+      ],
+      "minus": [
+        "old_no_record"
+      ],
+      "plus": [],
+      "notes": "8歳。天皇賞春逃げ8着。近走大敗続き",
+      "pred_odds_0930": 91.1
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ブレイヴロッカー",
+      "ability": 60,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        3,
+        6,
+        5,
+        2
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "ダイヤモンドS3着。近走大敗続き",
+      "pred_odds_0930": 99.5
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "サフィラ",
+      "ability": 60,
+      "style": "差し",
+      "gate_zone": null,
+      "early_positions": [
+        11,
+        5,
+        7,
+        8,
+        8
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "京都記念5着0.4が最高。近走二桁着順",
+      "pred_odds_0930": 101.5
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ヴェルミセル",
+      "ability": 60,
+      "style": "差し",
+      "gate_zone": null,
+      "early_positions": [
+        9,
+        6,
+        14
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "目黒記念12着。長距離型",
+      "pred_odds_0930": 124.6
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "メイショウブレゲ",
+      "ability": 50,
+      "style": "差し",
+      "gate_zone": null,
+      "early_positions": [
+        12,
+        10,
+        12,
+        7,
+        7
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "障害帰り。除外対象の可能性大",
+      "pred_odds_0930": 279.2
+    }
+  ]
+}
