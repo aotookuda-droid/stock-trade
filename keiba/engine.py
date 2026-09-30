@@ -15,6 +15,7 @@ SOFTMAX_TEMP = 8.0
 MODEL_WEIGHT = 0.5
 TAKEOUT_WIN = 0.20
 BIAS_FLAT = 0.08
+ORDER_RATIO = 2.0
 
 MINUS_WEIGHTS = {
     'front_runner_bad_pace': -6,
@@ -144,12 +145,13 @@ def win_probabilities(scores, win_odds):
 
 
 def harville(p):
-    """勝率から複勝・ワイド・馬連・三連複の的中確率を算出する。"""
+    """勝率から複勝・ワイド・馬連・馬単・三連複・三連単の的中確率を算出する。"""
     place = {k: 0.0 for k in p}
-    wide, umaren, trio = {}, {}, {}
+    wide, umaren, umatan, trio, trifecta = {}, {}, {}, {}, {}
     for a, b, c in permutations(p, 3):
         pab = p[a] * p[b] / (1 - p[a])
         pabc = pab * p[c] / (1 - p[a] - p[b])
+        trifecta[(a, b, c)] = pabc
         for k in (a, b, c):
             place[k] += pabc
         for pair in combinations(sorted((a, b, c)), 2):
@@ -157,41 +159,87 @@ def harville(p):
         key = tuple(sorted((a, b, c)))
         trio[key] = trio.get(key, 0.0) + pabc
     for a, b in permutations(p, 2):
+        umatan[(a, b)] = p[a] * p[b] / (1 - p[a])
         pair = tuple(sorted((a, b)))
-        umaren[pair] = umaren.get(pair, 0.0) + p[a] * p[b] / (1 - p[a])
-    return place, wide, umaren, trio
+        umaren[pair] = umaren.get(pair, 0.0) + umatan[(a, b)]
+    return {'place': place, 'wide': wide, 'umaren': umaren, 'umatan': umatan,
+            'trio': trio, 'trifecta': trifecta}
+
+
+def wakuren_probabilities(umaren, gates):
+    """馬連の確率を枠の組ごとに合算する。gates は {馬番: 枠番}。"""
+    waku = {}
+    for (a, b), prob in umaren.items():
+        key = tuple(sorted((gates[a], gates[b])))
+        waku[key] = waku.get(key, 0.0) + prob
+    return waku
 
 
 def _key(s):
     return tuple(sorted(int(x) for x in str(s).split('-')))
 
 
+def _ordered(s):
+    return tuple(int(x) for x in str(s).split('>'))
+
+
 def _low(o):
     return o[0] if isinstance(o, (list, tuple)) else o
 
 
-def candidate_bets(p, odds):
-    place, wide, umaren, trio = harville(p)
+def _bet(kind, horses, prob, o):
+    return {'type': kind, 'horses': list(horses), 'prob': prob, 'odds': o, 'ev': prob * o,
+            'kelly': (prob * o - 1) / (o - 1) if o > 1 else -1.0}
+
+
+def pair_bets(p, odds, probs, gates):
+    """同じ2頭の組では馬連・枠連・馬単のうち期待値が最大の1つだけを候補にする。
+
+    枠連は枠連オッズが馬連オッズより高い場合だけ、馬単は着順イメージが明確
+    （1着側の勝率が2着側の ORDER_RATIO 倍以上）な場合だけ比較対象に入れる。
+    """
+    waku = wakuren_probabilities(probs['umaren'], gates) if gates else {}
+    waku_odds = {_key(k): o for k, o in odds.get('wakuren', {}).items()}
+    umatan_odds = {_ordered(k): o for k, o in odds.get('umatan', {}).items()}
     bets = []
-
-    def add(kind, horses, prob, o):
-        ev = prob * o
-        if o > 1 and ev >= EV_THRESHOLD:
-            bets.append({'type': kind, 'horses': list(horses), 'prob': prob, 'odds': o, 'ev': ev,
-                         'kelly': (prob * o - 1) / (o - 1)})
-
-    for k, o in odds.get('win', {}).items():
-        add('単勝', (int(k),), p[int(k)], o)
-    for k, o in odds.get('place', {}).items():
-        add('複勝', (int(k),), place[int(k)], _low(o))
-    for k, o in odds.get('wide', {}).items():
-        add('ワイド', _key(k), wide.get(_key(k), 0.0), _low(o))
     for k, o in odds.get('umaren', {}).items():
-        add('馬連', _key(k), umaren.get(_key(k), 0.0), o)
+        pair = _key(k)
+        options = [_bet('馬連', pair, probs['umaren'].get(pair, 0.0), o)]
+        if gates:
+            gp = tuple(sorted((gates[pair[0]], gates[pair[1]])))
+            if gp in waku_odds and waku_odds[gp] > o:
+                bet = _bet('枠連', gp, waku.get(gp, 0.0), waku_odds[gp])
+                options.append(bet)
+        for order in (pair, pair[::-1]):
+            if order in umatan_odds and p[order[0]] >= ORDER_RATIO * p[order[1]]:
+                options.append(_bet('馬単', order, probs['umatan'][order], umatan_odds[order]))
+        bets.append(max(options, key=lambda b: b['ev']))
+    return bets
+
+
+def candidate_bets(p, odds, gates=None):
+    probs = harville(p)
+    bets = []
+    for k, o in odds.get('win', {}).items():
+        bets.append(_bet('単勝', (int(k),), p[int(k)], o))
+    for k, o in odds.get('place', {}).items():
+        bets.append(_bet('複勝', (int(k),), probs['place'][int(k)], _low(o)))
+    for k, o in odds.get('wide', {}).items():
+        bets.append(_bet('ワイド', _key(k), probs['wide'].get(_key(k), 0.0), _low(o)))
+    bets += pair_bets(p, odds, probs, gates)
     for k, o in odds.get('sanrenpuku', {}).items():
-        add('三連複', _key(k), trio.get(_key(k), 0.0), o)
-    bets.sort(key=lambda b: b['kelly'], reverse=True)
-    return bets[:MAX_TICKETS]
+        bets.append(_bet('三連複', _key(k), probs['trio'].get(_key(k), 0.0), o))
+    for k, o in odds.get('sanrentan', {}).items():
+        bets.append(_bet('三連単', _ordered(k), probs['trifecta'].get(_ordered(k), 0.0), o))
+    # 枠連は複数の馬連の組から同じ枠の組が出うるので重複を除く
+    seen, unique = set(), []
+    for b in bets:
+        key = (b['type'], tuple(b['horses']))
+        if key not in seen and b['odds'] > 1 and b['ev'] >= EV_THRESHOLD:
+            seen.add(key)
+            unique.append(b)
+    unique.sort(key=lambda b: b['kelly'], reverse=True)
+    return unique[:MAX_TICKETS]
 
 
 def allocate(bets, cap=RACE_CAP):
@@ -222,7 +270,8 @@ def analyze(race):
     pace = race.get('pace') or predict_pace(horses)
     scores = {h['num']: total_score(h, pace, inner_outer, front_back) for h in horses}
     p = win_probabilities(scores, {int(k): v for k, v in race['odds']['win'].items()})
-    bets = allocate(candidate_bets(p, race['odds']))
+    gates = {h['num']: h['gate'] for h in horses} if all('gate' in h for h in horses) else None
+    bets = allocate(candidate_bets(p, race['odds'], gates))
     return {
         'race': race['race'],
         'bias': {'inner_outer': inner_outer, 'front_back': front_back},
@@ -240,7 +289,10 @@ def format_result(res):
         lines.append('見送り（期待値1.2以上の馬券なし）')
         return '\n'.join(lines)
     for b in res['bets']:
-        horses = '-'.join(str(h) for h in b['horses'])
+        sep = '>' if b['type'] in ('馬単', '三連単') else '-'
+        horses = sep.join(str(h) for h in b['horses'])
+        if b['type'] == '枠連':
+            horses = '枠' + horses
         lines.append(f"{b['type']:<4} {horses:<8} {b['stake']:>5}円  オッズ{b['odds']:>6.1f}  "
                      f"確率{b['prob']:.3f}  期待値{b['ev']:.2f}")
     lines.append(f"合計 {res['total_stake']}円")

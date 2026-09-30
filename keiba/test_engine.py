@@ -10,11 +10,13 @@ def horse(num, ability, style='差し', zone='中', **kw):
 class EngineTest(unittest.TestCase):
     def test_harville_place_sums_to_three(self):
         p = {1: 0.4, 2: 0.3, 3: 0.2, 4: 0.1}
-        place, wide, umaren, trio = engine.harville(p)
-        self.assertAlmostEqual(sum(place.values()), 3.0)
-        self.assertAlmostEqual(sum(umaren.values()), 1.0)
-        self.assertAlmostEqual(sum(trio.values()), 1.0)
-        self.assertAlmostEqual(sum(wide.values()), 3.0)
+        probs = engine.harville(p)
+        self.assertAlmostEqual(sum(probs['place'].values()), 3.0)
+        self.assertAlmostEqual(sum(probs['umaren'].values()), 1.0)
+        self.assertAlmostEqual(sum(probs['umatan'].values()), 1.0)
+        self.assertAlmostEqual(sum(probs['trio'].values()), 1.0)
+        self.assertAlmostEqual(sum(probs['trifecta'].values()), 1.0)
+        self.assertAlmostEqual(sum(probs['wide'].values()), 3.0)
 
     def test_track_bias(self):
         inner_front = [{'num': 1, 'field_size': 16, 'corner4': 1},
@@ -55,6 +57,37 @@ class EngineTest(unittest.TestCase):
         res = engine.analyze(race)
         self.assertEqual(res['bets'], [])
         self.assertIn('見送り', engine.format_result(res))
+
+    def pair_race(self, odds):
+        hs = [horse(i, 60, gate=(i + 1) // 2) for i in range(1, 9)]
+        hs[0]['ability'] = 90
+        hs[1]['ability'] = 75
+        win = {str(i): 20.0 for i in range(1, 9)}
+        return {'race': 'test', 'horses': hs, 'pace': 'middle', 'odds': {'win': win, **odds}}
+
+    def test_wakuren_replaces_umaren_when_higher(self):
+        res = engine.analyze(self.pair_race({'umaren': {'1-2': 30.0}, 'wakuren': {'1-1': 35.0}}))
+        pair = [b for b in res['bets'] if b['type'] in ('馬連', '枠連')]
+        self.assertEqual([(b['type'], b['horses']) for b in pair], [('枠連', [1, 1])])
+        self.assertIn('枠1-1', engine.format_result(res))
+
+    def test_wakuren_ignored_when_lower(self):
+        res = engine.analyze(self.pair_race({'umaren': {'1-2': 30.0}, 'wakuren': {'1-1': 25.0}}))
+        self.assertEqual([b['type'] for b in res['bets'] if b['type'] in ('馬連', '枠連')], ['馬連'])
+
+    def test_umatan_only_when_order_clear(self):
+        clear = engine.analyze(self.pair_race({'umaren': {'1-2': 30.0}, 'umatan': {'1>2': 55.0, '2>1': 70.0}}))
+        self.assertIn(('馬単', [1, 2]), [(b['type'], b['horses']) for b in clear['bets']])
+        self.assertNotIn(('馬単', [2, 1]), [(b['type'], b['horses']) for b in clear['bets']])
+        # 1頭目と2頭目の力が拮抗していれば馬単は買わない
+        even = self.pair_race({'umaren': {'1-2': 30.0}, 'umatan': {'1>2': 55.0, '2>1': 55.0}})
+        even['horses'][1]['ability'] = 90
+        res = engine.analyze(even)
+        self.assertFalse([b for b in res['bets'] if b['type'] == '馬単'])
+
+    def test_sanrentan(self):
+        res = engine.analyze(self.pair_race({'sanrentan': {'1>2>3': 400.0, '3>2>1': 400.0}}))
+        self.assertEqual([b['horses'] for b in res['bets'] if b['type'] == '三連単'], [[1, 2, 3]])
 
     def test_select_races(self):
         races = [{'name': 'A', 'field_size': 10, 'fav_odds': 1.5},
