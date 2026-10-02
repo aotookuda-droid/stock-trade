@@ -1,21 +1,42 @@
 {
   "race": "2026/10/04 東京11R 毎日王冠(G2) 芝1800 15:45発走",
   "surface": "芝",
-  "status": "draft_0930（特別登録段階。枠順・馬番・gate_zone・枠替わり加減点・調教/厩舎コメントは10/2に確定）",
+  "status": "pre_race_1002（枠順確定。調教・厩舎コメントは10/3反映予定）",
   "bias": {
     "results": []
   },
   "odds": {},
   "payout": null,
-  "pace_note": "逃げ候補5頭（サトノシャイニング・セイウンハーデス・ダノンエアズロック・ホウオウビスケッツ・リアライズシリウス）→ ハイ。前走逃げ好走馬なし（ホウオウビスケッツは札幌記念逃げ10着）",
+  "pace_note": "17頭立て（ヴィンセンシオ不出走）。逃げ候補5頭（1セイウンハーデス・2リアライズシリウス・4サトノシャイニング・13ホウオウビスケッツ・17ダノンエアズロック）→ ハイ。前走逃げ好走馬なし（ホウオウビスケッツは札幌記念逃げ10着）でfront_runner_bad_pace該当なし。ハナは13ホウオウビスケッツが外から主張、内の1・2が番手か",
   "horses": [
     {
-      "num": null,
-      "gate": null,
+      "num": 1,
+      "gate": 1,
+      "name": "セイウンハーデス",
+      "ability": 76,
+      "style": "先行",
+      "gate_zone": "内",
+      "early_positions": [
+        1,
+        1,
+        3,
+        3
+      ],
+      "minus": [],
+      "plus": [
+        "turf_to_inner"
+      ],
+      "notes": "安田記念4着タイム差なし。大阪杯5着0.4。中山記念・JCは逃げて崩れ。7歳。前走17頭13番(外)→内枠替わり。騎手幸",
+      "pred_odds_0930": 11.0,
+      "pred_odds_1002": 13.4
+    },
+    {
+      "num": 2,
+      "gate": 1,
       "name": "リアライズシリウス",
       "ability": 80,
       "style": "先行",
-      "gate_zone": null,
+      "gate_zone": "内",
       "early_positions": [
         4,
         1,
@@ -23,17 +44,42 @@
         2
       ],
       "minus": [],
-      "plus": [],
-      "notes": "皐月賞2着0.2差・共同通信杯(東京1800)勝ち。ダービー7着は距離。3歳55kg。4ヵ月休養明け",
-      "pred_odds_0930": 3.3
+      "plus": [
+        "turf_to_inner"
+      ],
+      "notes": "皐月賞2着0.2差・共同通信杯(東京1800)勝ち。ダービー7着は距離。3歳55kg。4ヵ月休養明け。前走18頭11番(中)→内枠替わり。騎手津村",
+      "pred_odds_0930": 3.3,
+      "pred_odds_1002": 3.4
     },
     {
-      "num": null,
-      "gate": null,
+      "num": 3,
+      "gate": 2,
+      "name": "レディネス",
+      "ability": 71,
+      "style": "先行",
+      "gate_zone": "内",
+      "early_positions": [
+        8,
+        3,
+        10,
+        3,
+        4
+      ],
+      "minus": [],
+      "plus": [
+        "turf_to_inner"
+      ],
+      "notes": "札幌記念3着(10人)0.6差。+16kgで好走。3勝勝ちから重賞で通用。前走16頭14番(外)→内枠替わり。騎手横山典",
+      "pred_odds_0930": 20.9,
+      "pred_odds_1002": 21.1
+    },
+    {
+      "num": 4,
+      "gate": 2,
       "name": "サトノシャイニング",
       "ability": 79,
       "style": "先行",
-      "gate_zone": null,
+      "gate_zone": "内",
       "early_positions": [
         9,
         2,
@@ -43,241 +89,20 @@
       "minus": [],
       "plus": [
         "course_repeater",
-        "second_start"
+        "second_start",
+        "turf_to_inner"
       ],
-      "notes": "昨年毎日王冠3着(1人)。10ヵ月半休養明けの中京記念3着0.2差を叩いて2戦目",
-      "pred_odds_0930": 6.0
+      "notes": "昨年毎日王冠3着(1人)。10ヵ月半休養明けの中京記念3着0.2差を叩いて2戦目。前走16頭12番(外)→内枠替わり。騎手西村淳",
+      "pred_odds_0930": 6.0,
+      "pred_odds_1002": 4.8
     },
     {
-      "num": null,
-      "gate": null,
-      "name": "ライヒスアドラー",
-      "ability": 78,
-      "style": "差し",
-      "gate_zone": null,
-      "early_positions": [
-        3,
-        3,
-        10,
-        5,
-        7
-      ],
-      "minus": [],
-      "plus": [],
-      "notes": "皐月賞3着0.3差・ダービー8着0.4差。佐渡S(3勝)上がり32.7で完勝。3歳55kg",
-      "pred_odds_0930": 5.3
-    },
-    {
-      "num": null,
-      "gate": null,
-      "name": "アドマイヤクワッズ",
-      "ability": 77,
-      "style": "差し",
-      "gate_zone": null,
-      "early_positions": [
-        11,
-        3,
-        3,
-        7
-      ],
-      "minus": [],
-      "plus": [],
-      "notes": "NHKマイル3着0.2・朝日杯3着。皐月15着は距離/先行策。5ヵ月休養明け（半年未満）",
-      "pred_odds_0930": 8.1
-    },
-    {
-      "num": null,
-      "gate": null,
-      "name": "セイウンハーデス",
-      "ability": 76,
-      "style": "先行",
-      "gate_zone": null,
-      "early_positions": [
-        1,
-        1,
-        3,
-        3
-      ],
-      "minus": [],
-      "plus": [],
-      "notes": "安田記念4着タイム差なし。大阪杯5着0.4。中山記念・JCは逃げて崩れ。7歳",
-      "pred_odds_0930": 11.0
-    },
-    {
-      "num": null,
-      "gate": null,
-      "name": "ドラゴンブースト",
-      "ability": 73,
-      "style": "差し",
-      "gate_zone": null,
-      "early_positions": [
-        2,
-        7,
-        6,
-        11
-      ],
-      "minus": [],
-      "plus": [],
-      "notes": "マイラーズC2着0.1差(9人)・大阪城S(阪神外1800)勝ち。安田8着0.6。ダートの大敗は度外視",
-      "pred_odds_0930": 17.2
-    },
-    {
-      "num": null,
-      "gate": null,
-      "name": "レイニング",
-      "ability": 72,
-      "style": "差し",
-      "gate_zone": null,
-      "early_positions": [
-        8,
-        9,
-        15,
-        2,
-        7
-      ],
-      "minus": [],
-      "plus": [
-        "good_in_higher_class"
-      ],
-      "notes": "3勝勝ち上がり後の関越S4着は上がり32.4最速級。重賞初挑戦。ルメール",
-      "pred_odds_0930": 13.0
-    },
-    {
-      "num": null,
-      "gate": null,
-      "name": "エルトンバローズ",
-      "ability": 71,
-      "style": "差し",
-      "gate_zone": null,
-      "early_positions": [
-        7,
-        7,
-        3,
-        8,
-        12
-      ],
-      "minus": [],
-      "plus": [],
-      "notes": "しらさぎS勝ち。関屋記念5着は不良馬場。6歳。過去の毎日王冠実績は5走外のため10/2に9走表示で確認",
-      "pred_odds_0930": 31.9
-    },
-    {
-      "num": null,
-      "gate": null,
-      "name": "レディネス",
-      "ability": 71,
-      "style": "先行",
-      "gate_zone": null,
-      "early_positions": [
-        8,
-        3,
-        10,
-        3,
-        4
-      ],
-      "minus": [],
-      "plus": [],
-      "notes": "札幌記念3着(10人)0.6差。+16kgで好走。3勝勝ちから重賞で通用",
-      "pred_odds_0930": 20.9
-    },
-    {
-      "num": null,
-      "gate": null,
-      "name": "ダノンエアズロック",
-      "ability": 70,
-      "style": "先行",
-      "gate_zone": null,
-      "early_positions": [
-        3,
-        2,
-        2,
-        6
-      ],
-      "minus": [],
-      "plus": [],
-      "notes": "リステッド2〜4着を安定して走るが勝ち切れず。重賞は壁か。堀厩舎・田辺",
-      "pred_odds_0930": 18.7
-    },
-    {
-      "num": null,
-      "gate": null,
-      "name": "ランスオブカオス",
-      "ability": 66,
-      "style": "先行",
-      "gate_zone": null,
-      "early_positions": [
-        8,
-        2,
-        6,
-        3
-      ],
-      "minus": [],
-      "plus": [],
-      "notes": "関屋記念13着は不良馬場。マイラーズ11着0.4差。距離延長",
-      "pred_odds_0930": 36.4
-    },
-    {
-      "num": null,
-      "gate": null,
-      "name": "ホウオウビスケッツ",
-      "ability": 66,
-      "style": "逃げ",
-      "gate_zone": null,
-      "early_positions": [
-        2,
-        2,
-        3,
-        1
-      ],
-      "minus": [],
-      "plus": [],
-      "notes": "札幌記念逃げ10着・金鯱賞12着と近走不振。川崎記念(ダ)は度外視。過去の毎日王冠実績は10/2に確認",
-      "pred_odds_0930": 41.6
-    },
-    {
-      "num": null,
-      "gate": null,
-      "name": "レガーロデルシエロ",
-      "ability": 66,
-      "style": "差し",
-      "gate_zone": null,
-      "early_positions": [
-        7,
-        10,
-        16,
-        11,
-        9
-      ],
-      "minus": [],
-      "plus": [],
-      "notes": "エプソムC3着は上がり32.6。関越S12着。末脚型でハイペースは向く",
-      "pred_odds_0930": 49.9
-    },
-    {
-      "num": null,
-      "gate": null,
-      "name": "シャンパンカラー",
-      "ability": 64,
-      "style": "差し",
-      "gate_zone": null,
-      "early_positions": [
-        14,
-        9,
-        6,
-        11
-      ],
-      "minus": [],
-      "plus": [],
-      "notes": "東京新聞杯4着0.1が最高。近走は二桁着順続き。6歳58kg実績馬",
-      "pred_odds_0930": 83.3
-    },
-    {
-      "num": null,
-      "gate": null,
+      "num": 5,
+      "gate": 3,
       "name": "クルゼイロドスル",
       "ability": 60,
       "style": "追込",
-      "gate_zone": null,
+      "gate_zone": "内",
       "early_positions": [
         12,
         15,
@@ -287,36 +112,37 @@
       ],
       "minus": [],
       "plus": [],
-      "notes": "パラダイスS4着が最高。重賞では足りず。距離延長",
-      "pred_odds_0930": 113.8
+      "notes": "パラダイスS4着が最高。重賞では足りず。距離延長。騎手荻野極",
+      "pred_odds_0930": 113.8,
+      "pred_odds_1002": 115.4
     },
     {
-      "num": null,
-      "gate": null,
-      "name": "ヴィンセンシオ",
-      "ability": 60,
-      "style": "先行",
-      "gate_zone": null,
+      "num": 6,
+      "gate": 3,
+      "name": "ライヒスアドラー",
+      "ability": 78,
+      "style": "差し",
+      "gate_zone": "中",
       "early_positions": [
-        14,
-        9,
         3,
-        4
+        3,
+        10,
+        5,
+        7
       ],
-      "minus": [
-        "long_layoff"
-      ],
+      "minus": [],
       "plus": [],
-      "notes": "8ヵ月休養明け。小倉日経賞9着(1人)。近走不振",
-      "pred_odds_0930": 115.4
+      "notes": "皐月賞3着0.3差・ダービー8着0.4差。佐渡S(3勝)上がり32.7で完勝。3歳55kg。騎手佐々木",
+      "pred_odds_0930": 5.3,
+      "pred_odds_1002": 5.0
     },
     {
-      "num": null,
-      "gate": null,
+      "num": 7,
+      "gate": 4,
       "name": "ロングラン",
       "ability": 57,
       "style": "差し",
-      "gate_zone": null,
+      "gate_zone": "中",
       "early_positions": [
         18,
         13,
@@ -327,16 +153,17 @@
         "old_no_record"
       ],
       "plus": [],
-      "notes": "8歳。近走二桁着順続き",
-      "pred_odds_0930": 176.9
+      "notes": "8歳。近走二桁着順続き。騎手菊沢",
+      "pred_odds_0930": 176.9,
+      "pred_odds_1002": 230.3
     },
     {
-      "num": null,
-      "gate": null,
+      "num": 8,
+      "gate": 4,
       "name": "ビーアストニッシド",
       "ability": 55,
       "style": "追込",
-      "gate_zone": null,
+      "gate_zone": "中",
       "early_positions": [
         9,
         10,
@@ -346,8 +173,198 @@
       ],
       "minus": [],
       "plus": [],
-      "notes": "リステッドでも大敗続き",
-      "pred_odds_0930": 999.9
+      "notes": "リステッドでも大敗続き。騎手原",
+      "pred_odds_0930": 999.9,
+      "pred_odds_1002": 773.9
+    },
+    {
+      "num": 9,
+      "gate": 5,
+      "name": "ドラゴンブースト",
+      "ability": 73,
+      "style": "差し",
+      "gate_zone": "中",
+      "early_positions": [
+        2,
+        7,
+        6,
+        11
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "マイラーズC2着0.1差(9人)・大阪城S(阪神外1800)勝ち。安田8着0.6。ダートの大敗は度外視。騎手丹内",
+      "pred_odds_0930": 17.2,
+      "pred_odds_1002": 23.6
+    },
+    {
+      "num": 10,
+      "gate": 5,
+      "name": "エルトンバローズ",
+      "ability": 71,
+      "style": "差し",
+      "gate_zone": "中",
+      "early_positions": [
+        7,
+        7,
+        3,
+        8,
+        12
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "しらさぎS勝ち。関屋記念5着は不良馬場。6歳。騎手松若。9走表示内の毎日王冠は2025年5着(11頭4人)のみで好走歴に当たらずcourse_repeaterなし（それ以前の成績はdb.netkeiba未許可で未確認）",
+      "pred_odds_0930": 31.9,
+      "pred_odds_1002": 35.5
+    },
+    {
+      "num": 11,
+      "gate": 6,
+      "name": "ランスオブカオス",
+      "ability": 66,
+      "style": "先行",
+      "gate_zone": "中",
+      "early_positions": [
+        8,
+        2,
+        6,
+        3
+      ],
+      "minus": [],
+      "plus": [
+        "top_jockey_switch"
+      ],
+      "notes": "関屋記念13着は不良馬場。マイラーズ11着0.4差。距離延長。騎手横山武。前走石川→横山武史へ乗り替わり→top_jockey_switch",
+      "pred_odds_0930": 36.4,
+      "pred_odds_1002": 39.5
+    },
+    {
+      "num": 12,
+      "gate": 6,
+      "name": "レガーロデルシエロ",
+      "ability": 66,
+      "style": "差し",
+      "gate_zone": "外",
+      "early_positions": [
+        7,
+        10,
+        16,
+        11,
+        9
+      ],
+      "minus": [
+        "turf_to_outer"
+      ],
+      "plus": [],
+      "notes": "エプソムC3着は上がり32.6。関越S12着。末脚型でハイペースは向く。前走16頭7番(中)→外枠替わり。騎手戸崎圭",
+      "pred_odds_0930": 49.9,
+      "pred_odds_1002": 20.2
+    },
+    {
+      "num": 13,
+      "gate": 7,
+      "name": "ホウオウビスケッツ",
+      "ability": 66,
+      "style": "逃げ",
+      "gate_zone": "外",
+      "early_positions": [
+        2,
+        2,
+        3,
+        1
+      ],
+      "minus": [],
+      "plus": [
+        "course_repeater"
+      ],
+      "notes": "札幌記念逃げ10着・金鯱賞12着と近走不振。川崎記念(ダ)は度外視。騎手岩田康。9走表示で2025毎日王冠2着(11頭8番2人)を確認→course_repeater",
+      "pred_odds_0930": 41.6,
+      "pred_odds_1002": 44.0
+    },
+    {
+      "num": 14,
+      "gate": 7,
+      "name": "レイニング",
+      "ability": 72,
+      "style": "差し",
+      "gate_zone": "外",
+      "early_positions": [
+        8,
+        9,
+        15,
+        2,
+        7
+      ],
+      "minus": [
+        "turf_to_outer"
+      ],
+      "plus": [
+        "good_in_higher_class",
+        "top_jockey_switch"
+      ],
+      "notes": "3勝勝ち上がり後の関越S4着は上がり32.4最速級。重賞初挑戦。ルメール。前走16頭1番(内)→外枠替わり。騎手ルメール。前走戸崎→ルメールへ乗り替わり→top_jockey_switch（下書きでは未計上）",
+      "pred_odds_0930": 13.0,
+      "pred_odds_1002": 12.4
+    },
+    {
+      "num": 15,
+      "gate": 8,
+      "name": "シャンパンカラー",
+      "ability": 64,
+      "style": "差し",
+      "gate_zone": "外",
+      "early_positions": [
+        14,
+        9,
+        6,
+        11
+      ],
+      "minus": [
+        "turf_to_outer"
+      ],
+      "plus": [],
+      "notes": "東京新聞杯4着0.1が最高。近走は二桁着順続き。6歳58kg実績馬。前走17頭8番(中)→外枠替わり。騎手内田博",
+      "pred_odds_0930": 83.3,
+      "pred_odds_1002": 80.7
+    },
+    {
+      "num": 16,
+      "gate": 8,
+      "name": "アドマイヤクワッズ",
+      "ability": 77,
+      "style": "差し",
+      "gate_zone": "外",
+      "early_positions": [
+        11,
+        3,
+        3,
+        7
+      ],
+      "minus": [
+        "turf_to_outer"
+      ],
+      "plus": [],
+      "notes": "NHKマイル3着0.2・朝日杯3着。皐月15着は距離/先行策。5ヵ月休養明け（半年未満）。前走18頭11番(中)→外枠替わり。騎手坂井",
+      "pred_odds_0930": 8.1,
+      "pred_odds_1002": 8.8
+    },
+    {
+      "num": 17,
+      "gate": 8,
+      "name": "ダノンエアズロック",
+      "ability": 70,
+      "style": "先行",
+      "gate_zone": "外",
+      "early_positions": [
+        3,
+        2,
+        2,
+        6
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "リステッド2〜4着を安定して走るが勝ち切れず。重賞は壁か。堀厩舎・田辺。騎手田辺",
+      "pred_odds_0930": 18.7,
+      "pred_odds_1002": 26.0
     }
   ]
 }
