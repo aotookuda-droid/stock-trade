@@ -5,7 +5,9 @@
   python3 -m keiba.settlement report [出力.md]                               # レース別・週末別・累計を表示
 
 - レース記録（判断時点の分析・オッズ・買い目）は読むだけで書き換えない。精算は keiba/settlements/<race_id>.json に保存する。
-- 精算時に記録の判断部分のハッシュを保存し、集計時に記録が後から変わっていないか確認する。
+- 結果ページのレースIDが記録と違えば止まる。枠は結果ページの公式の枠を使い、記録の枠と違えば止まる。
+- 買った券種の払戻表が揃っていなければ「精算未完了」として止まる（不的中として0円にしない）。
+- 精算時に記録全体（出走馬・枠・分析・根拠・展開・バイアス・オッズ・提案）のハッシュを保存し、集計時に記録が後から変わっていないか確認する。
 - 取消・除外の馬を含む買い目は返還（枠連は、その枠の出走馬が足りなくなった場合だけ返還）。
 - 回収率 = 払戻 ÷（提案額 − 返還）。購入・投票は行わない。
 """
@@ -14,6 +16,7 @@ import html
 import json
 import re
 import sys
+import time
 import urllib.request
 from datetime import datetime
 from pathlib import Path
@@ -30,6 +33,10 @@ PLANS = {'本番': lambda r: r['result']['bets'],
          '参考（単勝市場のみ）': lambda r: r['reference']['win_market_only']['bets']}
 
 
+class Incomplete(Exception):
+    """払戻・着順の取得が不足していて精算できない（不的中とは区別する）。"""
+
+
 def _text(s):
     return html.unescape(re.sub(r'<[^>]+>', '', s)).strip()
 
@@ -42,7 +49,9 @@ def _key(nums, sep):
 
 
 def parse_result(page):
-    """結果ページから {'payouts': {券種: {組: 100円あたり払戻}}, 'finish': [馬番...], 'scratched': [馬番...]}。"""
+    """結果ページから {'race_id', 'payouts': {券種: {組: 100円あたり払戻}}, 'finish': [馬番...], 'scratched': [馬番...],
+    'gates': {馬番: 枠}}。"""
+    canon = re.search(r'<link rel="canonical" href="[^"]*race_id=(\d{12})"', page)
     payouts = {}
     for cls, body in re.findall(r'<tr class="(\w+)">(.*?)</tr>', page, re.S):
         if cls not in ROWS:
@@ -59,21 +68,45 @@ def parse_result(page):
         if len(tickets) != len(pays):
             raise ValueError(f'{kind} の組と払戻の数が合わない: {tickets} / {pays}')
         payouts[kind] = {_key(t, sep): p for t, p in zip(tickets, pays)}
-    finish, scratched = [], []
+    finish, scratched, gates = [], [], {}
     for row in re.findall(r'<tr[^>]*class="[^"]*HorseList[^"]*"[^>]*>(.*?)</tr>', page, re.S):
         rank = _text(re.search(r'<td class="Result_Num">(.*?)</td>', row, re.S).group(1))
         num = int(_text(re.search(r'<td class="Num Txt_C">(.*?)</td>', row, re.S).group(1)))
+        waku = re.search(r'<td class="Num Waku(\d)">', row)
+        if waku:
+            gates[num] = int(waku.group(1))
         if rank in ('取消', '除外'):
             scratched.append(num)
         elif rank.isdigit():
             finish.append((int(rank), num))
-    if not payouts.get('単勝'):
-        raise ValueError('単勝の払戻が見つからない（未確定か、ページ形式が変わった）')
-    return {'payouts': payouts, 'finish': [n for _, n in sorted(finish)], 'scratched': sorted(scratched)}
+    return {'race_id': canon.group(1) if canon else None, 'payouts': payouts,
+            'finish': [n for _, n in sorted(finish)], 'scratched': sorted(scratched), 'gates': gates}
+
+
+def check_complete(official, bets, race):
+    """精算に必要な情報が揃っているか確認し、不足なら Incomplete。
+
+    買った券種ごとに払戻表があること、複勝・ワイドは的中の組数が足りること（同着で増えるのは可）、着順が3頭以上あること。
+    提案はその時点で発売されていた券種のオッズからだけ作るので、買った券種の払戻表がないのは未発売ではなく取得不足とみなす。
+    """
+    problems = []
+    if len(official['finish']) < 3:
+        problems.append(f"着順が{len(official['finish'])}頭分しかない")
+    places = engine.place_slots(race.get('field_size_at_sales_start') or len(race['horses']))
+    expected = {'複勝': places, 'ワイド': 3}
+    for t in sorted({b['type'] for b in bets}):
+        table = official['payouts'].get(t)
+        if not table:
+            problems.append(f'{t} の払戻表がない')
+        elif len(table) < expected.get(t, 1):
+            problems.append(f'{t} の払戻が{len(table)}組しかない（{expected.get(t, 1)}組以上のはず）')
+    if problems:
+        raise Incomplete('精算未完了: ' + '、'.join(problems))
 
 
 def settle_bets(bets, official, gates):
-    """買い目を精算する。戻り値 {'stake','refund','payout','profit','roi','tickets'}。"""
+    """買い目を精算する（払戻表が揃っていることは check_complete で確認済みとする）。
+    各買い目の status は 的中 / 不的中 / 返還。戻り値 {'stake','refund','payout','profit','roi','tickets'}。"""
     scratched = set(official['scratched'])
     runners = {}
     for num, g in gates.items():
@@ -94,7 +127,8 @@ def settle_bets(bets, official, gates):
         stake += x
         refund += x if void else 0
         payout += pay
-        rows.append({'type': t, 'horses': hs, 'stake': x, 'refund': x if void else 0, 'payout': pay})
+        status = '返還' if void else ('的中' if pay else '不的中')
+        rows.append({'type': t, 'horses': hs, 'stake': x, 'refund': x if void else 0, 'payout': pay, 'status': status})
     return _summary(stake, refund, payout) | {'tickets': rows}
 
 
@@ -105,9 +139,9 @@ def _summary(stake, refund, payout):
 
 
 def decision_hash(race):
-    """判断時点の内容（オッズ・取消・結果・参考試算・確定）のハッシュ。"""
-    keys = ('odds', 'odds_meta', 'scratched', 'result', 'reference', 'decision')
-    blob = json.dumps({k: race.get(k) for k in keys}, ensure_ascii=False, sort_keys=True)
+    """記録全体のハッシュ。精算は記録を書き換えないので、判断後の変更（出走馬・枠・分析・根拠・展開・バイアス・
+    オッズ・提案のどれでも）を検知できる。"""
+    blob = json.dumps(race, ensure_ascii=False, sort_keys=True)
     return hashlib.sha256(blob.encode('utf-8')).hexdigest()
 
 
@@ -116,14 +150,21 @@ def settle(record_path, page, source, fetched_at=None):
     if not race.get('decision'):
         raise SystemExit('判断前のレースは精算しない（decision がない）')
     official = parse_result(page)
+    if official['race_id'] != race['race_id']:
+        raise SystemExit(f"結果ページのレースID {official['race_id']} が記録の {race['race_id']} と違う。精算しない")
     gates = {h['num']: h['gate'] for h in race['horses']}
-    plans = {}
+    diff = {n: (g, official['gates'].get(n)) for n, g in gates.items() if official['gates'].get(n) not in (None, g)}
+    if diff or set(official['gates']) - set(gates):
+        raise SystemExit(f'結果ページの枠・馬番が記録と違う: {diff or sorted(set(official["gates"]) - set(gates))}。精算しない')
+    gates.update(official['gates'])
+    plan_bets = {}
     for name, get in PLANS.items():
         try:
-            bets = get(race)
+            plan_bets[name] = get(race)
         except (KeyError, TypeError):
             continue
-        plans[name] = settle_bets(bets, official, gates)
+    check_complete(official, [b for bets in plan_bets.values() for b in bets], race)
+    plans = {name: settle_bets(bets, official, gates) for name, bets in plan_bets.items()}
     return {'race_id': race['race_id'], 'race': race['race'], 'start_at': race['start_at'],
             'record': str(record_path), 'record_hash': decision_hash(race),
             'source': source, 'fetched_at': fetched_at or datetime.now().astimezone().isoformat(timespec='seconds'),
@@ -136,22 +177,38 @@ def save(settlement, directory=SETTLEMENT_DIR):
     path = directory / f"{settlement['race_id']}.json"
     if path.exists():
         old = engine._read_json(path)
-        if old['official'] == settlement['official'] and old['record_hash'] == settlement['record_hash']:
+        new = json.loads(json.dumps(settlement['official'], ensure_ascii=False))  # 保存時と同じ形（キーは文字列）で比べる
+        if old['official'] == new and old['record_hash'] == settlement['record_hash']:
             return path, 'unchanged'
         raise SystemExit(f'{path} は既にあり、内容が異なる。上書きしない（公式結果の訂正なら手で確認する）')
     engine._write_json(path, settlement)
     return path, 'saved'
 
 
-def fetch(record_path):
-    race = engine._read_json(record_path)
-    url = RESULT_URL.format(race['race_id'])
+def _get_page(url):
     req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
     with urllib.request.urlopen(req, timeout=20) as r:
-        page = r.read().decode('utf-8', 'replace')
-    path, status = save(settle(record_path, page, url))
+        return r.read().decode('utf-8', 'replace')
+
+
+def fetch(record_path, retries=2, pause=60, get=_get_page, sleep=time.sleep, directory=SETTLEMENT_DIR):
+    """公式結果を取得して精算・保存する。取得不足なら pause 秒おきに retries 回まで取り直し、
+    それでも揃わなければ精算せずに 'incomplete' を返す（不的中として記録しない）。"""
+    race = engine._read_json(record_path)
+    url = RESULT_URL.format(race['race_id'])
+    for attempt in range(retries + 1):
+        try:
+            settlement = settle(record_path, get(url), url)
+            break
+        except Incomplete as e:
+            print(f"{race['race']}: {e}")
+            if attempt == retries:
+                print('精算未完了のまま終了（何も保存していない）')
+                return 'incomplete'
+            sleep(pause)
+    path, status = save(settlement, directory)
     print(f'{status}: {path}')
-    return path
+    return status
 
 
 def _weekend(start_at):
@@ -206,8 +263,9 @@ def report(directory=SETTLEMENT_DIR):
 
 def main(argv):
     if argv[:1] == ['fetch']:
-        for p in argv[1:]:
-            fetch(p)
+        results = [fetch(p) for p in argv[1:]]
+        if 'incomplete' in results:
+            raise SystemExit(1)
     elif argv[:1] == ['report']:
         text = report()
         if len(argv) > 1:
