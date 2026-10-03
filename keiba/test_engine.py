@@ -1,3 +1,4 @@
+import math
 import unittest
 
 from keiba import engine
@@ -87,30 +88,54 @@ class EngineTest(unittest.TestCase):
         p = {i: 1 / 8 for i in range(1, 9)} | {1: 0.3, 2: 0.2}
         p = engine._normalize(p)
         gates = {i: (i + 1) // 2 for i in range(1, 9)}
-        cands, _ = engine.candidate_bets(p, {'wakuren': {'1-1': 25.0}, 'umaren': {'1-2': 30.0}}, gates, model_weight=1.0)
+        orders = engine.harville(p)['trifecta']
+        cands = engine.candidate_bets(orders, {'wakuren': {'1-1': 25.0}, 'umaren': {'1-2': 30.0}}, gates)
         self.assertIn(('枠連', [1, 1]), [(b['type'], b['horses']) for b in cands])
-        cands, _ = engine.candidate_bets(p, {'wakuren': {'1-1': 25.0}}, gates, model_weight=1.0)
+        cands = engine.candidate_bets(orders, {'wakuren': {'1-1': 25.0}}, gates)
         self.assertIn(('枠連', [1, 1]), [(b['type'], b['horses']) for b in cands])
 
     def test_umatan_both_directions_evaluated(self):
         p = engine._normalize({i: 1 / 8 for i in range(1, 9)} | {1: 0.2, 2: 0.18})
-        cands, _ = engine.candidate_bets(p, {'umatan': {'1>2': 60.0, '2>1': 60.0}}, model_weight=1.0)
+        cands = engine.candidate_bets(engine.harville(p)['trifecta'], {'umatan': {'1>2': 60.0, '2>1': 60.0}})
         self.assertEqual(sorted(b['horses'] for b in cands if b['type'] == '馬単'), [[1, 2], [2, 1]])
 
     def test_sanrentan(self):
         p = engine._normalize({i: 1.0 for i in range(1, 9)} | {1: 4.0, 2: 2.0})
-        cands, tri = engine.candidate_bets(p, {'sanrentan': {'1>2>3': 400.0, '3>2>1': 400.0}}, model_weight=1.0)
+        tri = engine.harville(p)['trifecta']
+        cands = engine.candidate_bets(tri, {'sanrentan': {'1>2>3': 400.0, '3>2>1': 400.0}})
         got = {tuple(b['horses']): b['prob'] for b in cands if b['type'] == '三連単'}
         self.assertAlmostEqual(got[(1, 2, 3)], tri[(1, 2, 3)])
         self.assertGreater(got[(1, 2, 3)], got[(3, 2, 1)])
 
-    def test_ticket_market_blend(self):
-        b = engine._bet('馬単', (1, 2), 0.05, 100.0, model_weight=1.0)
-        self.assertAlmostEqual(b['ev'], 5.0)
-        b = engine._bet('馬単', (1, 2), 0.05, 100.0, model_weight=0.5)
-        self.assertAlmostEqual(b['prob'], (0.05 * 0.0075) ** 0.5)
-        self.assertAlmostEqual(b['payout_odds'] * b['model_prob'], b['ev'])
-        self.assertEqual(engine._bet('単勝', (1,), 0.05, 100.0, model_weight=0.5)['ev'], 5.0)
+    # 市場補正は着順分布1つに対して行い、期待値も配分も同じ分布と実オッズで計算する
+    def test_order_distribution_pooling(self):
+        scores = {1: 80, 2: 70, 3: 65, 4: 60}
+        win = {'1': 6.0, '2': 3.0, '3': 4.0, '4': 8.0}
+        model, src = engine.order_distribution(scores, {'win': win}, model_weight=1.0)
+        self.assertEqual(src, 'model_only')
+        self.assertEqual(model, engine.harville(engine.model_probabilities(scores))['trifecta'])
+        tri = {f'{a}>{b}>{c}': 50.0 + a for (a, b, c) in model}
+        pooled, src = engine.order_distribution(scores, {'win': win, 'sanrentan': tri}, model_weight=0.5)
+        self.assertEqual(src, 'sanrentan')
+        self.assertAlmostEqual(sum(pooled.values()), 1.0)
+        market, _ = engine.order_distribution(scores, {'win': win, 'sanrentan': tri}, model_weight=0.0)
+        expect = engine._normalize({o: 1 / (50.0 + o[0]) for o in model})
+        for o in model:
+            self.assertAlmostEqual(market[o], expect[o])
+        # 三連単が揃っていなければ単勝の Harville を市場側に使う
+        del tri['1>2>3']
+        self.assertEqual(engine.order_distribution(scores, {'win': win, 'sanrentan': tri})[1], 'win_harville')
+
+    def test_allocation_uses_real_odds_and_same_distribution(self):
+        orders = engine.harville(engine._normalize({1: 0.3, 2: 0.2, 3: 0.2, 4: 0.15, 5: 0.15}))['trifecta']
+        bets = engine.candidate_bets(orders, {'win': {'5': 9.0}})
+        self.assertEqual(len(bets), 1)
+        self.assertAlmostEqual(bets[0]['prob'], sum(q for o, q in orders.items() if o[0] == 5))
+        kept, _, growth = engine.allocate(bets, orders, capital=10000)
+        x = kept[0]['stake']
+        p = bets[0]['prob']
+        expect = p * math.log((10000 - x + 9.0 * x) / 10000) + (1 - p) * math.log((10000 - x) / 10000)
+        self.assertAlmostEqual(growth, expect)
 
     # 3. 重なる買い目は同時損失を含めて配分する
     def test_duplicate_bet_does_not_double_stake(self):
@@ -127,9 +152,9 @@ class EngineTest(unittest.TestCase):
         # 旧方式では予算200円を15点に比例配分して全て100円未満→0点になった例
         p = engine._normalize({i: 1.0 for i in range(1, 8)})
         tri = engine.harville(p)['trifecta']
-        bets = [engine._bet('三連単', o, tri[o], 1.21 / tri[o], model_weight=1.0) for o in list(tri)[:15]]
+        bets = [engine._bet('三連単', o, tri[o], 1.21 / tri[o]) for o in list(tri)[:15]]
         self.assertTrue(all(b['kelly'] < 0.001 for b in bets))
-        kept, reason = engine.allocate(bets, tri)
+        kept, reason, _ = engine.allocate(bets, tri)
         self.assertTrue(kept)
         self.assertIsNone(reason)
 
@@ -137,7 +162,7 @@ class EngineTest(unittest.TestCase):
         p = engine._normalize({i: 1.0 for i in range(1, 9)})
         tri = engine.harville(p)['trifecta']
         bets = [engine._bet('三連単', (1, 2, 3), tri[(1, 2, 3)], 1.25 / tri[(1, 2, 3)])]
-        kept, reason = engine.allocate(bets, tri, capital=500)
+        kept, reason, _ = engine.allocate(bets, tri, capital=500)
         self.assertEqual((kept, reason), ([], 'no_unit_allocation'))
 
     # 5. 土日8,000円と3レース目
@@ -162,7 +187,7 @@ class EngineTest(unittest.TestCase):
                 'odds_meta': {'kind': 'observed', 'source': 'netkeiba',
                               'fetched_at': {'win': '2026-10-04T14:27:30+09:00'}}}
         engine.validate_final(race)
-        for t in ('2026-10-04T14:30:05+09:00', '2026-10-04T14:15:00+09:00'):
+        for t in ('2026-10-04T14:30:05+09:00', '2026-10-04T14:24:50+09:00'):
             race['odds_meta']['fetched_at']['win'] = t
             with self.assertRaises(ValueError):
                 engine.validate_final(race)
@@ -179,10 +204,10 @@ class EngineTest(unittest.TestCase):
         self.assertNotIn(5, engine.analyze(race)['win_prob'])
 
     def test_select_races(self):
-        races = [{'name': 'A', 'field_size': 10, 'fav_odds': 1.5},
-                 {'name': 'B', 'field_size': 16, 'handicap': True, 'fav_odds': 4.0},
-                 {'name': 'C', 'field_size': 18, 'fav_odds': 3.0}]
-        self.assertEqual([r['name'] for r in engine.select_races(races)], ['B', 'C'])
+        results = [{'race': 'A', 'growth': 0.004}, {'race': 'B', 'growth': 0.010},
+                   {'race': 'C', 'growth': 0.0}, {'race': 'D', 'growth': 0.006}]
+        self.assertEqual([r['race'] for r in engine.select_races(results)], ['B', 'D'])
+        self.assertEqual(engine.select_races([{'race': 'C', 'growth': 0.0}]), [])
 
 
 if __name__ == '__main__':

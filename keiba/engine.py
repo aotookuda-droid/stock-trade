@@ -16,19 +16,16 @@ UNIT = 100
 MAX_TICKETS = 15
 EV_THRESHOLD = 1.2
 SOFTMAX_TEMP = 8.0
+# 着順分布でのモデルの重み。モデル（Harville）と市場（三連単オッズ）の上位3頭の着順確率を
+# 対数空間でこの比率で混ぜ、1つの分布にする。1.0 でモデルのみ。未検証
 MODEL_WEIGHT = 0.5
 TAKEOUT_WIN = 0.20
 BIAS_FLAT = 0.08
 # 資金配分の基準資金（期待対数成長の計算用）。Codex版 config.json と同じ値で、未検証
 REFERENCE_CAPITAL = 80000
-# 最終提案に使えるオッズ: 発走60分前（判断時刻）以前、かつ判断時刻の10分前以降に取得したもの
+# 最終提案に使えるオッズ: 発走60分前（判断時刻）以前、かつ判断時刻の5分前以降に取得したもの
 DECISION_BEFORE = timedelta(minutes=60)
-ODDS_WINDOW = timedelta(minutes=10)
-# 単勝以外の買い目の確率を、その買い目のオッズから逆算した市場確率（払戻率÷オッズ）と
-# 幾何平均で混ぜる比率（モデル側の重み。1.0 で補正なし）。Codex版 raceday と同じ 0.5、未検証
-TICKET_MODEL_WEIGHT = 0.5
-PAYOUT_RATE = {'単勝': 0.80, '複勝': 0.80, '枠連': 0.775, '馬連': 0.775, 'ワイド': 0.775,
-               '馬単': 0.75, '三連複': 0.75, '三連単': 0.725}
+ODDS_WINDOW = timedelta(minutes=5)
 BET_TYPES = ('win', 'place', 'wakuren', 'umaren', 'wide', 'umatan', 'sanrenpuku', 'sanrentan')
 
 MINUS_WEIGHTS = {
@@ -83,11 +80,15 @@ FRONTNESS = {'逃げ': 1.0, '先行': 0.5, '差し': -0.5, '追込': -1.0}
 ZONE = {'内': -1, '中': 0, '外': 1}
 
 
-def select_races(races, n=2):
-    """重賞がn個を超える週に、妙味の出やすいn レースを選ぶ。"""
-    def score(r):
-        return r['field_size'] + (3 if r.get('handicap') else 0) + min(r['fav_odds'], 5) * 2
-    return sorted(races, key=score, reverse=True)[:n]
+def select_races(results, n=2):
+    """重賞がn個を超える週に、本命にするnレースを選ぶ。
+
+    results は各レースの analyze() の結果（その時点のオッズで計算したもの）。提案配分の期待対数成長
+    （期待値・配分額・同時損失を含む）が大きい順。成長が0のレース（見送り）は本命にしない。
+    確率の推定誤差はまだ評価に入っていない。
+    """
+    ranked = sorted((r for r in results if r.get('growth', 0) > 0), key=lambda r: r['growth'], reverse=True)
+    return ranked[:n]
 
 
 def track_bias(results):
@@ -148,14 +149,64 @@ def _normalize(d):
     return {k: v / s for k, v in d.items()}
 
 
-def win_probabilities(scores, win_odds):
-    """モデル勝率と市場勝率を対数空間でブレンドした勝率。"""
+def model_probabilities(scores):
+    """総合点をソフトマックス（温度 SOFTMAX_TEMP）で勝率にする。市場は混ぜない。"""
     top = max(scores.values())
-    model = _normalize({k: math.exp((s - top) / SOFTMAX_TEMP) for k, s in scores.items()})
+    return _normalize({k: math.exp((s - top) / SOFTMAX_TEMP) for k, s in scores.items()})
+
+
+def win_probabilities(scores, win_odds):
+    """モデル勝率と市場勝率を対数空間でブレンドした勝率（参考用。買い目の計算は order_distribution を使う）。"""
+    model = model_probabilities(scores)
     market = _normalize({k: 1 / win_odds[k] for k in scores})
     blended = {k: math.exp(MODEL_WEIGHT * math.log(model[k]) + (1 - MODEL_WEIGHT) * math.log(market[k]))
                for k in scores}
     return _normalize(blended)
+
+
+def order_distribution(scores, odds, model_weight=MODEL_WEIGHT, market='auto'):
+    """上位3頭の着順（1着,2着,3着）ごとの確率。全券種の的中確率と資金配分はこの1つの分布から出す。
+
+    モデル側はモデル勝率の Harville 式。市場側は三連単オッズ（出走馬の全組合せが揃っている場合）の
+    逆数を正規化したもの、揃っていなければ単勝オッズの Harville 式。両者を対数空間で
+    model_weight : 1-model_weight に混ぜて正規化する。market='win' なら三連単があっても単勝の Harville を使う
+    （券種別補正のない旧方式に相当。検証用の参考試算に使う）。
+    戻り値 ({着順: 確率}, 市場側の出どころ)。
+    """
+    nums = list(scores)
+    model = harville(model_probabilities(scores))['trifecta']
+    tri = {_ordered(k): _low(v) for k, v in odds.get('sanrentan', {}).items()}
+    if market == 'auto' and all(o in tri and tri[o] > 0 for o in model):
+        market, source = _normalize({o: 1 / tri[o] for o in model}), 'sanrentan'
+    else:
+        win = _normalize({k: 1 / _low(odds['win'][str(k)]) for k in nums})
+        market, source = harville(win)['trifecta'], 'win_harville'
+    if model_weight >= 1:
+        return model, 'model_only'
+    pooled = {o: math.exp(model_weight * math.log(model[o]) + (1 - model_weight) * math.log(market[o]))
+              for o in model}
+    return _normalize(pooled), source
+
+
+def ticket_probabilities(orders, places, gates=None):
+    """着順分布から各券種の的中確率を集計する。"""
+    out = {k: {} for k in ('win', 'place', 'wide', 'umaren', 'umatan', 'trio', 'trifecta', 'wakuren')}
+
+    def add(kind, key, q):
+        out[kind][key] = out[kind].get(key, 0.0) + q
+    for (a, b, c), q in orders.items():
+        add('win', a, q)
+        for k in (a, b, c)[:places]:
+            add('place', k, q)
+        for pair in combinations(sorted((a, b, c)), 2):
+            add('wide', pair, q)
+        add('umaren', tuple(sorted((a, b))), q)
+        add('umatan', (a, b), q)
+        add('trio', tuple(sorted((a, b, c))), q)
+        add('trifecta', (a, b, c), q)
+        if gates:
+            add('wakuren', tuple(sorted((gates[a], gates[b]))), q)
+    return out
 
 
 def place_slots(field_size_at_sales_start):
@@ -216,30 +267,20 @@ def _low(o):
     return o[0] if isinstance(o, (list, tuple)) else o
 
 
-def _bet(kind, horses, prob, o, model_weight=TICKET_MODEL_WEIGHT):
-    """prob はモデル（Harville）の的中確率。単勝以外は市場確率と混ぜた確率で期待値を出す。
-
-    payout_odds は配分計算用の倍率で、モデルの着順分布のもとで期待値が補正後の値になるよう調整したもの。
-    """
-    model = prob
-    if kind != '単勝' and model_weight < 1 and prob > 0:
-        market = min(1.0, PAYOUT_RATE[kind] / o)
-        prob = prob ** model_weight * market ** (1 - model_weight)
-    return {'type': kind, 'horses': list(horses), 'prob': prob, 'model_prob': model, 'odds': o, 'ev': prob * o,
-            'payout_odds': o * prob / model if model > 0 else 0.0,
+def _bet(kind, horses, prob, o):
+    return {'type': kind, 'horses': list(horses), 'prob': prob, 'odds': o, 'ev': prob * o,
             'kelly': (prob * o - 1) / (o - 1) if o > 1 else -1.0}
 
 
-def candidate_bets(p, odds, gates=None, places=3, model_weight=TICKET_MODEL_WEIGHT):
-    """8券種を独立に評価し、期待値が閾値以上の買い目を返す（券種間の制限はしない）。"""
-    probs = harville(p, places)
-    waku = wakuren_probabilities(probs['umaren'], gates) if gates else {}
+def candidate_bets(orders, odds, gates=None, places=3):
+    """着順分布 orders から8券種を独立に評価し、期待値が閾値以上の買い目を返す（券種間の事前除外はしない）。"""
+    probs = ticket_probabilities(orders, places, gates)
     table = [
-        ('単勝', 'win', lambda k: (int(k),), lambda t: p.get(t[0], 0.0)),
+        ('単勝', 'win', lambda k: (int(k),), lambda t: probs['win'].get(t[0], 0.0)),
         ('複勝', 'place', lambda k: (int(k),), lambda t: probs['place'].get(t[0], 0.0)),
         ('ワイド', 'wide', _key, lambda t: probs['wide'].get(t, 0.0)),
         ('馬連', 'umaren', _key, lambda t: probs['umaren'].get(t, 0.0)),
-        ('枠連', 'wakuren', _key, lambda t: waku.get(t, 0.0)),
+        ('枠連', 'wakuren', _key, lambda t: probs['wakuren'].get(t, 0.0)),
         ('馬単', 'umatan', _ordered, lambda t: probs['umatan'].get(t, 0.0)),
         ('三連複', 'sanrenpuku', _key, lambda t: probs['trio'].get(t, 0.0)),
         ('三連単', 'sanrentan', _ordered, lambda t: probs['trifecta'].get(t, 0.0)),
@@ -252,10 +293,10 @@ def candidate_bets(p, odds, gates=None, places=3, model_weight=TICKET_MODEL_WEIG
             continue
         for k, o in odds.get(kind, {}).items():
             o = _low(o)
-            b = _bet(label, parse(k), prob(parse(k)), o, model_weight)
+            b = _bet(label, parse(k), prob(parse(k)), o)
             if b['odds'] > 1 and b['ev'] >= EV_THRESHOLD:
                 bets.append(b)
-    return bets, probs['trifecta']
+    return bets
 
 
 def _hits(bet, orders, gates, places):
@@ -284,19 +325,20 @@ def _hits(bet, orders, gates, places):
     return out
 
 
-def allocate(bets, trifecta, cap=RACE_CAP, gates=None, places=3, capital=REFERENCE_CAPITAL):
+def allocate(bets, orders, cap=RACE_CAP, gates=None, places=3, capital=REFERENCE_CAPITAL):
     """買い目同士の同時的中・同時不的中を含めて、期待対数成長が最も増える買い目へ100円ずつ積む。
 
     着順（上位3頭）ごとに全買い目の払戻を合算して評価するので、同じ馬に偏った買い目の
     同時損失が配分に反映される。cap と MAX_TICKETS 点の範囲で、増分がなくなったら止める。
-    戻り値は (配分済みの買い目, 見送り理由)。
+    確率は着順分布 orders（買い目の期待値と同じ分布）、払戻は実オッズ。
+    戻り値は (配分済みの買い目, 見送り理由, 期待対数成長)。
     """
     if not bets:
-        return [], 'no_value'
+        return [], 'no_value', 0.0
     if cap < UNIT:
-        return [], 'no_budget'
-    orders = list(trifecta)
-    prob = [trifecta[o] for o in orders]
+        return [], 'no_budget', 0.0
+    prob = list(orders.values())
+    orders = list(orders)
     hits = [_hits(b, orders, gates, places) for b in bets]
     wealth = [float(capital)] * len(orders)
     stakes = [0] * len(bets)
@@ -310,7 +352,7 @@ def allocate(bets, trifecta, cap=RACE_CAP, gates=None, places=3, capital=REFEREN
         for j, b in enumerate(bets):
             if not stakes[j] and n_used >= MAX_TICKETS:
                 continue
-            ret = UNIT * b['payout_odds']
+            ret = UNIT * b['odds']
             gain = base + math.fsum(prob[i] * (math.log(wealth[i] - UNIT + ret) - math.log(wealth[i] - UNIT))
                                     for i in hits[j])
             if gain > best_gain:
@@ -319,7 +361,7 @@ def allocate(bets, trifecta, cap=RACE_CAP, gates=None, places=3, capital=REFEREN
             break
         stakes[best] += UNIT
         spent += UNIT
-        ret = UNIT * bets[best]['payout_odds']
+        ret = UNIT * bets[best]['odds']
         wealth = [w - UNIT for w in wealth]
         for i in hits[best]:
             wealth[i] += ret
@@ -328,7 +370,8 @@ def allocate(bets, trifecta, cap=RACE_CAP, gates=None, places=3, capital=REFEREN
         if x:
             kept.append(dict(b, stake=x))
     kept.sort(key=lambda b: (-b['stake'], -b['ev']))
-    return kept, (None if kept else 'no_unit_allocation')
+    growth = math.fsum(q * math.log(w / capital) for q, w in zip(prob, wealth))
+    return kept, (None if kept else 'no_unit_allocation'), growth
 
 
 SKIP_REASONS = {
@@ -338,7 +381,7 @@ SKIP_REASONS = {
 }
 
 
-def analyze(race, cap=RACE_CAP, model_weight=TICKET_MODEL_WEIGHT):
+def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto'):
     """race['scratched'] の馬番は出走取消として除く。複勝の範囲は発売開始時の頭数で決める。"""
     scratched = set(race.get('scratched', []))
     horses = [h for h in race['horses'] if h['num'] not in scratched]
@@ -355,22 +398,26 @@ def analyze(race, cap=RACE_CAP, model_weight=TICKET_MODEL_WEIGHT):
     missing = [n for n in scores if n not in win_odds]
     if missing:
         raise ValueError(f"単勝オッズがない馬（取消なら scratched に入れる）: {missing}")
-    p = win_probabilities(scores, win_odds)
-    gates = {h['num']: h['gate'] for h in horses} if all('gate' in h for h in horses) else None
     odds = {k: {kk: vv for kk, vv in v.items() if all(int(x) not in scratched for x in re.split('[->]', kk))}
             if k != 'wakuren' else v for k, v in race['odds'].items()}
-    cands, trifecta = candidate_bets(p, odds, gates, places, model_weight)
-    bets, skip = allocate(cands, trifecta, cap, gates, places)
+    gates = {h['num']: h['gate'] for h in horses} if all('gate' in h for h in horses) else None
+    orders, market_source = order_distribution(scores, odds, model_weight, market)
+    cands = candidate_bets(orders, odds, gates, places)
+    bets, skip, growth = allocate(cands, orders, cap, gates, places)
+    win = ticket_probabilities(orders, places)['win']
     return {
         'race': race['race'],
         'bias': {'inner_outer': inner_outer, 'front_back': front_back},
         'pace': pace,
         'place_slots': places,
         'cap': cap,
+        'model_weight': model_weight,
+        'market_source': market_source,
         'scores': scores,
-        'win_prob': {k: round(v, 4) for k, v in p.items()},
+        'win_prob': {k: round(win.get(k, 0.0), 4) for k in scores},
         'bets': bets,
         'total_stake': sum(b['stake'] for b in bets),
+        'growth': growth,
         'skip_reason': skip,
     }
 
@@ -425,7 +472,7 @@ def _dt(s):
 
 
 def validate_final(race):
-    """最終提案に使えるか検査する。実取得オッズ（odds_meta）が判断時刻の前10分以内に揃っていること。"""
+    """最終提案に使えるか検査する。実取得オッズ（odds_meta）が判断時刻の前5分以内に揃っていること。"""
     if not race.get('start_at'):
         raise ValueError('start_at（発走時刻）がない')
     decision = _dt(race['start_at']) - DECISION_BEFORE
@@ -458,6 +505,9 @@ def main(path, ledger_path=None):
         cap = weekend_cap(ledger, race['race_id'])
     res = analyze(race, cap)
     race['result'] = res
+    # 検証用の参考試算（市場側を単勝の Harville だけにした旧方式相当）。台帳には入れず、後で公式払戻と照合する
+    ref = analyze(race, cap, market='win')
+    race['reference'] = {'win_market_only': {k: ref[k] for k in ('bets', 'total_stake', 'growth', 'skip_reason')}}
     with open(path, 'w', encoding='utf-8') as f:
         json.dump(race, f, ensure_ascii=False, indent=2)
         f.write('\n')
