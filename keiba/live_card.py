@@ -137,7 +137,7 @@ def build_race(path, key):
     return {'key': key, 'short': name.group(1) if name else key, 'race': rec['race'], 'status': rec.get('status', ''),
             'pace': res['pace'], 'pace_note': rec.get('pace_note', ''), 'horses': horses,
             'bets': bets, 'stake': res['total_stake'], 'live': live, 'asof': asof, 'pred_key': pred_key,
-            'missing': missing, 'skip': engine.SKIP_REASONS.get(res['skip_reason'], ''),
+            'missing': missing, 'skip': engine.SKIP_REASONS.get(res['skip_reason'], ''), 'market': engine.market_label(res),
             'codex': {k: v for k, v in codex.items() if k not in ('win', 'notes')} if codex else None,
             'start_at': _start_iso(rec['race']),
             'links': [{'label': label, 'url': f'https://race.netkeiba.com/{"" if page.startswith("odds") else "race/"}'

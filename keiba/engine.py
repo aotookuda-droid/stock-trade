@@ -3,10 +3,13 @@
 使い方: python3 -m keiba.engine keiba/records/YYYYMMDD_レース名.json [keiba/records/ledger_YYYYMMDD.json]
 （最終提案専用。実取得オッズと取得時刻の検査を通らなければ止まる。前日の参考計算は analyze() を直接使う）
 """
+import fcntl
 import json
 import math
+import os
 import re
 import sys
+from contextlib import contextmanager
 from datetime import datetime, timedelta
 from itertools import combinations, permutations
 
@@ -169,23 +172,40 @@ def order_distribution(scores, odds, model_weight=MODEL_WEIGHT, market='auto'):
 
     モデル側はモデル勝率の Harville 式。市場側は三連単オッズ（出走馬の全組合せが揃っている場合）の
     逆数を正規化したもの、揃っていなければ単勝オッズの Harville 式。両者を対数空間で
-    model_weight : 1-model_weight に混ぜて正規化する。market='win' なら三連単があっても単勝の Harville を使う
-    （券種別補正のない旧方式に相当。検証用の参考試算に使う）。
-    戻り値 ({着順: 確率}, 市場側の出どころ)。
+    model_weight : 1-model_weight に混ぜて正規化する。0.5 なら着順ごとの幾何平均 √(モデル×市場) を正規化したもので、
+    市場がほぼ否定した着順は混ぜた後も小さくなる（算術平均のようにモデル確率の半分が残るわけではない）。
+    market='win' なら三連単があっても単勝の Harville を使う（旧方式相当。検証用の参考試算に使う）。
+    戻り値 ({着順: 確率}, 市場側の出どころ, 三連単オッズが欠けていた着順の数)。
     """
     nums = list(scores)
     model = harville(model_probabilities(scores))['trifecta']
-    tri = {_ordered(k): _low(v) for k, v in odds.get('sanrentan', {}).items()}
-    if market == 'auto' and all(o in tri and tri[o] > 0 for o in model):
+    missing = sanrentan_missing(odds, nums)
+    if market == 'auto' and not missing:
+        tri = {_ordered(k): _low(v) for k, v in odds['sanrentan'].items()}
         market, source = _normalize({o: 1 / tri[o] for o in model}), 'sanrentan'
     else:
         win = _normalize({k: 1 / _low(odds['win'][str(k)]) for k in nums})
         market, source = harville(win)['trifecta'], 'win_harville'
     if model_weight >= 1:
-        return model, 'model_only'
+        return model, 'model_only', missing
     pooled = {o: math.exp(model_weight * math.log(model[o]) + (1 - model_weight) * math.log(market[o]))
               for o in model}
-    return _normalize(pooled), source
+    return _normalize(pooled), source, missing
+
+
+def sanrentan_missing(odds, nums):
+    """出走馬（nums）の三連単の全組合せのうち、有効なオッズがない組の数。"""
+    tri = {_ordered(k): _low(v) for k, v in odds.get('sanrentan', {}).items()}
+    return sum(1 for o in permutations(nums, 3) if not (o in tri and tri[o] > 1))
+
+
+def market_label(res):
+    total = res.get('sanrentan_total', 0)
+    if res.get('market_source') == 'sanrentan':
+        return '市場: 三連単オッズ使用'
+    if res.get('market_source') == 'model_only':
+        return '市場: 混合なし（モデルのみ）'
+    return f"市場: 単勝オッズで代用（三連単 不足 {res.get('sanrentan_missing', 0)}/{total}組）"
 
 
 def ticket_probabilities(orders, places, gates=None):
@@ -401,7 +421,7 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto'):
     odds = {k: {kk: vv for kk, vv in v.items() if all(int(x) not in scratched for x in re.split('[->]', kk))}
             if k != 'wakuren' else v for k, v in race['odds'].items()}
     gates = {h['num']: h['gate'] for h in horses} if all('gate' in h for h in horses) else None
-    orders, market_source = order_distribution(scores, odds, model_weight, market)
+    orders, market_source, tri_missing = order_distribution(scores, odds, model_weight, market)
     cands = candidate_bets(orders, odds, gates, places)
     bets, skip, growth = allocate(cands, orders, cap, gates, places)
     win = ticket_probabilities(orders, places)['win']
@@ -413,6 +433,8 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto'):
         'cap': cap,
         'model_weight': model_weight,
         'market_source': market_source,
+        'sanrentan_missing': tri_missing,
+        'sanrentan_total': len(scores) * (len(scores) - 1) * (len(scores) - 2),
         'scores': scores,
         'win_prob': {k: round(win.get(k, 0.0), 4) for k in scores},
         'bets': bets,
@@ -424,7 +446,7 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto'):
 
 def format_result(res):
     lines = [f"■ {res['race']}  ペース:{res['pace']}  バイアス:{res['bias']['inner_outer']}/{res['bias']['front_back']}"
-             f"  上限:{res.get('cap', RACE_CAP)}円"]
+             f"  上限:{res.get('cap', RACE_CAP)}円  {market_label(res)}"]
     if not res['bets']:
         lines.append(f"見送り（{SKIP_REASONS.get(res.get('skip_reason'), '期待値1.2以上の馬券なし')}）")
         return '\n'.join(lines)
@@ -493,30 +515,112 @@ def validate_final(race):
     return decision
 
 
-def main(path, ledger_path=None):
+class AlreadyDecided(Exception):
+    pass
+
+
+def _write_json(path, obj):
+    """一時ファイルに書いてから置き換える（途中で止まっても元のファイルは壊れない）。"""
+    tmp = f"{path}.tmp"
+    with open(tmp, 'w', encoding='utf-8') as f:
+        json.dump(obj, f, ensure_ascii=False, indent=2)
+        f.write('\n')
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp, path)
+
+
+def _read_json(path):
     with open(path, encoding='utf-8') as f:
-        race = json.load(f)
+        return json.load(f)
+
+
+@contextmanager
+def ledger_lock(ledger_path):
+    """同じ台帳を使う実行を1つに限る。別の実行中なら待たずに止まる。"""
+    with open(f"{ledger_path}.lock", 'w') as f:
+        try:
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            raise SystemExit('別の実行が同じ台帳を使用中のため止めた（二重実行しない）')
+        try:
+            yield
+        finally:
+            fcntl.flock(f, fcntl.LOCK_UN)
+
+
+def decision_state(race, ledger=None):
+    """'open'（未判断）/ 'decided'（判断済み）/ 'recover'（レコードは確定済みだが台帳が未記録）。"""
+    entry = None
+    if ledger is not None:
+        entry = next((e for e in ledger['races'] if e['race_id'] == race['race_id']), None)
+        if entry is None:
+            raise ValueError(f"台帳にないレース: {race['race_id']}")
+    if entry is not None and entry.get('status') == 'decided':
+        return 'decided'
+    if race.get('decision'):
+        return 'recover' if entry is not None else 'decided'
+    return 'open'
+
+
+def recover(race, ledger, ledger_path):
+    """レコード保存後・台帳保存前に止まった場合、レコードの確定内容で台帳だけを補う（再計算しない）。"""
+    d = race['decision']
+    record_decision(ledger, race['race_id'], d['stake'], d['decided_at'])
+    _write_json(ledger_path, ledger)
+
+
+def commit(race, path, ledger, ledger_path, stake, note=None):
+    """確定内容をレコード→台帳の順に保存する。レコードの decision が確定の印。"""
+    race['decision'] = {'stake': stake, 'decided_at': datetime.now().astimezone().isoformat(timespec='seconds')}
+    if note:
+        race['decision']['note'] = note
+    _write_json(path, race)
+    if ledger is not None:
+        recover(race, ledger, ledger_path)
+
+
+def finalize(race, path, ledger=None, ledger_path=None):
+    """最終提案を計算して確定する。呼び出し側で decision_state が 'open' であることを確認しておく。"""
     validate_final(race)
-    cap = RACE_CAP
-    ledger = None
-    if ledger_path:
-        with open(ledger_path, encoding='utf-8') as f:
-            ledger = json.load(f)
-        cap = weekend_cap(ledger, race['race_id'])
+    cap = weekend_cap(ledger, race['race_id']) if ledger is not None else RACE_CAP
     res = analyze(race, cap)
-    race['result'] = res
     # 検証用の参考試算（市場側を単勝の Harville だけにした旧方式相当）。台帳には入れず、後で公式払戻と照合する
     ref = analyze(race, cap, market='win')
+    race['result'] = res
     race['reference'] = {'win_market_only': {k: ref[k] for k in ('bets', 'total_stake', 'growth', 'skip_reason')}}
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(race, f, ensure_ascii=False, indent=2)
-        f.write('\n')
-    if ledger is not None:
-        record_decision(ledger, race['race_id'], res['total_stake'], datetime.now().astimezone().isoformat(timespec='seconds'))
-        with open(ledger_path, 'w', encoding='utf-8') as f:
-            json.dump(ledger, f, ensure_ascii=False, indent=2)
-            f.write('\n')
+    commit(race, path, ledger, ledger_path, res['total_stake'])
+    return res
+
+
+def guard(race, ledger, ledger_path):
+    """判断済みなら AlreadyDecided。台帳だけ欠けていれば補ってから AlreadyDecided。"""
+    state = decision_state(race, ledger)
+    if state == 'recover':
+        recover(race, ledger, ledger_path)
+        raise AlreadyDecided(f"中断した確定を台帳に補った（{race['decision']['stake']}円）。再計算はしない")
+    if state == 'decided':
+        raise AlreadyDecided('判断済みのレース。オッズ・分析・提案は上書きしない')
+
+
+def main(path, ledger_path=None):
+    if ledger_path:
+        with ledger_lock(ledger_path):
+            race, ledger = _read_json(path), _read_json(ledger_path)
+            try:
+                guard(race, ledger, ledger_path)
+            except AlreadyDecided as e:
+                print(e)
+                return 'already'
+            res = finalize(race, path, ledger, ledger_path)
+    else:
+        race = _read_json(path)
+        if decision_state(race) != 'open':
+            print('判断済みのレース。オッズ・分析・提案は上書きしない')
+            return 'already'
+        res = finalize(race, path)
     print(format_result(res))
+    return 'decided'
 
 
 if __name__ == '__main__':

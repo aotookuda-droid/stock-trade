@@ -163,7 +163,7 @@ function render() {
   document.getElementById('nfront').textContent = '逃げ候補 ' + r.horses.filter(h => h.front).length + '頭 / ' + r.horses.length + '頭立て';
   document.getElementById('pnote').textContent = r.pace_note;
   const bets = document.getElementById('bets');
-  document.getElementById('bets-h').textContent = '買い目試算（' + D.odds_label + '）';
+  document.getElementById('bets-h').textContent = '買い目試算（' + D.odds_label + (r.market ? '・' + r.market : '') + '）';
   const sepOf = t => (t === '馬単' || t === '三連単') ? '>' : '-';
   bets.innerHTML = r.bets.length ? r.bets.map(b => `<div><span>${esc(b.type)} ${b.type === '枠連' ? '枠' : ''}${b.horses.join(sepOf(b.type))}</span><span>${b.stake}円 · ${b.odds.toFixed(1)}倍 · 期待値${b.ev.toFixed(2)} <span class="${b.ev * 0.9 >= 1.2 ? 'robust' : 'fragile'}">${b.ev * 0.9 >= 1.2 ? '✓' : '—'}</span></span></div>`).join('') + `<div><span>合計</span><span>${r.stake}円</span></div>`
     : `<div><span>見送り</span><span>${esc(r.skip || '期待値1.2以上の馬券なし')}</span></div>`;

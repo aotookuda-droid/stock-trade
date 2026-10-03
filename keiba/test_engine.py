@@ -111,20 +111,31 @@ class EngineTest(unittest.TestCase):
     def test_order_distribution_pooling(self):
         scores = {1: 80, 2: 70, 3: 65, 4: 60}
         win = {'1': 6.0, '2': 3.0, '3': 4.0, '4': 8.0}
-        model, src = engine.order_distribution(scores, {'win': win}, model_weight=1.0)
+        model, src, _ = engine.order_distribution(scores, {'win': win}, model_weight=1.0)
         self.assertEqual(src, 'model_only')
         self.assertEqual(model, engine.harville(engine.model_probabilities(scores))['trifecta'])
         tri = {f'{a}>{b}>{c}': 50.0 + a for (a, b, c) in model}
-        pooled, src = engine.order_distribution(scores, {'win': win, 'sanrentan': tri}, model_weight=0.5)
+        pooled, src, miss = engine.order_distribution(scores, {'win': win, 'sanrentan': tri}, model_weight=0.5)
+        self.assertEqual(miss, 0)
         self.assertEqual(src, 'sanrentan')
         self.assertAlmostEqual(sum(pooled.values()), 1.0)
-        market, _ = engine.order_distribution(scores, {'win': win, 'sanrentan': tri}, model_weight=0.0)
+        market, _, _ = engine.order_distribution(scores, {'win': win, 'sanrentan': tri}, model_weight=0.0)
         expect = engine._normalize({o: 1 / (50.0 + o[0]) for o in model})
         for o in model:
             self.assertAlmostEqual(market[o], expect[o])
         # 三連単が揃っていなければ単勝の Harville を市場側に使う
         del tri['1>2>3']
-        self.assertEqual(engine.order_distribution(scores, {'win': win, 'sanrentan': tri})[1], 'win_harville')
+        _, src, miss = engine.order_distribution(scores, {'win': win, 'sanrentan': tri})
+        self.assertEqual((src, miss), ('win_harville', 1))
+        # 幾何平均: 市場がほぼ否定した着順は混ぜた後も小さい
+        tri['1>2>3'] = 1e6
+        pooled, _, _ = engine.order_distribution(scores, {'win': win, 'sanrentan': tri})
+        self.assertLess(pooled[(1, 2, 3)], 0.1 * model[(1, 2, 3)])
+
+    def test_market_label_in_result(self):
+        hs = [horse(i, 60 + i) for i in range(1, 5)]
+        race = {'race': 'test', 'horses': hs, 'pace': 'middle', 'odds': {'win': {str(i): 4.0 for i in range(1, 5)}}}
+        self.assertIn('単勝オッズで代用（三連単 不足 24/24組）', engine.format_result(engine.analyze(race)))
 
     def test_allocation_uses_real_odds_and_same_distribution(self):
         orders = engine.harville(engine._normalize({1: 0.3, 2: 0.2, 3: 0.2, 4: 0.15, 5: 0.15}))['trifecta']
