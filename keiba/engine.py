@@ -26,8 +26,8 @@ TAKEOUT_WIN = 0.20
 BIAS_FLAT = 0.08
 # 資金配分の基準資金（期待対数成長の計算用）。Codex版 config.json と同じ値で、未検証
 REFERENCE_CAPITAL = 80000
-# 最終提案に使えるオッズ: 発走60分前（判断時刻）以前、かつ判断時刻の5分前以降に取得したもの
-DECISION_BEFORE = timedelta(minutes=60)
+# 最終提案に使えるオッズ: 発走10分前（判断時刻）以前、かつ判断時刻の5分前以降に取得したもの
+DECISION_BEFORE = timedelta(minutes=10)
 ODDS_WINDOW = timedelta(minutes=5)
 BET_TYPES = ('win', 'place', 'wakuren', 'umaren', 'wide', 'umatan', 'sanrenpuku', 'sanrentan')
 

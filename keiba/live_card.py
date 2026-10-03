@@ -158,7 +158,7 @@ def main(out, *paths):
     header = (f"{label}で計算（{datetime.now():%m/%d %H:%M} 更新）。トラックバイアスは未確定（フラット扱い）。"
               "調教・厩舎コメントは10/3反映済み（★付きが10/3追加フラグ）。"
               + (f"{'・'.join(stale)}はオッズ未取得のため予想オッズで参考計算。" if stale and (asofs or any(r['missing'] for r in races)) else '')
-              + '買い目は参考試算。最終提案は発走60分前に実取得オッズで keiba.raceday が出す。')
+              + '買い目は参考試算。最終提案は発走10分前に実取得オッズで keiba.raceday が出す。')
     starts = sorted(r['start_at'] for r in races if r['start_at'])
     data = {'races': races, 'plus': engine.PLUS_WEIGHTS, 'minus': engine.MINUS_WEIGHTS,
             'header': header, 'odds_label': label,

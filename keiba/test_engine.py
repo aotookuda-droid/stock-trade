@@ -196,13 +196,13 @@ class EngineTest(unittest.TestCase):
     def test_validate_final(self):
         race = {'start_at': '2026-10-04T15:30:00+09:00', 'odds': {'win': {'1': 2.0}},
                 'odds_meta': {'kind': 'observed', 'source': 'netkeiba',
-                              'fetched_at': {'win': '2026-10-04T14:27:30+09:00'}}}
+                              'fetched_at': {'win': '2026-10-04T15:17:30+09:00'}}}
         engine.validate_final(race)
-        for t in ('2026-10-04T14:30:05+09:00', '2026-10-04T14:24:50+09:00'):
+        for t in ('2026-10-04T15:20:05+09:00', '2026-10-04T15:14:50+09:00'):
             race['odds_meta']['fetched_at']['win'] = t
             with self.assertRaises(ValueError):
                 engine.validate_final(race)
-        race['odds_meta'] = {'kind': 'predicted', 'source': 'x', 'fetched_at': {'win': '2026-10-04T14:27:30+09:00'}}
+        race['odds_meta'] = {'kind': 'predicted', 'source': 'x', 'fetched_at': {'win': '2026-10-04T15:17:30+09:00'}}
         with self.assertRaises(ValueError):
             engine.validate_final(race)
 
