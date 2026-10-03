@@ -17,6 +17,8 @@ RACE_CAP = 4000
 WEEKEND_CAP = 8000
 UNIT = 100
 MAX_TICKETS = 15
+# 券種グループごとの点数上限。馬連・馬単は合わせて1レース5点まで（組ごとの小さな確率に頼る買い目を広げすぎない）
+TYPE_LIMITS = {'馬連・馬単': (('馬連', '馬単'), 5)}
 EV_THRESHOLD = 1.2
 SOFTMAX_TEMP = 8.0
 # 着順分布でのモデルの重み。モデル（Harville）と市場（三連単オッズ）の上位3頭の着順確率を
@@ -346,11 +348,11 @@ def _hits(bet, orders, gates, places):
     return out
 
 
-def allocate(bets, orders, cap=RACE_CAP, gates=None, places=3, capital=REFERENCE_CAPITAL):
+def allocate(bets, orders, cap=RACE_CAP, gates=None, places=3, capital=REFERENCE_CAPITAL, type_limits=TYPE_LIMITS):
     """買い目同士の同時的中・同時不的中を含めて、期待対数成長が最も増える買い目へ100円ずつ積む。
 
     着順（上位3頭）ごとに全買い目の払戻を合算して評価するので、同じ馬に偏った買い目の
-    同時損失が配分に反映される。cap と MAX_TICKETS 点の範囲で、増分がなくなったら止める。
+    同時損失が配分に反映される。cap と MAX_TICKETS 点・TYPE_LIMITS（馬連・馬単は合わせて5点）の範囲で、増分がなくなったら止める。
     確率は着順分布 orders（買い目の期待値と同じ分布）、払戻は実オッズ。
     戻り値は (配分済みの買い目, 見送り理由, 期待対数成長)。
     """
@@ -369,9 +371,12 @@ def allocate(bets, orders, cap=RACE_CAP, gates=None, places=3, capital=REFERENCE
             break
         base = math.fsum(q * (math.log(w - UNIT) - math.log(w)) for q, w in zip(prob, wealth))
         n_used = sum(1 for x in stakes if x)
+        group_used = {g: sum(1 for b, x in zip(bets, stakes) if x and b['type'] in types)
+                      for g, (types, _) in (type_limits or {}).items()}
         best, best_gain = None, 0.0
         for j, b in enumerate(bets):
-            if not stakes[j] and n_used >= MAX_TICKETS:
+            if not stakes[j] and (n_used >= MAX_TICKETS or any(
+                    b['type'] in types and group_used[g] >= limit for g, (types, limit) in (type_limits or {}).items())):
                 continue
             ret = UNIT * b['odds']
             gain = base + math.fsum(prob[i] * (math.log(wealth[i] - UNIT + ret) - math.log(wealth[i] - UNIT))

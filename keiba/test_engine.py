@@ -158,6 +158,17 @@ class EngineTest(unittest.TestCase):
         s2 = sum(b['stake'] for b in engine.allocate(two, tri)[0])
         self.assertEqual(s1, s2)
 
+    def test_umaren_umatan_limited_to_five(self):
+        p = engine._normalize({i: 1.0 for i in range(1, 11)} | {1: 3.0, 2: 2.5, 3: 2.0})
+        orders = engine.harville(p)['trifecta']
+        umatan = {f'{a}>{b}': 1.6 / engine.ticket_probabilities(orders, 3)['umatan'][(a, b)]
+                  for a in range(1, 6) for b in range(1, 6) if a != b}
+        bets = engine.candidate_bets(orders, {'umatan': umatan, 'win': {'1': 1.5 / p[1]}})
+        kept, _, _ = engine.allocate(bets, orders, capital=1_000_000)
+        self.assertLessEqual(sum(1 for b in kept if b['type'] in ('馬連', '馬単')), 5)
+        kept, _, _ = engine.allocate(bets, orders, capital=1_000_000, type_limits={})
+        self.assertGreater(sum(1 for b in kept if b['type'] in ('馬連', '馬単')), 5)
+
     # 4. 100円単位で選び直し、丸めで消えた場合は理由を分ける
     def test_tiny_edges_still_allocated(self):
         # 旧方式では予算200円を15点に比例配分して全て100円未満→0点になった例
