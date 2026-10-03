@@ -169,6 +169,19 @@ class EngineTest(unittest.TestCase):
         kept, _, _ = engine.allocate(bets, orders, capital=1_000_000, type_limits={})
         self.assertGreater(sum(1 for b in kept if b['type'] in ('馬連', '馬単')), 5)
 
+    def test_longshot_bets_excluded(self):
+        hs = [horse(i, 60, gate=(i + 1) // 2) for i in range(1, 9)]
+        hs[7]['ability'] = 90  # 8番をモデルが高く見る
+        win = {str(i): 6.0 for i in range(1, 8)} | {'8': 150.0}
+        race = {'race': 'test', 'horses': hs, 'pace': 'middle',
+                'odds': {'win': win, 'wide': {'1-8': [40.0, 50.0], '1-2': [3.0, 3.5]}, 'wakuren': {'4-4': 300.0}}}
+        res = engine.analyze(race, model_weight=1.0)
+        self.assertFalse([b for b in res['bets'] if 8 in b['horses'] and b['type'] != '枠連'])
+        self.assertTrue(engine.involves_longshot({'type': '枠連', 'horses': [4, 4]}, {7: 6.0, 8: 150.0}, hs) is False)
+        self.assertTrue(engine.involves_longshot({'type': '単勝', 'horses': [8]}, {8: 150.0}, hs))
+        # 着順分布には残る（他馬の確率は8番の分だけ小さい）
+        self.assertIn(8, res['win_prob'])
+
     # 4. 100円単位で選び直し、丸めで消えた場合は理由を分ける
     def test_tiny_edges_still_allocated(self):
         # 旧方式では予算200円を15点に比例配分して全て100円未満→0点になった例

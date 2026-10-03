@@ -19,6 +19,9 @@ UNIT = 100
 MAX_TICKETS = 15
 # 券種グループごとの点数上限。馬連・馬単は合わせて1レース5点まで（組ごとの小さな確率に頼る買い目を広げすぎない）
 TYPE_LIMITS = {'馬連・馬単': (('馬連', '馬単'), 5)}
+# 暫定（2026/10/4〜）: 判断時の単勝がこの倍率以上の馬を含む買い目は買わない。過去5年の重賞で100倍以上は
+# 勝率0.2%（市場0.5%）・単勝回収率30%と市場以上に来ないため。オッズ帯ごとの補正を入れたら外す
+LONGSHOT_ODDS = 100
 EV_THRESHOLD = 1.2
 SOFTMAX_TEMP = 8.0
 # 着順分布でのモデルの重み。モデル（Harville）と市場（三連単オッズ）の上位3頭の着順確率を
@@ -407,6 +410,17 @@ SKIP_REASONS = {
 }
 
 
+def involves_longshot(bet, win_odds, horses):
+    """買い目が単勝 LONGSHOT_ODDS 倍以上の馬に頼るか。枠連は、その枠の出走馬が全て大穴なら頼るとみなす。"""
+    longshot = {n for n, o in win_odds.items() if o >= LONGSHOT_ODDS}
+    if bet['type'] == '枠連':
+        frames = {}
+        for h in horses:
+            frames.setdefault(h['gate'], []).append(h['num'])
+        return any(frames.get(g) and all(n in longshot for n in frames[g]) for g in bet['horses'])
+    return any(n in longshot for n in bet['horses'])
+
+
 def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto'):
     """race['scratched'] の馬番は出走取消として除く。複勝の範囲は発売開始時の頭数で決める。"""
     scratched = set(race.get('scratched', []))
@@ -428,7 +442,8 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto'):
             if k != 'wakuren' else v for k, v in race['odds'].items()}
     gates = {h['num']: h['gate'] for h in horses} if all('gate' in h for h in horses) else None
     orders, market_source, tri_missing = order_distribution(scores, odds, model_weight, market)
-    cands = candidate_bets(orders, odds, gates, places)
+    cands = [b for b in candidate_bets(orders, odds, gates, places)
+             if not involves_longshot(b, win_odds, horses)]
     bets, skip, growth = allocate(cands, orders, cap, gates, places)
     win = ticket_probabilities(orders, places)['win']
     return {
