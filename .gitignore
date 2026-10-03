@@ -20,3 +20,4 @@ data/
 *.lock
 *.tmp
 keiba/data/cache/
+keiba/data/graded_*.json
