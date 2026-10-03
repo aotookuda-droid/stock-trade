@@ -13,6 +13,23 @@ OFFICIAL = settlement.parse_result(PAGE)
 NO_WIDE = re.sub(r'<tr class="Wide">.*?</tr>', '', PAGE, flags=re.S)
 
 
+def horse_row(page, num):
+    """結果ページの着順表で馬番 num の行（開始位置, 終了位置）。"""
+    for m in re.finditer(r'<tr[^>]*HorseList[^>]*>(.*?)</tr>', page, re.S):
+        if re.search(r'<td class="Num Txt_C">\s*<div>%d</div>' % num, m.group(1)):
+            return m.start(), m.end()
+    raise AssertionError(num)
+
+
+def edit_row(page, num, fn):
+    a, b = horse_row(page, num)
+    return page[:a] + fn(page[a:b]) + page[b:]
+
+
+def set_rank(page, num, text):
+    return edit_row(page, num, lambda r: re.sub(r'<div class="Rank">.*?</div>', f'<div class="Rank">{text}</div>', r, flags=re.S))
+
+
 def bet(t, hs, x):
     return {'type': t, 'horses': hs, 'stake': x}
 
@@ -115,6 +132,36 @@ class SettleRecordTest(unittest.TestCase):
         self.assertEqual(settlement.fetch(self.rec, get=lambda u: NO_WIDE, sleep=lambda s: None,
                                           directory=self.out), 'incomplete')
         self.assertFalse(self.out.exists() and any(self.out.iterdir()))
+
+    def test_missing_frame_only_is_incomplete(self):
+        page = edit_row(PAGE, 7, lambda r: re.sub(r'<td class="Num Waku\d">', '<td class="Num">', r))
+        with self.assertRaisesRegex(settlement.Incomplete, '7番の枠がない'):
+            settlement.settle(self.rec, page, 'fixture')
+
+    def test_missing_whole_row_is_incomplete(self):
+        a, b = horse_row(PAGE, 12)
+        with self.assertRaisesRegex(settlement.Incomplete, '12番の結果行がない'):
+            settlement.settle(self.rec, PAGE[:a] + PAGE[b:], 'fixture')
+        # 取り直して揃えば精算する（記録側の枠や状態で補わない）
+        pages = [PAGE[:a] + PAGE[b:], PAGE]
+        self.assertEqual(settlement.fetch(self.rec, get=lambda u: pages.pop(0), sleep=lambda s: None,
+                                          directory=self.out), 'saved')
+
+    def test_unreadable_status_is_incomplete(self):
+        with self.assertRaisesRegex(settlement.Incomplete, '13番の出走状態'):
+            settlement.settle(self.rec, set_rank(PAGE, 13, ''), 'fixture')
+
+    def test_scratch_exclusion_stop_and_disqualification(self):
+        page = set_rank(set_rank(set_rank(set_rank(PAGE, 7, '取消'), 8, '除外'), 9, '中止'), 10, '失格')
+        official = settlement.parse_result(page)
+        self.assertEqual({n: official['status'][n] for n in (7, 8, 9, 10, 5)},
+                         {7: '取消', 8: '除外', 9: '中止', 10: '失格', 5: '完走'})
+        self.assertEqual(official['scratched'], [7, 8])
+        self.write(record([bet('単勝', [7], 100), bet('単勝', [8], 100), bet('単勝', [9], 100),
+                           bet('単勝', [10], 100), bet('単勝', [5], 100)]))
+        v = settlement.settle(self.rec, page, 'fixture')['plans']['本番']
+        self.assertEqual([t['status'] for t in v['tickets']], ['返還', '返還', '不的中', '不的中', '的中'])
+        self.assertEqual((v['refund'], v['payout']), (200, 420))
 
     def test_short_place_table_is_incomplete(self):
         self.write(record([bet('複勝', [1], 100)]))

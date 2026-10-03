@@ -58,6 +58,7 @@ PLUS_WEIGHTS = {
     'jockey_switch': 1,
     'first_surface': 2,
     'big_distance_change': 2,
+    'distance_change_try': 1,
     'first_blinker': 3,
     'breaking_out': 4,
     'hill_23': 3,

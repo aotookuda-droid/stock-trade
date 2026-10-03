@@ -6,6 +6,8 @@
 
 - レース記録（判断時点の分析・オッズ・買い目）は読むだけで書き換えない。精算は keiba/settlements/<race_id>.json に保存する。
 - 結果ページのレースIDが記録と違えば止まる。枠は結果ページの公式の枠を使い、記録の枠と違えば止まる。
+- 記録にある全馬の結果行・枠・出走状態（着順／取消・除外・中止・失格）が揃わなければ「精算未完了」（記録側で補わない）。
+  取消・除外は返還、競走中止・失格は不的中。
 - 買った券種の払戻表が揃っていなければ「精算未完了」として止まる（不的中として0円にしない）。
 - 精算時に記録全体（出走馬・枠・分析・根拠・展開・バイアス・オッズ・提案）のハッシュを保存し、集計時に記録が後から変わっていないか確認する。
 - 取消・除外の馬を含む買い目は返還（枠連は、その枠の出走馬が足りなくなった場合だけ返還）。
@@ -31,6 +33,10 @@ ROWS = {'Tansho': ('単勝', None), 'Fukusho': ('複勝', None), 'Wakuren': ('�
         'Wide': ('ワイド', '-'), 'Umatan': ('馬単', '>'), 'Fuku3': ('三連複', '-'), 'Tan3': ('三連単', '>')}
 PLANS = {'本番': lambda r: r['result']['bets'],
          '参考（単勝市場のみ）': lambda r: r['reference']['win_market_only']['bets']}
+
+
+# 着順以外の出走状態。取消・除外は返還、競走中止・失格は不的中（返還しない）
+STATUSES = ('取消', '除外', '中止', '失格')
 
 
 class Incomplete(Exception):
@@ -68,19 +74,30 @@ def parse_result(page):
         if len(tickets) != len(pays):
             raise ValueError(f'{kind} の組と払戻の数が合わない: {tickets} / {pays}')
         payouts[kind] = {_key(t, sep): p for t, p in zip(tickets, pays)}
-    finish, scratched, gates = [], [], {}
+    finish, scratched, gates, status = [], [], {}, {}
     for row in re.findall(r'<tr[^>]*class="[^"]*HorseList[^"]*"[^>]*>(.*?)</tr>', page, re.S):
-        rank = _text(re.search(r'<td class="Result_Num">(.*?)</td>', row, re.S).group(1))
-        num = int(_text(re.search(r'<td class="Num Txt_C">(.*?)</td>', row, re.S).group(1)))
+        num = re.search(r'<td class="Num Txt_C">(.*?)</td>', row, re.S)
+        if not num or not _text(num.group(1)).isdigit():
+            continue  # 馬番の読めない行は記録の馬と結び付けられない（check_complete で欠落として扱う）
+        num = int(_text(num.group(1)))
+        rank = re.search(r'<td class="Result_Num">(.*?)</td>', row, re.S)
+        rank = _text(rank.group(1)) if rank else ''
         waku = re.search(r'<td class="Num Waku(\d)">', row)
         if waku:
             gates[num] = int(waku.group(1))
-        if rank in ('取消', '除外'):
-            scratched.append(num)
-        elif rank.isdigit():
-            finish.append((int(rank), num))
+        place = re.match(r'(\d+)', rank)
+        if place:
+            status[num] = '完走'  # 降着の表記（例: 4(降)）も着順の数字で扱う
+            finish.append((int(place.group(1)), num))
+        elif rank in STATUSES:
+            status[num] = rank
+            if rank in ('取消', '除外'):
+                scratched.append(num)
+        else:
+            status[num] = '不明'
     return {'race_id': canon.group(1) if canon else None, 'payouts': payouts,
-            'finish': [n for _, n in sorted(finish)], 'scratched': sorted(scratched), 'gates': gates}
+            'finish': [n for _, n in sorted(finish)], 'scratched': sorted(scratched), 'gates': gates,
+            'status': status}
 
 
 def check_complete(official, bets, race):
@@ -90,6 +107,14 @@ def check_complete(official, bets, race):
     提案はその時点で発売されていた券種のオッズからだけ作るので、買った券種の払戻表がないのは未発売ではなく取得不足とみなす。
     """
     problems = []
+    for h in race['horses']:
+        n = h['num']
+        if n not in official['status']:
+            problems.append(f'{n}番の結果行がない')
+        elif official['status'][n] == '不明':
+            problems.append(f'{n}番の出走状態（着順・取消・除外・中止・失格）が読めない')
+        if n in official['status'] and n not in official['gates']:
+            problems.append(f'{n}番の枠がない')
     if len(official['finish']) < 3:
         problems.append(f"着順が{len(official['finish'])}頭分しかない")
     places = engine.place_slots(race.get('field_size_at_sales_start') or len(race['horses']))
@@ -152,18 +177,20 @@ def settle(record_path, page, source, fetched_at=None):
     official = parse_result(page)
     if official['race_id'] != race['race_id']:
         raise SystemExit(f"結果ページのレースID {official['race_id']} が記録の {race['race_id']} と違う。精算しない")
-    gates = {h['num']: h['gate'] for h in race['horses']}
-    diff = {n: (g, official['gates'].get(n)) for n, g in gates.items() if official['gates'].get(n) not in (None, g)}
-    if diff or set(official['gates']) - set(gates):
-        raise SystemExit(f'結果ページの枠・馬番が記録と違う: {diff or sorted(set(official["gates"]) - set(gates))}。精算しない')
-    gates.update(official['gates'])
     plan_bets = {}
     for name, get in PLANS.items():
         try:
             plan_bets[name] = get(race)
         except (KeyError, TypeError):
             continue
+    # 欠落は記録側で補わず精算未完了にする（取り直す）。揃った上で記録と食い違えば止める
     check_complete(official, [b for bets in plan_bets.values() for b in bets], race)
+    recorded = {h['num']: h['gate'] for h in race['horses']}
+    diff = {n: (g, official['gates'][n]) for n, g in recorded.items() if official['gates'][n] != g}
+    extra = sorted(set(official['status']) - set(recorded))
+    if diff or extra:
+        raise SystemExit(f'結果ページの枠・馬番が記録と違う: {diff or extra}。精算しない')
+    gates = official['gates']
     plans = {name: settle_bets(bets, official, gates) for name, bets in plan_bets.items()}
     return {'race_id': race['race_id'], 'race': race['race'], 'start_at': race['start_at'],
             'record': str(record_path), 'record_hash': decision_hash(race),
