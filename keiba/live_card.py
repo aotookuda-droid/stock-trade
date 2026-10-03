@@ -122,7 +122,7 @@ def build_race(path, key):
         train, _, rule = train.partition(RULE_TAG)
         grade = re.search(r'評価([A-D])|\(([A-D])', train)
         horses.append({
-            'num': n, 'gate': h['gate'], 'name': h['name'], 'jockey': _jockey(h['notes']),
+            'num': n, 'gate': h['gate'], 'name': h['name'], 'jockey': _jockey(notes),
             'style': h['style'], 'zone': h['gate_zone'], 'ability': h['ability'],
             'minus': h['minus'], 'plus': h['plus'],
             'new': [k for k in h['plus'] + h['minus'] if '→' + k in train + rule], 'rule': rule,

@@ -49,6 +49,12 @@ class LiveCardTest(unittest.TestCase):
         self.assertFalse(race['horses'][7]['scratched'])
         self.assertIn('単勝オッズ欠損', d['header'])
 
+    def test_jockey_name_from_base_notes_only(self):
+        d = self.build(None)
+        horses = {h['num']: h for h in d['races'][0]['horses']}
+        self.assertEqual(horses[4]['jockey'], '西村淳')  # ルール照合メモの「短期免許騎手は…」を拾わない
+        self.assertEqual(horses[7]['jockey'], '菊沢')
+
     def test_training_flags_marked_new(self):
         d = self.build(None)
         horses = {h['num']: h for h in d['races'][0]['horses']}
