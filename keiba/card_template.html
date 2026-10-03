@@ -73,6 +73,13 @@ tr.h:hover td{background:var(--turf-soft)}
 .prob .mdl i{background:var(--turf)}.prob .mkt i{background:var(--muted)}
 .edge-up{color:var(--plus);font-weight:600}.edge-dn{color:var(--minus)}
 tr.nt td{background:var(--bg);font-size:.82rem;color:var(--muted);padding:8px 12px 10px 48px}
+.stale{background:var(--minus-bg);color:var(--minus);font-weight:700;padding:6px 10px;border-radius:4px;margin-top:6px}
+.scen{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.scen div{border-left:3px solid var(--turf);padding:2px 0 2px 10px;font-size:.82rem;color:var(--muted)}
+.scen b{color:var(--fg)}
+.robust{color:var(--plus);font-weight:600}.fragile{color:var(--muted)}
+tr.scr td{opacity:.45}
+.src{font-size:.75rem;color:var(--muted);margin:6px 0 0}.src a{color:var(--turf)}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.75rem;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:5px}
 .legend i{display:inline-block;width:14px;height:5px;border-radius:2px}
@@ -83,6 +90,7 @@ tr.nt td{background:var(--bg);font-size:.82rem;color:var(--muted);padding:8px 12
   <header>
     <h1>10/4 重賞 前日馬柱</h1>
     <p id="asof"></p>
+    <p class="stale" id="stale" hidden></p>
   </header>
   <div class="tabs" role="tablist" id="tabs"></div>
   <section class="race-head">
@@ -91,18 +99,25 @@ tr.nt td{background:var(--bg);font-size:.82rem;color:var(--muted);padding:8px 12
       <p class="race-title" id="rtitle"></p>
       <div class="pace"><span class="pill" id="pace"></span><span class="sub" id="nfront"></span></div>
       <p class="note" id="pnote"></p>
+      <p class="src" id="links"></p>
     </div>
     <div class="panel">
       <h2 id="bets-h">買い目試算</h2>
       <div class="bets" id="bets"></div>
-      <p class="caveat">参考値。最終判断は発走1時間前のオッズ・バイアス・馬体重で再計算します。</p>
+      <p class="caveat">✓＝オッズが1割下がっても期待値1.2以上（Codex版の下落補正）。参考値。最終判断は発走1時間前のオッズ・バイアス・馬体重で再計算します。</p>
     </div>
+  </section>
+  <section class="panel" id="codex-panel" hidden>
+    <h2>Codex版の展開シナリオ（別モデル・参考）</h2>
+    <div class="scen" id="scen"></div>
+    <p class="src" id="codex-src"></p>
   </section>
   <div class="sort">並び順
     <button type="button" id="s-num" aria-pressed="true">馬番</button>
     <button type="button" id="s-score" aria-pressed="false">総合点</button>
     <button type="button" id="s-ability" aria-pressed="false">ability</button>
     <button type="button" id="s-edge" aria-pressed="false">モデル−市場</button>
+    <button type="button" id="s-codex" aria-pressed="false">Codexとの差</button>
   </div>
   <div class="legend">
     <span><i style="background:var(--turf)"></i>モデル勝率（市場とブレンド後）</span>
@@ -110,7 +125,7 @@ tr.nt td{background:var(--bg);font-size:.82rem;color:var(--muted);padding:8px 12
     <span>行をクリックで寸評・調教コメントを表示</span><span>★ = 10/3 追加フラグ／調教 = デイリー最終追切評価</span>
   </div>
   <div class="tbl"><table>
-    <thead><tr><th>枠</th><th>馬番</th><th>馬名 / 騎手</th><th>脚質</th><th>枠位置</th><th>ability</th><th>調教</th><th>加点・減点</th><th>総合点</th><th>勝率</th><th class="num">単勝<br>オッズ</th></tr></thead>
+    <thead><tr><th>枠</th><th>馬番</th><th>馬名 / 騎手</th><th>脚質</th><th>枠位置</th><th>ability</th><th>調教</th><th>加点・減点</th><th>総合点</th><th>勝率</th><th class="num">Codex<br>勝率</th><th class="num">単勝<br>オッズ</th></tr></thead>
     <tbody id="tb"></tbody>
   </table></div>
 </div>
@@ -120,7 +135,12 @@ const D = /*DATA*/null;
 const LABEL = {front_runner_bad_pace:'逃げ好走→展開不向き',long_layoff:'半年以上休み明け',wins_special_ground:'特殊馬場専',turf_to_outer:'外枠替わり',dirt_to_inner:'ダ内枠替わり',fillies_to_open:'牝馬限定→混合',slow_start:'出遅れ癖',hates_kickback:'砂被り嫌う',stable_concern:'厩舎コメ不安',weight_change_15:'馬体重±15',weight_increase:'斤量増',lucky_last_race:'前走展開利',lucky_trip:'前走ロスなし',first_long_trip:'初長距離輸送',bad_direction:'苦手回り',old_no_record:'高齢・実績なし',
 first_after_gelding:'去勢明け',first_after_transfer:'転厩初戦',weight_drop:'斤量減',top_jockey_switch:'トップ騎手へ',jockey_switch:'乗り替わり',first_surface:'初芝/初ダ',big_distance_change:'距離大幅変更',first_blinker:'初ブリンカー',breaking_out:'本格化',hill_23:'坂路23秒台',hill_23_extra:'坂路終い/併せ',short_interval_unfulfilled:'間隔詰め・不完全燃焼',final_work_strong:'最終追い切り◎',course_repeater:'リピーター',second_start:'叩き2戦目',fastest_last_unrewarded:'上がり最速届かず',good_in_higher_class:'格上で好内容',turf_to_inner:'内枠替わり',dirt_to_outer:'ダ外枠替わり',bloodline_ground:'馬場血統',outside_farm:'外厩帰り'};
 const PACE = {slow:'スロー',middle:'ミドル',high:'ハイ'};
+const BIAS = {inner:'内有利',outer:'外有利',front:'前有利',closer:'差し有利',flat:'フラット',unknown:'不明'};
 document.getElementById('asof').textContent = D.header;
+if (D.asof_iso) {
+  const age = (Date.now() - new Date(D.asof_iso)) / 60000;
+  if (age > 75 && Date.now() < new Date(D.end_iso)) { const el = document.getElementById('stale'); el.hidden = false; el.textContent = `オッズが${Math.round(age)}分前のものです。自動更新が止まっている可能性があります。`; }
+}
 let cur = 0, sortKey = 'num', open = new Set();
 try { const s = localStorage.getItem('keiba-tab'); if (s !== null) cur = +s || 0; } catch (e) {}
 if (location.hash === '#kyoto') cur = 1; if (location.hash === '#mainichi') cur = 0;
@@ -132,12 +152,12 @@ D.races.forEach((r, i) => {
   b.onclick = () => { cur = i; open.clear(); try { localStorage.setItem('keiba-tab', i); } catch (e) {} render(); };
   tabs.appendChild(b);
 });
-['num','score','ability','edge'].forEach(k => document.getElementById('s-' + k).onclick = () => { sortKey = k; render(); });
+['num','score','ability','edge','codex'].forEach(k => document.getElementById('s-' + k).onclick = () => { sortKey = k; render(); });
 
 function render() {
   const r = D.races[cur];
   [...tabs.children].forEach((b, i) => b.setAttribute('aria-selected', i === cur));
-  ['num','score','ability','edge'].forEach(k => document.getElementById('s-' + k).setAttribute('aria-pressed', k === sortKey));
+  ['num','score','ability','edge','codex'].forEach(k => document.getElementById('s-' + k).setAttribute('aria-pressed', k === sortKey));
   document.getElementById('rtitle').textContent = r.race;
   document.getElementById('pace').textContent = 'ペース予想：' + PACE[r.pace];
   document.getElementById('nfront').textContent = '逃げ候補 ' + r.horses.filter(h => h.front).length + '頭 / ' + r.horses.length + '頭立て';
@@ -145,10 +165,19 @@ function render() {
   const bets = document.getElementById('bets');
   document.getElementById('bets-h').textContent = '買い目試算（' + D.odds_label + '）';
   const sepOf = t => (t === '馬単' || t === '三連単') ? '>' : '-';
-  bets.innerHTML = r.bets.length ? r.bets.map(b => `<div><span>${esc(b.type)} ${b.type === '枠連' ? '枠' : ''}${b.horses.join(sepOf(b.type))}</span><span>${b.stake}円 · ${b.odds.toFixed(1)}倍 · 期待値${b.ev.toFixed(2)}</span></div>`).join('') + `<div><span>合計</span><span>${r.stake}円</span></div>`
+  bets.innerHTML = r.bets.length ? r.bets.map(b => `<div><span>${esc(b.type)} ${b.type === '枠連' ? '枠' : ''}${b.horses.join(sepOf(b.type))}</span><span>${b.stake}円 · ${b.odds.toFixed(1)}倍 · 期待値${b.ev.toFixed(2)} <span class="${b.ev * 0.9 >= 1.2 ? 'robust' : 'fragile'}">${b.ev * 0.9 >= 1.2 ? '✓' : '—'}</span></span></div>`).join('') + `<div><span>合計</span><span>${r.stake}円</span></div>`
     : '<div><span>見送り</span><span>期待値1.2以上の馬券なし</span></div>';
+  const wk = D.races.reduce((a, x) => a + x.stake, 0);
+  bets.innerHTML += `<div><span>土日合計（全レース）</span><span${wk > 8000 ? ' class="edge-dn"' : ''}>${wk}円 / 8,000円</span></div>`;
+  document.getElementById('links').innerHTML = (r.links || []).map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join(' ・ ');
+  const cp = document.getElementById('codex-panel');
+  cp.hidden = !r.codex;
+  if (r.codex) {
+    document.getElementById('scen').innerHTML = r.codex.scenarios.map(s => `<div><b>${Math.round(s.weight * 100)}% ${esc(PACE[s.pace] || s.pace)}・${esc(BIAS[s.inner_outer] || s.inner_outer)}/${esc(BIAS[s.front_back] || s.front_back)}</b><br>${esc(s.rationale)}</div>`).join('');
+    document.getElementById('codex-src').textContent = `出典：${r.codex.file}（${r.codex.status}・確認 ${r.codex.known_at}）。Codex勝率は各シナリオの相対強度を正規化して重み付き平均したもの（市場オッズとは混ぜていない）。`;
+  }
   const hs = [...r.horses];
-  const by = {num: h => h.num, score: h => -h.score, ability: h => -h.ability, edge: h => -(h.p - h.mkt)};
+  const by = {num: h => h.num, score: h => -h.score, ability: h => -h.ability, edge: h => -(h.p - h.mkt), codex: h => -Math.abs((h.codex ?? h.p) - h.p)};
   hs.sort((a, b) => by[sortKey](a) - by[sortKey](b) || a.num - b.num);
   const maxP = Math.max(...hs.map(h => Math.max(h.p, h.mkt)));
   const tb = document.getElementById('tb');
@@ -156,7 +185,7 @@ function render() {
     const chips = h.plus.map(k => `<span class="chip p${h.new.includes(k) ? ' new' : ''}">${h.new.includes(k) ? '★' : ''}${LABEL[k] || k} +${D.plus[k]}</span>`).join('') + h.minus.map(k => `<span class="chip m${h.new.includes(k) ? ' new' : ''}">${h.new.includes(k) ? '★' : ''}${LABEL[k] || k} ${D.minus[k]}</span>`).join('');
     const edge = h.p - h.mkt;
     const pf = h.pacefit;
-    return `<tr class="h" tabindex="0" data-n="${h.num}" aria-expanded="${open.has(h.num)}">
+    return `<tr class="h${h.scratched ? ' scr' : ''}" tabindex="0" data-n="${h.num}" aria-expanded="${open.has(h.num)}">
       <td><span class="waku w${h.gate}">${h.gate}</span></td>
       <td class="num">${h.num}</td>
       <td><div class="name">${esc(h.name)}${h.front ? '<span class="front">逃げ候補</span>' : ''}</div><div class="sub">${esc(h.jockey)}</div></td>
@@ -170,8 +199,9 @@ function render() {
         <div class="row mdl"><i style="width:${h.p / maxP * 70}px"></i>${(h.p * 100).toFixed(1)}%</div>
         <div class="row mkt"><i style="width:${h.mkt / maxP * 70}px"></i>${(h.mkt * 100).toFixed(1)}% <span class="${edge >= 0.005 ? 'edge-up' : edge <= -0.005 ? 'edge-dn' : ''}">${edge >= 0 ? '+' : ''}${(edge * 100).toFixed(1)}</span></div>
       </div></td>
-      <td class="num">${h.odds.toFixed(1)}</td>
-    </tr>` + (open.has(h.num) ? `<tr class="nt"><td colspan="11">${esc(h.notes)}<span class="tr10">10/3 調教・厩舎：${esc(h.train)}</span><br>過去の1角通過順（古→新）：${h.early.join(' → ')}${h.pred ? ` ／ 前日予想オッズ ${h.pred}` : ''}</td></tr>` : '');
+      <td class="num">${h.codex == null ? '—' : (h.codex * 100).toFixed(1) + '%'}${h.codex == null ? '' : `<div class="sub ${h.codex - h.p >= 0.02 ? 'edge-up' : h.codex - h.p <= -0.02 ? 'edge-dn' : ''}">${h.codex - h.p >= 0 ? '+' : ''}${((h.codex - h.p) * 100).toFixed(1)}</div>`}</td>
+      <td class="num">${h.scratched ? '取消' : h.odds.toFixed(1)}</td>
+    </tr>` + (open.has(h.num) ? `<tr class="nt"><td colspan="12">${esc(h.notes)}<span class="tr10">10/3 調教・厩舎：${esc(h.train)}</span><br>過去の1角通過順（古→新）：${h.early.join(' → ')}${h.pred ? ` ／ 前日予想オッズ ${h.pred}` : ''}${h.codex_note ? `<span class="tr10">Codex評価：${esc(h.codex_note)}</span>` : ''}</td></tr>` : '');
   }).join('');
 }
 document.getElementById('tb').addEventListener('click', e => {
