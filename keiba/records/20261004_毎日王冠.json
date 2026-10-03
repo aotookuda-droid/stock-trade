@@ -1,6 +1,9 @@
 {
   "race_id": "202605040211",
   "race": "2026/10/04 東京11R 毎日王冠(G2) 芝1800 15:45発走",
+  "start_at": "2026-10-04T15:45:00+09:00",
+  "field_size_at_sales_start": 17,
+  "scratched": [],
   "surface": "芝",
   "status": "pre_race_1003（調教・厩舎コメント反映済み）",
   "bias": {

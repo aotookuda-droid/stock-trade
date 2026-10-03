@@ -1,13 +1,17 @@
 """重賞の買い目を機械的に算出するエンジン。ルールは keiba/RULES.md を参照。
 
-使い方: python -m keiba.engine keiba/records/20261004_スプリンターズS.json
+使い方: python3 -m keiba.engine keiba/records/YYYYMMDD_レース名.json [keiba/records/ledger_YYYYMMDD.json]
+（最終提案専用。実取得オッズと取得時刻の検査を通らなければ止まる。前日の参考計算は analyze() を直接使う）
 """
 import json
 import math
+import re
 import sys
+from datetime import datetime, timedelta
 from itertools import combinations, permutations
 
 RACE_CAP = 4000
+WEEKEND_CAP = 8000
 UNIT = 100
 MAX_TICKETS = 15
 EV_THRESHOLD = 1.2
@@ -15,7 +19,17 @@ SOFTMAX_TEMP = 8.0
 MODEL_WEIGHT = 0.5
 TAKEOUT_WIN = 0.20
 BIAS_FLAT = 0.08
-ORDER_RATIO = 2.0
+# 資金配分の基準資金（期待対数成長の計算用）。Codex版 config.json と同じ値で、未検証
+REFERENCE_CAPITAL = 80000
+# 最終提案に使えるオッズ: 発走60分前（判断時刻）以前、かつ判断時刻の10分前以降に取得したもの
+DECISION_BEFORE = timedelta(minutes=60)
+ODDS_WINDOW = timedelta(minutes=10)
+# 単勝以外の買い目の確率を、その買い目のオッズから逆算した市場確率（払戻率÷オッズ）と
+# 幾何平均で混ぜる比率（モデル側の重み。1.0 で補正なし）。Codex版 raceday と同じ 0.5、未検証
+TICKET_MODEL_WEIGHT = 0.5
+PAYOUT_RATE = {'単勝': 0.80, '複勝': 0.80, '枠連': 0.775, '馬連': 0.775, 'ワイド': 0.775,
+               '馬単': 0.75, '三連複': 0.75, '三連単': 0.725}
+BET_TYPES = ('win', 'place', 'wakuren', 'umaren', 'wide', 'umatan', 'sanrenpuku', 'sanrentan')
 
 MINUS_WEIGHTS = {
     'front_runner_bad_pace': -6,
@@ -144,15 +158,30 @@ def win_probabilities(scores, win_odds):
     return _normalize(blended)
 
 
-def harville(p):
-    """勝率から複勝・ワイド・馬連・馬単・三連複・三連単の的中確率を算出する。"""
+def place_slots(field_size_at_sales_start):
+    """複勝の的中範囲。発売開始時8頭以上は3着まで、5〜7頭は2着まで、4頭以下は発売なし（JRA）。
+
+    発売後の取消で頭数が減っても、発売開始時の頭数で決まる。
+    """
+    if field_size_at_sales_start >= 8:
+        return 3
+    if field_size_at_sales_start >= 5:
+        return 2
+    return 0
+
+
+def harville(p, places=3):
+    """勝率から上位3頭の着順分布と、各券種の的中確率を算出する。
+
+    places は複勝の的中範囲（place_slots の値）。ワイドは頭数によらず3着以内の2頭。
+    """
     place = {k: 0.0 for k in p}
     wide, umaren, umatan, trio, trifecta = {}, {}, {}, {}, {}
     for a, b, c in permutations(p, 3):
         pab = p[a] * p[b] / (1 - p[a])
         pabc = pab * p[c] / (1 - p[a] - p[b])
         trifecta[(a, b, c)] = pabc
-        for k in (a, b, c):
+        for k in (a, b, c)[:places]:
             place[k] += pabc
         for pair in combinations(sorted((a, b, c)), 2):
             wide[pair] = wide.get(pair, 0.0) + pabc
@@ -187,81 +216,134 @@ def _low(o):
     return o[0] if isinstance(o, (list, tuple)) else o
 
 
-def _bet(kind, horses, prob, o):
-    return {'type': kind, 'horses': list(horses), 'prob': prob, 'odds': o, 'ev': prob * o,
+def _bet(kind, horses, prob, o, model_weight=TICKET_MODEL_WEIGHT):
+    """prob はモデル（Harville）の的中確率。単勝以外は市場確率と混ぜた確率で期待値を出す。
+
+    payout_odds は配分計算用の倍率で、モデルの着順分布のもとで期待値が補正後の値になるよう調整したもの。
+    """
+    model = prob
+    if kind != '単勝' and model_weight < 1 and prob > 0:
+        market = min(1.0, PAYOUT_RATE[kind] / o)
+        prob = prob ** model_weight * market ** (1 - model_weight)
+    return {'type': kind, 'horses': list(horses), 'prob': prob, 'model_prob': model, 'odds': o, 'ev': prob * o,
+            'payout_odds': o * prob / model if model > 0 else 0.0,
             'kelly': (prob * o - 1) / (o - 1) if o > 1 else -1.0}
 
 
-def pair_bets(p, odds, probs, gates):
-    """同じ2頭の組では馬連・枠連・馬単のうち期待値が最大の1つだけを候補にする。
-
-    枠連は枠連オッズが馬連オッズより高い場合だけ、馬単は着順イメージが明確
-    （1着側の勝率が2着側の ORDER_RATIO 倍以上）な場合だけ比較対象に入れる。
-    """
+def candidate_bets(p, odds, gates=None, places=3, model_weight=TICKET_MODEL_WEIGHT):
+    """8券種を独立に評価し、期待値が閾値以上の買い目を返す（券種間の制限はしない）。"""
+    probs = harville(p, places)
     waku = wakuren_probabilities(probs['umaren'], gates) if gates else {}
-    waku_odds = {_key(k): o for k, o in odds.get('wakuren', {}).items()}
-    umatan_odds = {_ordered(k): o for k, o in odds.get('umatan', {}).items()}
+    table = [
+        ('単勝', 'win', lambda k: (int(k),), lambda t: p.get(t[0], 0.0)),
+        ('複勝', 'place', lambda k: (int(k),), lambda t: probs['place'].get(t[0], 0.0)),
+        ('ワイド', 'wide', _key, lambda t: probs['wide'].get(t, 0.0)),
+        ('馬連', 'umaren', _key, lambda t: probs['umaren'].get(t, 0.0)),
+        ('枠連', 'wakuren', _key, lambda t: waku.get(t, 0.0)),
+        ('馬単', 'umatan', _ordered, lambda t: probs['umatan'].get(t, 0.0)),
+        ('三連複', 'sanrenpuku', _key, lambda t: probs['trio'].get(t, 0.0)),
+        ('三連単', 'sanrentan', _ordered, lambda t: probs['trifecta'].get(t, 0.0)),
+    ]
     bets = []
-    for k, o in odds.get('umaren', {}).items():
-        pair = _key(k)
-        options = [_bet('馬連', pair, probs['umaren'].get(pair, 0.0), o)]
-        if gates:
-            gp = tuple(sorted((gates[pair[0]], gates[pair[1]])))
-            if gp in waku_odds and waku_odds[gp] > o:
-                bet = _bet('枠連', gp, waku.get(gp, 0.0), waku_odds[gp])
-                options.append(bet)
-        for order in (pair, pair[::-1]):
-            if order in umatan_odds and p[order[0]] >= ORDER_RATIO * p[order[1]]:
-                options.append(_bet('馬単', order, probs['umatan'][order], umatan_odds[order]))
-        bets.append(max(options, key=lambda b: b['ev']))
-    return bets
+    for label, kind, parse, prob in table:
+        if kind == 'place' and places == 0:
+            continue
+        if kind == 'wakuren' and not gates:
+            continue
+        for k, o in odds.get(kind, {}).items():
+            o = _low(o)
+            b = _bet(label, parse(k), prob(parse(k)), o, model_weight)
+            if b['odds'] > 1 and b['ev'] >= EV_THRESHOLD:
+                bets.append(b)
+    return bets, probs['trifecta']
 
 
-def candidate_bets(p, odds, gates=None):
-    probs = harville(p)
-    bets = []
-    for k, o in odds.get('win', {}).items():
-        bets.append(_bet('単勝', (int(k),), p[int(k)], o))
-    for k, o in odds.get('place', {}).items():
-        bets.append(_bet('複勝', (int(k),), probs['place'][int(k)], _low(o)))
-    for k, o in odds.get('wide', {}).items():
-        bets.append(_bet('ワイド', _key(k), probs['wide'].get(_key(k), 0.0), _low(o)))
-    bets += pair_bets(p, odds, probs, gates)
-    for k, o in odds.get('sanrenpuku', {}).items():
-        bets.append(_bet('三連複', _key(k), probs['trio'].get(_key(k), 0.0), o))
-    for k, o in odds.get('sanrentan', {}).items():
-        bets.append(_bet('三連単', _ordered(k), probs['trifecta'].get(_ordered(k), 0.0), o))
-    # 枠連は複数の馬連の組から同じ枠の組が出うるので重複を除く
-    seen, unique = set(), []
-    for b in bets:
-        key = (b['type'], tuple(b['horses']))
-        if key not in seen and b['odds'] > 1 and b['ev'] >= EV_THRESHOLD:
-            seen.add(key)
-            unique.append(b)
-    unique.sort(key=lambda b: b['kelly'], reverse=True)
-    return unique[:MAX_TICKETS]
+def _hits(bet, orders, gates, places):
+    """bet が的中する着順（上位3頭）の添字集合。"""
+    t, h = bet['type'], tuple(bet['horses'])
+    out = []
+    for i, (a, b, c) in enumerate(orders):
+        if t == '単勝':
+            ok = h[0] == a
+        elif t == '複勝':
+            ok = h[0] in (a, b, c)[:places]
+        elif t == 'ワイド':
+            ok = set(h) <= {a, b, c}
+        elif t == '馬連':
+            ok = h == tuple(sorted((a, b)))
+        elif t == '枠連':
+            ok = h == tuple(sorted((gates[a], gates[b])))
+        elif t == '馬単':
+            ok = h == (a, b)
+        elif t == '三連複':
+            ok = h == tuple(sorted((a, b, c)))
+        else:
+            ok = h == (a, b, c)
+        if ok:
+            out.append(i)
+    return out
 
 
-def allocate(bets, cap=RACE_CAP):
-    """ケリー比率に比例して100円単位で配分する。合計はcapを超えない。"""
+def allocate(bets, trifecta, cap=RACE_CAP, gates=None, places=3, capital=REFERENCE_CAPITAL):
+    """買い目同士の同時的中・同時不的中を含めて、期待対数成長が最も増える買い目へ100円ずつ積む。
+
+    着順（上位3頭）ごとに全買い目の払戻を合算して評価するので、同じ馬に偏った買い目の
+    同時損失が配分に反映される。cap と MAX_TICKETS 点の範囲で、増分がなくなったら止める。
+    戻り値は (配分済みの買い目, 見送り理由)。
+    """
     if not bets:
-        return []
-    total_f = sum(b['kelly'] for b in bets)
-    budget = int(cap * min(1.0, total_f * 4) // UNIT * UNIT)
-    for b in bets:
-        b['stake'] = int(budget * b['kelly'] / total_f // UNIT * UNIT)
-    kept = [b for b in bets if b['stake'] > 0]
-    rest = budget - sum(b['stake'] for b in kept)
-    for b in kept:
-        if rest < UNIT:
+        return [], 'no_value'
+    if cap < UNIT:
+        return [], 'no_budget'
+    orders = list(trifecta)
+    prob = [trifecta[o] for o in orders]
+    hits = [_hits(b, orders, gates, places) for b in bets]
+    wealth = [float(capital)] * len(orders)
+    stakes = [0] * len(bets)
+    spent = 0
+    while spent + UNIT <= cap:
+        if min(wealth) <= UNIT:
             break
-        b['stake'] += UNIT
-        rest -= UNIT
-    return kept
+        base = math.fsum(q * (math.log(w - UNIT) - math.log(w)) for q, w in zip(prob, wealth))
+        n_used = sum(1 for x in stakes if x)
+        best, best_gain = None, 0.0
+        for j, b in enumerate(bets):
+            if not stakes[j] and n_used >= MAX_TICKETS:
+                continue
+            ret = UNIT * b['payout_odds']
+            gain = base + math.fsum(prob[i] * (math.log(wealth[i] - UNIT + ret) - math.log(wealth[i] - UNIT))
+                                    for i in hits[j])
+            if gain > best_gain:
+                best, best_gain = j, gain
+        if best is None:
+            break
+        stakes[best] += UNIT
+        spent += UNIT
+        ret = UNIT * bets[best]['payout_odds']
+        wealth = [w - UNIT for w in wealth]
+        for i in hits[best]:
+            wealth[i] += ret
+    kept = []
+    for b, x in zip(bets, stakes):
+        if x:
+            kept.append(dict(b, stake=x))
+    kept.sort(key=lambda b: (-b['stake'], -b['ev']))
+    return kept, (None if kept else 'no_unit_allocation')
 
 
-def analyze(race):
-    horses = race['horses']
+SKIP_REASONS = {
+    'no_value': '期待値1.2以上の馬券なし',
+    'no_unit_allocation': '期待値1.2以上の候補はあるが、100円単位では期待対数成長が増えない',
+    'no_budget': '土日の残り予算なし（先のレースへの予約・使用済み）',
+}
+
+
+def analyze(race, cap=RACE_CAP, model_weight=TICKET_MODEL_WEIGHT):
+    """race['scratched'] の馬番は出走取消として除く。複勝の範囲は発売開始時の頭数で決める。"""
+    scratched = set(race.get('scratched', []))
+    horses = [h for h in race['horses'] if h['num'] not in scratched]
+    sales_start = race.get('field_size_at_sales_start') or len(race['horses'])
+    places = place_slots(sales_start)
     if 'bias' in race and 'results' in race['bias']:
         inner_outer, front_back = track_bias(race['bias']['results'])
     else:
@@ -269,24 +351,35 @@ def analyze(race):
         inner_outer, front_back = bias.get('inner_outer', 'flat'), bias.get('front_back', 'flat')
     pace = race.get('pace') or predict_pace(horses)
     scores = {h['num']: total_score(h, pace, inner_outer, front_back) for h in horses}
-    p = win_probabilities(scores, {int(k): v for k, v in race['odds']['win'].items()})
+    win_odds = {int(k): v for k, v in race['odds']['win'].items()}
+    missing = [n for n in scores if n not in win_odds]
+    if missing:
+        raise ValueError(f"単勝オッズがない馬（取消なら scratched に入れる）: {missing}")
+    p = win_probabilities(scores, win_odds)
     gates = {h['num']: h['gate'] for h in horses} if all('gate' in h for h in horses) else None
-    bets = allocate(candidate_bets(p, race['odds'], gates))
+    odds = {k: {kk: vv for kk, vv in v.items() if all(int(x) not in scratched for x in re.split('[->]', kk))}
+            if k != 'wakuren' else v for k, v in race['odds'].items()}
+    cands, trifecta = candidate_bets(p, odds, gates, places, model_weight)
+    bets, skip = allocate(cands, trifecta, cap, gates, places)
     return {
         'race': race['race'],
         'bias': {'inner_outer': inner_outer, 'front_back': front_back},
         'pace': pace,
+        'place_slots': places,
+        'cap': cap,
         'scores': scores,
         'win_prob': {k: round(v, 4) for k, v in p.items()},
         'bets': bets,
         'total_stake': sum(b['stake'] for b in bets),
+        'skip_reason': skip,
     }
 
 
 def format_result(res):
-    lines = [f"■ {res['race']}  ペース:{res['pace']}  バイアス:{res['bias']['inner_outer']}/{res['bias']['front_back']}"]
+    lines = [f"■ {res['race']}  ペース:{res['pace']}  バイアス:{res['bias']['inner_outer']}/{res['bias']['front_back']}"
+             f"  上限:{res.get('cap', RACE_CAP)}円"]
     if not res['bets']:
-        lines.append('見送り（期待値1.2以上の馬券なし）')
+        lines.append(f"見送り（{SKIP_REASONS.get(res.get('skip_reason'), '期待値1.2以上の馬券なし')}）")
         return '\n'.join(lines)
     for b in res['bets']:
         sep = '>' if b['type'] in ('馬単', '三連単') else '-'
@@ -299,15 +392,82 @@ def format_result(res):
     return '\n'.join(lines)
 
 
-def main(path):
+# ---- 土日の予算台帳 -------------------------------------------------------
+
+def weekend_cap(ledger, race_id):
+    """このレースに使える上限。土日8,000円から、使用済み額と、まだ判断していない
+    本命レース（primary）への予約（各4,000円）を引いた残り。3レース目（primary=false）は残りだけを使う。
+    """
+    entries = {e['race_id']: e for e in ledger['races']}
+    if race_id not in entries:
+        raise ValueError(f"台帳にないレース: {race_id}")
+    used = sum(e.get('stake', 0) for e in ledger['races'] if e.get('status') == 'decided')
+    reserved = sum(RACE_CAP for e in ledger['races']
+                   if e['race_id'] != race_id and e.get('primary') and e.get('status') != 'decided')
+    remaining = ledger.get('cap', WEEKEND_CAP) - used - reserved
+    return max(0, min(RACE_CAP, remaining // UNIT * UNIT))
+
+
+def record_decision(ledger, race_id, stake, decided_at):
+    for e in ledger['races']:
+        if e['race_id'] == race_id:
+            if e.get('status') == 'decided':
+                raise ValueError(f"判断済みのレース: {race_id}")
+            e.update(status='decided', stake=stake, decided_at=decided_at)
+            return ledger
+    raise ValueError(f"台帳にないレース: {race_id}")
+
+
+# ---- 最終提案の入力検査 -----------------------------------------------------
+
+def _dt(s):
+    return datetime.fromisoformat(s)
+
+
+def validate_final(race):
+    """最終提案に使えるか検査する。実取得オッズ（odds_meta）が判断時刻の前10分以内に揃っていること。"""
+    if not race.get('start_at'):
+        raise ValueError('start_at（発走時刻）がない')
+    decision = _dt(race['start_at']) - DECISION_BEFORE
+    meta = race.get('odds_meta') or {}
+    if meta.get('kind') != 'observed' or not meta.get('source'):
+        raise ValueError('odds_meta に実取得オッズの記録（kind=observed・source）がない。予想オッズでは最終提案しない')
+    fetched = meta.get('fetched_at') or {}
+    for kind in race['odds']:
+        if kind not in fetched:
+            raise ValueError(f'{kind} の取得時刻がない')
+        t = _dt(fetched[kind])
+        if t > decision:
+            raise ValueError(f'{kind} のオッズが判断時刻 {decision:%H:%M} より後に取得されている（{t:%H:%M:%S}）')
+        if t < decision - ODDS_WINDOW:
+            raise ValueError(f'{kind} のオッズが古い（{t:%H:%M:%S}、判断時刻の{ODDS_WINDOW.seconds // 60}分前より前）')
+    if 'win' not in race['odds']:
+        raise ValueError('単勝オッズがない')
+    return decision
+
+
+def main(path, ledger_path=None):
     with open(path, encoding='utf-8') as f:
         race = json.load(f)
-    res = analyze(race)
+    validate_final(race)
+    cap = RACE_CAP
+    ledger = None
+    if ledger_path:
+        with open(ledger_path, encoding='utf-8') as f:
+            ledger = json.load(f)
+        cap = weekend_cap(ledger, race['race_id'])
+    res = analyze(race, cap)
     race['result'] = res
     with open(path, 'w', encoding='utf-8') as f:
         json.dump(race, f, ensure_ascii=False, indent=2)
+        f.write('\n')
+    if ledger is not None:
+        record_decision(ledger, race['race_id'], res['total_stake'], datetime.now().astimezone().isoformat(timespec='seconds'))
+        with open(ledger_path, 'w', encoding='utf-8') as f:
+            json.dump(ledger, f, ensure_ascii=False, indent=2)
+            f.write('\n')
     print(format_result(res))
 
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+    main(*sys.argv[1:])

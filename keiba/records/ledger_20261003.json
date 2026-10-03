@@ -1,0 +1,21 @@
+{
+  "weekend": "2026-10-03/04",
+  "cap": 8000,
+  "note": "本命2レース（primary）は各4,000円を予約。3レース目（primary=false）は残り予算だけを使う（RULES.md §0・§1）",
+  "races": [
+    {
+      "race_id": "202608040211",
+      "name": "京都大賞典",
+      "primary": true,
+      "start_at": "2026-10-04T15:30:00+09:00",
+      "status": "pending"
+    },
+    {
+      "race_id": "202605040211",
+      "name": "毎日王冠",
+      "primary": true,
+      "start_at": "2026-10-04T15:45:00+09:00",
+      "status": "pending"
+    }
+  ]
+}

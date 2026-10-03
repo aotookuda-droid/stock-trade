@@ -166,7 +166,7 @@ function render() {
   document.getElementById('bets-h').textContent = '買い目試算（' + D.odds_label + '）';
   const sepOf = t => (t === '馬単' || t === '三連単') ? '>' : '-';
   bets.innerHTML = r.bets.length ? r.bets.map(b => `<div><span>${esc(b.type)} ${b.type === '枠連' ? '枠' : ''}${b.horses.join(sepOf(b.type))}</span><span>${b.stake}円 · ${b.odds.toFixed(1)}倍 · 期待値${b.ev.toFixed(2)} <span class="${b.ev * 0.9 >= 1.2 ? 'robust' : 'fragile'}">${b.ev * 0.9 >= 1.2 ? '✓' : '—'}</span></span></div>`).join('') + `<div><span>合計</span><span>${r.stake}円</span></div>`
-    : '<div><span>見送り</span><span>期待値1.2以上の馬券なし</span></div>';
+    : `<div><span>見送り</span><span>${esc(r.skip || '期待値1.2以上の馬券なし')}</span></div>`;
   const wk = D.races.reduce((a, x) => a + x.stake, 0);
   bets.innerHTML += `<div><span>土日合計（全レース）</span><span${wk > 8000 ? ' class="edge-dn"' : ''}>${wk}円 / 8,000円</span></div>`;
   document.getElementById('links').innerHTML = (r.links || []).map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join(' ・ ');
