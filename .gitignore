@@ -19,3 +19,4 @@ data/
 # keiba の台帳ロック・書きかけファイル
 *.lock
 *.tmp
+keiba/data/cache/

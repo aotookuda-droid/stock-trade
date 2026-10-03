@@ -17,6 +17,8 @@ from keiba import engine
 API = 'https://race.netkeiba.com/api/api_get_jra_odds.html?race_id={}&type={}&action=update'
 TEMPLATE = Path(__file__).with_name('card_template.html')
 CODEX_RECORDS = Path(__file__).resolve().parents[2] / 'codex-keiba' / 'records'
+TRENDS = Path(__file__).with_name('reports')
+TREND_MIN_N = 10  # ▲▼に数える区分の最低出走数
 LINKS = [('出馬表', 'shutuba'), ('調教', 'oikiri'), ('厩舎コメント', 'comment'), ('オッズ', 'odds/index')]
 TRAINING_TAG = '（10/3 netkeiba調教[デイリー]・厩舎コメント確認）'
 RULE_TAG = '。（10/3 ルール照合で追加）'
@@ -87,6 +89,39 @@ def load_codex(race_id):
                           for s in scenarios]}
 
 
+def load_trends(short, win):
+    """同レース過去10年の傾向（keiba.research.trends が書いた JSON）。人気はその時点の単勝オッズ順。"""
+    path = TRENDS / f'trends_{short}.json'
+    if not path.exists():
+        return None, {}
+    t = json.loads(path.read_text(encoding='utf-8'))
+    total = sum(v[0] for v in t['stats']['人気'].values())
+    base = sum(v[2] for v in t['stats']['人気'].values()) / total if total else 0
+    rank = {n: i + 1 for i, n in enumerate(sorted(win, key=win.get))}
+    per = {}
+    for num, cats in t['horses'].items():
+        n = int(num)
+        cats = dict(cats)
+        if n in rank:
+            p = rank[n]
+            cats['人気'] = ('1番人気' if p == 1 else '2-3番人気' if p <= 3 else '4-6番人気' if p <= 6
+                          else '7-9番人気' if p <= 9 else '10番人気以下')
+        items, up, down = [], 0, 0
+        for key in ('人気', '前走レース', '前走着順', '前走間隔', '枠', '年齢', '脚質'):
+            v = cats.get(key)
+            s = t['stats'].get(key, {}).get(v) if v else None
+            if not s:
+                continue
+            rate = s[2] / s[0]
+            items.append({'key': key, 'value': v, 'n': s[0], 'win': s[1], 'top3': s[2], 'rate': round(rate, 3)})
+            if s[0] >= TREND_MIN_N and base:
+                up += rate >= base * 1.5
+                down += rate <= base * 0.5
+        per[n] = {'items': items, 'up': up, 'down': down}
+    meta = {'years': t['years'], 'n_races': t['n_races'], 'venues': t['venues'], 'base': round(base, 3)}
+    return meta, per
+
+
 def _start_iso(race):
     m = re.search(r'(\d{4})/(\d{2})/(\d{2}).*?(\d{1,2}):(\d{2})発走', race)
     return f"{m[1]}-{m[2]}-{m[3]}T{int(m[4]):02d}:{m[5]}:00+09:00" if m else None
@@ -114,6 +149,8 @@ def build_race(path, key):
     res = engine.analyze(dict(rec, odds=odds, scratched=sorted(scratched)))
     mkt = engine._normalize({h['num']: 1 / win[h['num']] for h in running})
     codex = load_codex(rec['race_id']) if rec.get('race_id') else None
+    name_m = re.search(r'\d+R (.+?)\(', rec['race'])
+    trend_meta, trends = load_trends(name_m.group(1) if name_m else '', win)
     horses = []
     for h in rec['horses']:
         n = h['num']
@@ -130,6 +167,7 @@ def build_race(path, key):
             'odds': win.get(n), 'pred': h.get(pred_key), 'scratched': is_scratched,
             'codex': round(codex['win'][n], 4) if codex and n in codex['win'] else None,
             'codex_note': codex['notes'].get(n, '') if codex else '',
+            'trend': trends.get(n),
             'front': engine.is_front_candidate(h.get('early_positions', [])), 'early': h.get('early_positions', []),
             'pacefit': engine.PACE_FIT[res['pace']][h['style']],
             'score': res['scores'].get(n, 0), 'p': res['win_prob'].get(n, 0.0), 'mkt': round(mkt.get(n, 0.0), 4),
@@ -141,6 +179,7 @@ def build_race(path, key):
             'bets': bets, 'stake': res['total_stake'], 'live': live, 'asof': asof, 'pred_key': pred_key,
             'missing': missing, 'skip': engine.SKIP_REASONS.get(res['skip_reason'], ''), 'market': engine.market_label(res),
             'codex': {k: v for k, v in codex.items() if k not in ('win', 'notes')} if codex else None,
+            'trend_meta': trend_meta,
             'start_at': _start_iso(rec['race']),
             'links': [{'label': label, 'url': f'https://race.netkeiba.com/{"" if page.startswith("odds") else "race/"}'
                        f'{page}.html?race_id={rec["race_id"]}'} for label, page in LINKS] if rec.get('race_id') else []}

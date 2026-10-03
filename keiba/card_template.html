@@ -122,10 +122,10 @@ tr.scr td{opacity:.45}
   <div class="legend">
     <span><i style="background:var(--turf)"></i>モデル勝率（市場とブレンド後）</span>
     <span><i style="background:var(--muted)"></i>市場勝率（単勝オッズ）</span>
-    <span>行をクリックで寸評・調教コメントを表示</span><span>★ = 10/3 追加フラグ／調教 = デイリー最終追切評価</span>
+    <span>行をクリックで寸評・調教コメントを表示</span><span>★ = 10/3 追加フラグ／調教 = デイリー最終追切評価</span><span>過去10年傾向：同レースで3着以内率がレース平均の1.5倍以上の区分▲・0.5倍以下▼（出走10頭以上の区分のみ。点数には入れていない参考）</span>
   </div>
   <div class="tbl"><table>
-    <thead><tr><th>枠</th><th>馬番</th><th>馬名 / 騎手</th><th>脚質</th><th>枠位置</th><th>ability</th><th>調教</th><th>加点・減点</th><th>総合点</th><th>勝率</th><th class="num">Codex<br>勝率</th><th class="num">単勝<br>オッズ</th></tr></thead>
+    <thead><tr><th>枠</th><th>馬番</th><th>馬名 / 騎手</th><th>脚質</th><th>枠位置</th><th>ability</th><th>調教</th><th>加点・減点</th><th>総合点</th><th>勝率</th><th class="num">Codex<br>勝率</th><th>過去10年<br>傾向</th><th class="num">単勝<br>オッズ</th></tr></thead>
     <tbody id="tb"></tbody>
   </table></div>
 </div>
@@ -200,8 +200,9 @@ function render() {
         <div class="row mkt"><i style="width:${h.mkt / maxP * 70}px"></i>${(h.mkt * 100).toFixed(1)}% <span class="${edge >= 0.005 ? 'edge-up' : edge <= -0.005 ? 'edge-dn' : ''}">${edge >= 0 ? '+' : ''}${(edge * 100).toFixed(1)}</span></div>
       </div></td>
       <td class="num">${h.codex == null ? '—' : (h.codex * 100).toFixed(1) + '%'}${h.codex == null ? '' : `<div class="sub ${h.codex - h.p >= 0.02 ? 'edge-up' : h.codex - h.p <= -0.02 ? 'edge-dn' : ''}">${h.codex - h.p >= 0 ? '+' : ''}${((h.codex - h.p) * 100).toFixed(1)}</div>`}</td>
+      <td>${h.trend ? `<span class="edge-up">${'▲'.repeat(h.trend.up)}</span><span class="edge-dn">${'▼'.repeat(h.trend.down)}</span>` || '<span class="sub">—</span>' : '<span class="sub">—</span>'}</td>
       <td class="num">${h.scratched ? '取消' : h.odds.toFixed(1)}</td>
-    </tr>` + (open.has(h.num) ? `<tr class="nt"><td colspan="12">${esc(h.notes)}<span class="tr10">10/3 調教・厩舎：${esc(h.train)}</span>${h.rule ? `<span class="tr10">10/3 ルール照合：${esc(h.rule)}</span>` : ''}<br>過去の1角通過順（古→新）：${h.early.join(' → ')}${h.pred ? ` ／ 前日予想オッズ ${h.pred}` : ''}${h.codex_note ? `<span class="tr10">Codex評価：${esc(h.codex_note)}</span>` : ''}</td></tr>` : '');
+    </tr>` + (open.has(h.num) ? `<tr class="nt"><td colspan="13">${esc(h.notes)}<span class="tr10">10/3 調教・厩舎：${esc(h.train)}</span>${h.rule ? `<span class="tr10">10/3 ルール照合：${esc(h.rule)}</span>` : ''}<br>過去の1角通過順（古→新）：${h.early.join(' → ')}${h.pred ? ` ／ 前日予想オッズ ${h.pred}` : ''}${h.codex_note ? `<span class="tr10">Codex評価：${esc(h.codex_note)}</span>` : ''}${h.trend && r.trend_meta ? `<span class="tr10">過去${r.trend_meta.n_races}年の同レース（${esc(r.trend_meta.years)}）の3着以内率：${h.trend.items.map(t => `${esc(t.value)} ${Math.round(t.rate * 100)}%（${t.top3}/${t.n}）`).join('・')}</span>` : ''}</td></tr>` : '');
   }).join('');
 }
 document.getElementById('tb').addEventListener('click', e => {
