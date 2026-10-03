@@ -201,7 +201,7 @@ function render() {
       </div></td>
       <td class="num">${h.codex == null ? '—' : (h.codex * 100).toFixed(1) + '%'}${h.codex == null ? '' : `<div class="sub ${h.codex - h.p >= 0.02 ? 'edge-up' : h.codex - h.p <= -0.02 ? 'edge-dn' : ''}">${h.codex - h.p >= 0 ? '+' : ''}${((h.codex - h.p) * 100).toFixed(1)}</div>`}</td>
       <td class="num">${h.scratched ? '取消' : h.odds.toFixed(1)}</td>
-    </tr>` + (open.has(h.num) ? `<tr class="nt"><td colspan="12">${esc(h.notes)}<span class="tr10">10/3 調教・厩舎：${esc(h.train)}</span><br>過去の1角通過順（古→新）：${h.early.join(' → ')}${h.pred ? ` ／ 前日予想オッズ ${h.pred}` : ''}${h.codex_note ? `<span class="tr10">Codex評価：${esc(h.codex_note)}</span>` : ''}</td></tr>` : '');
+    </tr>` + (open.has(h.num) ? `<tr class="nt"><td colspan="12">${esc(h.notes)}<span class="tr10">10/3 調教・厩舎：${esc(h.train)}</span>${h.rule ? `<span class="tr10">10/3 ルール照合：${esc(h.rule)}</span>` : ''}<br>過去の1角通過順（古→新）：${h.early.join(' → ')}${h.pred ? ` ／ 前日予想オッズ ${h.pred}` : ''}${h.codex_note ? `<span class="tr10">Codex評価：${esc(h.codex_note)}</span>` : ''}</td></tr>` : '');
   }).join('');
 }
 document.getElementById('tb').addEventListener('click', e => {

@@ -19,6 +19,7 @@ TEMPLATE = Path(__file__).with_name('card_template.html')
 CODEX_RECORDS = Path(__file__).resolve().parents[2] / 'codex-keiba' / 'records'
 LINKS = [('出馬表', 'shutuba'), ('調教', 'oikiri'), ('厩舎コメント', 'comment'), ('オッズ', 'odds/index')]
 TRAINING_TAG = '（10/3 netkeiba調教[デイリー]・厩舎コメント確認）'
+RULE_TAG = '。（10/3 ルール照合で追加）'
 # API の type → (engine のキー, 組の区切り, 下限だけでなく上限も持つか)
 TYPES = {1: ('win', None, False), 2: ('place', None, True), 3: ('wakuren', '-', False), 4: ('umaren', '-', False),
          5: ('wide', '-', True), 6: ('umatan', '>', False), 7: ('sanrenpuku', '-', False), 8: ('sanrentan', '>', False)}
@@ -118,12 +119,13 @@ def build_race(path, key):
         n = h['num']
         is_scratched = n in scratched
         notes, _, train = h['notes'].partition(TRAINING_TAG)
+        train, _, rule = train.partition(RULE_TAG)
         grade = re.search(r'評価([A-D])|\(([A-D])', train)
         horses.append({
             'num': n, 'gate': h['gate'], 'name': h['name'], 'jockey': _jockey(h['notes']),
             'style': h['style'], 'zone': h['gate_zone'], 'ability': h['ability'],
             'minus': h['minus'], 'plus': h['plus'],
-            'new': [k for k in h['plus'] + h['minus'] if '→' + k in train],
+            'new': [k for k in h['plus'] + h['minus'] if '→' + k in train + rule], 'rule': rule,
             'notes': notes.rstrip('。'), 'train': train, 'grade': (grade.group(1) or grade.group(2)) if grade else '',
             'odds': win.get(n), 'pred': h.get(pred_key), 'scratched': is_scratched,
             'codex': round(codex['win'][n], 4) if codex and n in codex['win'] else None,

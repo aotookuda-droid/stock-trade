@@ -53,7 +53,9 @@ class LiveCardTest(unittest.TestCase):
         d = self.build(None)
         horses = {h['num']: h for h in d['races'][0]['horses']}
         self.assertEqual(horses[1]['new'], ['final_work_strong'])
-        self.assertEqual(horses[13]['new'], [])
+        self.assertEqual(horses[13]['new'], ['second_start'])  # ルール照合での追加も★
+        self.assertIn('叩き2戦目', horses[13]['rule'])
+        self.assertNotIn('叩き2戦目', horses[13]['train'])
 
 
 if __name__ == '__main__':
