@@ -239,10 +239,18 @@ def fetch(record_path, retries=2, pause=60, get=_get_page, sleep=time.sleep, dir
     return status
 
 
-def _weekend(start_at):
-    d = datetime.fromisoformat(start_at)
-    sat = d.toordinal() - (d.weekday() - 5) % 7 if d.weekday() >= 5 else d.toordinal()
-    return datetime.fromordinal(sat).strftime('%Y/%m/%d週')
+def _weekend(s):
+    """集計の週。予算の単位と揃えるため、そのレースが載っている台帳（ledger_土曜日付.json）で決める。
+    台帳が見つからなければ発走日から決め、土・日・月（3日間開催の祝日月曜）は直前の土曜にまとめる。"""
+    for path in sorted(Path(s['record']).parent.glob('ledger_*.json')):
+        try:
+            if any(e.get('race_id') == s['race_id'] for e in engine._read_json(path)['races']):
+                return datetime.strptime(path.stem[len('ledger_'):], '%Y%m%d').strftime('%Y/%m/%d週')
+        except (OSError, ValueError, KeyError, TypeError):
+            continue
+    d = datetime.fromisoformat(s['start_at'])
+    back = {5: 0, 6: 1, 0: 2}.get(d.weekday(), 0)
+    return datetime.fromordinal(d.toordinal() - back).strftime('%Y/%m/%d週')
 
 
 def report(directory=SETTLEMENT_DIR):
@@ -276,7 +284,7 @@ def report(directory=SETTLEMENT_DIR):
                 continue
             finish = '-'.join(map(str, s['official']['finish'][:3]))
             lines.append(row(f"{s['race']}（{finish}）", v))
-            w = weeks.setdefault(_weekend(s['start_at']), [0, 0, 0])
+            w = weeks.setdefault(_weekend(s), [0, 0, 0])
             for acc in (w, total):
                 acc[0] += v['stake']
                 acc[1] += v['refund']

@@ -197,6 +197,17 @@ class SettleRecordTest(unittest.TestCase):
             self.write(rec)
             self.assertIn('精算後に変更', settlement.report(self.out))
 
+    def test_holiday_monday_joins_saturday_week(self):
+        tmp = Path(tempfile.mkdtemp())
+        rec = str(tmp / 'r.json')
+        sun = {'race_id': 'A', 'record': rec, 'start_at': '2026-10-11T15:45:00+09:00'}
+        mon = {'race_id': 'B', 'record': rec, 'start_at': '2026-10-12T15:45:00+09:00'}
+        self.assertEqual(settlement._weekend(sun), '2026/10/10週')
+        self.assertEqual(settlement._weekend(mon), '2026/10/10週')
+        # 台帳があれば台帳の土曜日付に従う
+        (tmp / 'ledger_20261010.json').write_text(json.dumps({'races': [{'race_id': 'B'}]}), encoding='utf-8')
+        self.assertEqual(settlement._weekend(dict(mon, start_at='2026-10-13T15:45:00+09:00')), '2026/10/10週')
+
     def test_probability_check(self):
         winner = str(OFFICIAL['finish'][0])
         rec = record([bet('単勝', [5], 300)])

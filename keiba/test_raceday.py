@@ -22,9 +22,18 @@ class RacedayTest(unittest.TestCase):
         self.dir = Path(tempfile.mkdtemp())
         self.rec = self.dir / 'r.json'
         self.led = self.dir / 'l.json'
-        shutil.copy(RECORD, self.rec)
-        shutil.copy(LEDGER, self.led)
-        horses = json.loads(RECORD.read_text(encoding='utf-8'))['horses']
+        # 実レコードは10/4に判断済みなので、判断前の状態（decision・result などを外し、台帳を未判断）に戻して使う
+        rec = json.loads(RECORD.read_text(encoding='utf-8'))
+        for key in ('decision', 'result', 'reference', 'probabilities', 'odds_meta'):
+            rec.pop(key, None)
+        rec['odds'] = {}
+        led = json.loads(LEDGER.read_text(encoding='utf-8'))
+        for e in led['races']:
+            for key in ('status', 'stake', 'decided_at'):
+                e.pop(key, None)
+        self.rec.write_text(json.dumps(rec, ensure_ascii=False), encoding='utf-8')
+        self.led.write_text(json.dumps(led, ensure_ascii=False), encoding='utf-8')
+        horses = rec['horses']
         self.win = {str(h['num']): h['pred_odds_1002'] for h in horses}
 
     def tearDown(self):
