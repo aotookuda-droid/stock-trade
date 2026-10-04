@@ -8,7 +8,9 @@
       "name": "京都大賞典",
       "primary": true,
       "start_at": "2026-10-04T15:30:00+09:00",
-      "status": "pending"
+      "status": "decided",
+      "stake": 4000,
+      "decided_at": "2026-10-04T15:17:35+09:00"
     },
     {
       "race_id": "202605040211",
