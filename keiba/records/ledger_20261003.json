@@ -17,7 +17,9 @@
       "name": "毎日王冠",
       "primary": true,
       "start_at": "2026-10-04T15:45:00+09:00",
-      "status": "pending"
+      "status": "decided",
+      "stake": 4000,
+      "decided_at": "2026-10-04T15:32:31+09:00"
     }
   ]
 }
