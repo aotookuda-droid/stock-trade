@@ -53,6 +53,7 @@ MINUS_WEIGHTS = {
     'first_long_trip': -2,
     'bad_direction': -3,
     'old_no_record': -3,
+    'jockey_downgrade': -4,
 }
 
 PLUS_WEIGHTS = {
@@ -457,7 +458,7 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto'):
         'sanrentan_missing': tri_missing,
         'sanrentan_total': len(scores) * (len(scores) - 1) * (len(scores) - 2),
         'scores': scores,
-        'win_prob': {k: round(win.get(k, 0.0), 4) for k in scores},
+        'win_prob': {k: win.get(k, 0.0) for k in scores},
         'bets': bets,
         'total_stake': sum(b['stake'] for b in bets),
         'growth': growth,
@@ -601,11 +602,26 @@ def commit(race, path, ledger, ledger_path, stake, note=None):
         recover(race, ledger, ledger_path)
 
 
-def finalize(race, path, ledger=None, ledger_path=None):
-    """最終提案を計算して確定する。呼び出し側で decision_state が 'open' であることを確認しておく。"""
+def decision_probabilities(race, res, extra=None):
+    """判断時の勝率を出どころ別に残す（事後に精算で答え合わせし、混合率・温度を決めるため）。
+    claude_model は市場を混ぜる前、market_win は単勝オッズの逆数の正規化、final は買い目の計算に使った分布の勝率。"""
+    win_odds = {int(k): _low(v) for k, v in race['odds']['win'].items()}
+    probs = {'claude_model': model_probabilities(res['scores']),
+             'market_win': _normalize({k: 1 / win_odds[k] for k in res['scores']}),
+             'final': res['win_prob']}
+    for name, p in (extra or {}).items():
+        probs[name] = p
+    # 丸めずに保存する（丸めで小さな確率が0になると、答え合わせの損失が変わる）
+    return {name: {str(k): v for k, v in p.items()} for name, p in probs.items()}
+
+
+def finalize(race, path, ledger=None, ledger_path=None, extra_probs=None):
+    """最終提案を計算して確定する。呼び出し側で decision_state が 'open' であることを確認しておく。
+    extra_probs（{出どころ: {馬番: 勝率}}、Codex版など）は答え合わせ用に一緒に記録するだけで、買い目には使わない。"""
     validate_final(race)
     cap = weekend_cap(ledger, race['race_id']) if ledger is not None else RACE_CAP
     res = analyze(race, cap)
+    race['probabilities'] = decision_probabilities(race, res, extra_probs)
     # 検証用の参考試算（市場側を単勝の Harville だけにした旧方式相当）。台帳には入れず、後で公式払戻と照合する
     ref = analyze(race, cap, market='win')
     race['result'] = res

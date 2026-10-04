@@ -16,6 +16,7 @@
 import hashlib
 import html
 import json
+import math
 import re
 import sys
 import time
@@ -283,9 +284,58 @@ def report(directory=SETTLEMENT_DIR):
         lines += ['', '### 週末別', ''] + header
         lines += [row(k, _summary(*w)) for k, w in weeks.items()]
         lines += ['', '### 累計', ''] + header + [row(f'{len(items)}レース', _summary(*total)), '']
+    lines += probability_check(items)
     if warnings:
         lines += ['## 警告', ''] + warnings
     return '\n'.join(lines)
+
+
+PROB_SOURCES = (('claude_model', 'Claude（市場前）'), ('codex', 'Codex'), ('market_win', '市場（単勝）'), ('final', '最終（買い目に使用）'))
+
+
+def probability_check(items):
+    """判断時に記録した出どころ別の勝率を、勝ち馬に付けた確率と対数損失（−log p、小さいほど良い）で比べる。
+
+    - 未記録（その出どころの記録が無い）と、0 と予測した（記録はあり確率0）を区別する。0 の馬が勝てば損失は無限大。
+    - 平均は行ごとに同じレースの集合で取る（集合を揃えないと優劣を比べられない）。全出どころが揃ったレースの行と、
+      Codex の記録が無いレースがあれば Codex を除いた3つが揃ったレースの行を出す。
+    """
+    races = []
+    for s in items:
+        try:
+            probs = engine._read_json(s['record']).get('probabilities')
+        except OSError:
+            continue
+        if probs:
+            races.append((s, probs))
+    if not races:
+        return []
+    sources = PROB_SOURCES
+    rows, recorded = [], []
+    for s, probs in races:
+        winner = str(s['official']['finish'][0])
+        got = {k: probs[k].get(winner, 0.0) if k in probs else None for k, _ in sources}
+        cells = ['未記録' if p is None else '0（損失∞）' if p == 0 else f'{p * 100:.1f}%' for p in got.values()]
+        rows.append(f"| {s['race']}（{winner}番） | " + ' | '.join(cells) + ' |')
+        recorded.append(got)
+
+    def avg_row(keys, label):
+        common = [g for g in recorded if all(g[k] is not None for k in keys)]
+        cells = []
+        for k, _ in sources:
+            losses = [math.inf if g[k] == 0 else -math.log(g[k]) for g in common] if k in keys else []
+            cells.append('—' if not losses else '∞' if math.inf in losses else f'{sum(losses) / len(losses):.3f}')
+        return f'| 平均対数損失（{label}{len(common)}レース） | ' + ' | '.join(cells) + ' |'
+    keys = [k for k, _ in sources]
+    names = [n for _, n in sources]
+    avg_rows = [avg_row(keys, '全て記録あり')]
+    if any(g['codex'] is None for g in recorded):
+        avg_rows.append(avg_row([k for k in keys if k != 'codex'], 'Codex以外が記録あり'))
+    return ['## 勝率の答え合わせ', '',
+            '勝ち馬に付けていた勝率。「未記録」はその出どころの記録が無いレース、「0（損失∞）」は確率0と予測した馬が勝ったレース。',
+            '平均対数損失（−log p、小さいほど良い）は、行ごとに同じレースの集合だけで計算する（Codex の記録が無いレースは'
+            'Codex との比較に入れない）。混合率・温度・加減点はレース数が十分たまるまで変えない。', '',
+            '| レース（勝ち馬） | ' + ' | '.join(names) + ' |', '|---|' + '---:|' * len(names), *rows, *avg_rows, '']
 
 
 def main(argv):

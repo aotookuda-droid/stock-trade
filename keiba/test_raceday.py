@@ -57,6 +57,11 @@ class RacedayTest(unittest.TestCase):
         led = json.loads(self.led.read_text(encoding='utf-8'))
         kyoto = [e for e in led['races'] if e['race_id'] == '202608040211'][0]
         self.assertEqual((kyoto['status'], kyoto['stake']), ('decided', rec['result']['total_stake']))
+        # 答え合わせ用に出どころ別の勝率を判断時点で記録する（買い目には使わない）
+        probs = rec['probabilities']
+        self.assertLessEqual({'claude_model', 'market_win', 'final'}, set(probs))
+        for p in probs.values():
+            self.assertAlmostEqual(sum(p.values()), 1, places=3)
 
     def test_late_start_is_skip(self):
         self.assertEqual(raceday.run(self.rec, self.led, now=at('15:21:00'), fetch=self.fetch()), 'missed')

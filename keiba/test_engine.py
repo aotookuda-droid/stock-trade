@@ -35,6 +35,11 @@ class EngineTest(unittest.TestCase):
         self.assertLess(engine.bias_fit(horse(1, 0, '追込', '外'), 'inner', 'front'), 0)
         self.assertGreater(engine.bias_fit(horse(1, 0, '追込', '外'), 'outer', 'closer'), 0)
 
+    def test_jockey_downgrade_is_minus(self):
+        h = {'ability': 80, 'style': '差し', 'gate_zone': '中', 'minus': [], 'plus': []}
+        base = engine.total_score(h, 'middle', 'flat', 'flat')
+        self.assertEqual(engine.total_score(dict(h, minus=['jockey_downgrade']), 'middle', 'flat', 'flat'), base - 4)
+
     def test_unknown_factor_rejected(self):
         with self.assertRaises(ValueError):
             engine.total_score(horse(1, 60, minus=['typo']), 'slow', 'flat', 'flat')

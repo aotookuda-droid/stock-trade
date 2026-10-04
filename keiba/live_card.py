@@ -170,7 +170,7 @@ def build_race(path, key):
             'trend': trends.get(n),
             'front': engine.is_front_candidate(h.get('early_positions', [])), 'early': h.get('early_positions', []),
             'pacefit': engine.PACE_FIT[res['pace']][h['style']],
-            'score': res['scores'].get(n, 0), 'p': res['win_prob'].get(n, 0.0), 'mkt': round(mkt.get(n, 0.0), 4),
+            'score': res['scores'].get(n, 0), 'p': round(res['win_prob'].get(n, 0.0), 4), 'mkt': round(mkt.get(n, 0.0), 4),
         })
     bets = [{k: b[k] for k in ('type', 'horses', 'prob', 'odds', 'ev', 'kelly', 'stake')} for b in res['bets']]
     name = re.search(r'\d+R (.+?)\(', rec['race'])
