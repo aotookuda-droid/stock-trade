@@ -66,3 +66,67 @@ class LiveCardTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class LoadCodexTest(unittest.TestCase):
+    DECISION = live_card.datetime.fromisoformat('2026-10-11T15:35:00+09:00')
+
+    def setUp(self):
+        self.dir = tempfile.TemporaryDirectory()
+        self.root = Path(self.dir.name)
+        patcher = mock.patch.object(live_card, 'CODEX_RECORDS', self.root)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.addCleanup(self.dir.cleanup)
+
+    def write(self, **over):
+        rec = {'model': {'id': 'codex-independent-win-v2', 'author': 'Codex', 'status': 'unvalidated'},
+               'probability_preparation': {'status': 'ready'},
+               'prediction_meta': {'frozen_at': '2026-10-11T15:00:00+09:00'},
+               'scenarios': [{'id': 'a', 'weight': 0.5, 'known_at': '2026-10-11T14:00:00+09:00',
+                              'strengths': {'1': 6, '2': 3, '3': 1}},
+                             {'id': 'b', 'weight': 0.5, 'known_at': '2026-10-11T14:00:00+09:00',
+                              'strengths': {'1': 1, '2': 3, '3': 6}}],
+               'horses': []}
+        rec.update(over)
+        (self.root / 'r.json').write_text(json.dumps(rec), encoding='utf-8')
+        (self.root / 'index.json').write_text(json.dumps({'R': 'r.json'}), encoding='utf-8')
+        return rec
+
+    def test_independent_codex(self):
+        self.write()
+        c = live_card.load_codex('R', (), self.DECISION, [1, 2, 3])
+        self.assertTrue(c['independent'])
+        self.assertEqual(c['kind'], 'codex')
+        self.assertIsNone(c['reason'])
+        self.assertAlmostEqual(c['win'][1], 0.35)
+        self.assertAlmostEqual(c['win'][2], 0.30)
+
+    def test_claude_made_or_unknown_author_is_reference(self):
+        self.write(model={'id': 'claude-reviewed-scenarios-20261003', 'status': 'unvalidated'})
+        c = live_card.load_codex('R', (), self.DECISION, [1, 2, 3])
+        self.assertFalse(c['independent'])
+        self.assertEqual(c['kind'], 'codex_reference')
+        self.assertEqual(c['author'], '不明')
+
+    def test_not_adopted_when_incomplete_or_late(self):
+        cases = [({'probability_preparation': {'status': 'draft'}}, 'draft'),
+                 ({'prediction_meta': {'frozen_at': '2026-10-11T15:40:00+09:00'}}, '判断時刻より後に確定'),
+                 ({'prediction_meta': {}}, '確定時刻'),
+                 ({'scenarios': [{'id': 'a', 'weight': 1, 'strengths': {'1': 1, '2': 2}}]}, '網羅していない'),
+                 ({'scenarios': [{'id': 'a', 'weight': 1, 'strengths': {'1': 1, '2': 0, '3': 1}}]}, '正の有限値でない'),
+                 ({'horses': [{'num': 1, 'evidence': [{'known_at': '2026-10-11T15:36:00+09:00', 'note': 'x'}]}]},
+                  '判断時刻より後の根拠')]
+        for over, word in cases:
+            self.write(**over)
+            c = live_card.load_codex('R', (), self.DECISION, [1, 2, 3])
+            self.assertIsNone(c['win'], word)
+            self.assertIn(word, c['reason'])
+
+    def test_scratch_is_removed_within_each_scenario(self):
+        self.write()
+        c = live_card.load_codex('R', [3], self.DECISION, [1, 2, 3])
+        # シナリオa: 1=6/9, 2=3/9、シナリオb: 1=1/4, 2=3/4 を等しい重みで平均（混合後の再正規化 0.35/0.65 とは違う）
+        self.assertAlmostEqual(c['win'][1], (6 / 9 + 1 / 4) / 2)
+        self.assertNotIn(3, c['win'])
+        self.assertIn('取消 [3]番', c['scratch_note'])

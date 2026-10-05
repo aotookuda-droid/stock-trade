@@ -298,52 +298,93 @@ def report(directory=SETTLEMENT_DIR):
     return '\n'.join(lines)
 
 
-PROB_SOURCES = (('claude_model', 'Claude（市場前）'), ('codex', 'Codex'), ('market_win', '市場（単勝）'), ('final', '最終（買い目に使用）'))
+PROB_SOURCES = (('claude_model', 'Claude（市場前）'), ('codex', 'Codex（独立）'),
+                ('codex_reference', 'Codex形式の参考'), ('market_win', '市場（単勝）'), ('final', '最終（買い目に使用）'))
+CORE_SOURCES = ('claude_model', 'market_win', 'final')
+PROB_BANDS = (0.0, 0.02, 0.05, 0.10, 0.20, 0.35, 1.01)
+
+
+def _probabilities(record):
+    """判断時に記録した出どころ別の勝率。作成元が独立した Codex と記録されていない 'codex'（10/4 以前の記録など）は
+    'codex_reference' として扱い、独立予測との比較に入れない（記録ファイル自体は変えない）。"""
+    probs = dict(record.get('probabilities') or {})
+    if 'codex' in probs and not (record.get('codex_meta') or {}).get('independent'):
+        probs['codex_reference'] = probs.pop('codex')
+    return probs
+
+
+def _brier(p, winner):
+    """多クラスの Brier スコア Σ(p − 勝ち=1/負け=0)²。小さいほど良い。"""
+    return sum((v - (k == winner)) ** 2 for k, v in p.items()) + (0.0 if winner in p else 1.0)
 
 
 def probability_check(items):
-    """判断時に記録した出どころ別の勝率を、勝ち馬に付けた確率と対数損失（−log p、小さいほど良い）で比べる。
+    """判断時に記録した出どころ別の勝率を、勝ち馬に付けた確率・対数損失（−log p）・Brier スコアで比べる。
 
     - 未記録（その出どころの記録が無い）と、0 と予測した（記録はあり確率0）を区別する。0 の馬が勝てば損失は無限大。
-    - 平均は行ごとに同じレースの集合で取る（集合を揃えないと優劣を比べられない）。全出どころが揃ったレースの行と、
-      Codex の記録が無いレースがあれば Codex を除いた3つが揃ったレースの行を出す。
+    - 平均は比較ごとに、比べる出どころが全て記録されたレースだけで取る（片側だけのレースを入れた優劣比較はしない）。
+    - 独立した Codex と、Claude 作成など独立でない参考予測は別の比較にする。
+    - 勝率帯ごとに、付けた勝率の平均と実際の勝率を並べる（較正の確認。数が少ないうちは参考）。
     """
     races = []
     for s in items:
         try:
-            probs = engine._read_json(s['record']).get('probabilities')
+            probs = _probabilities(engine._read_json(s['record']))
         except OSError:
             continue
         if probs:
             races.append((s, probs))
     if not races:
         return []
-    sources = PROB_SOURCES
     rows, recorded = [], []
     for s, probs in races:
         winner = str(s['official']['finish'][0])
-        got = {k: probs[k].get(winner, 0.0) if k in probs else None for k, _ in sources}
+        got = {k: probs[k].get(winner, 0.0) if k in probs else None for k, _ in PROB_SOURCES}
         cells = ['未記録' if p is None else '0（損失∞）' if p == 0 else f'{p * 100:.1f}%' for p in got.values()]
         rows.append(f"| {s['race']}（{winner}番） | " + ' | '.join(cells) + ' |')
-        recorded.append(got)
+        recorded.append((got, {k: _brier(probs[k], winner) for k, _ in PROB_SOURCES if k in probs}))
 
-    def avg_row(keys, label):
-        common = [g for g in recorded if all(g[k] is not None for k in keys)]
-        cells = []
-        for k, _ in sources:
-            losses = [math.inf if g[k] == 0 else -math.log(g[k]) for g in common] if k in keys else []
-            cells.append('—' if not losses else '∞' if math.inf in losses else f'{sum(losses) / len(losses):.3f}')
-        return f'| 平均対数損失（{label}{len(common)}レース） | ' + ' | '.join(cells) + ' |'
-    keys = [k for k, _ in sources]
-    names = [n for _, n in sources]
-    avg_rows = [avg_row(keys, '全て記録あり')]
-    if any(g['codex'] is None for g in recorded):
-        avg_rows.append(avg_row([k for k in keys if k != 'codex'], 'Codex以外が記録あり'))
+    def avg_rows(keys, label):
+        common = [r for r in recorded if all(r[0][k] is not None for k in keys)]
+        ll, br = [], []
+        for k, _ in PROB_SOURCES:
+            losses = [math.inf if g[k] == 0 else -math.log(g[k]) for g, _ in common] if k in keys and common else []
+            ll.append('—' if not losses else '∞' if math.inf in losses else f'{sum(losses) / len(losses):.3f}')
+            briers = [b[k] for _, b in common] if k in keys and common else []
+            br.append('—' if not briers else f'{sum(briers) / len(briers):.3f}')
+        return [f'| 平均対数損失（{label}{len(common)}レース） | ' + ' | '.join(ll) + ' |',
+                f'| 平均Brier（{label}{len(common)}レース） | ' + ' | '.join(br) + ' |']
+    names = [n for _, n in PROB_SOURCES]
+    out_rows = avg_rows(CORE_SOURCES, 'Claude・市場・最終が記録あり')
+    if any(g['codex'] is not None for g, _ in recorded):
+        out_rows += avg_rows(CORE_SOURCES + ('codex',), '独立Codexも記録あり')
+    if any(g['codex_reference'] is not None for g, _ in recorded):
+        out_rows += avg_rows(CORE_SOURCES + ('codex_reference',), '参考・独立比較ではない ')
+    bands = ['', '### 勝率帯ごとの実績', '', '付けた勝率の帯ごとの頭数・付けた勝率の平均・実際に勝った割合。', '',
+             '| 出どころ | ' + ' | '.join(f'{lo:.0%}〜{hi:.0%}' if hi <= 1 else f'{lo:.0%}〜' for lo, hi in
+                                      zip(PROB_BANDS, PROB_BANDS[1:])) + ' |',
+             '|---|' + '---:|' * (len(PROB_BANDS) - 1)]
+    for k, name in PROB_SOURCES:
+        acc = [[0, 0.0, 0] for _ in PROB_BANDS[1:]]
+        for s, probs in races:
+            if k not in probs:
+                continue
+            winner = str(s['official']['finish'][0])
+            for h, p in probs[k].items():
+                i = next(i for i, hi in enumerate(PROB_BANDS[1:]) if p < hi)
+                acc[i][0] += 1
+                acc[i][1] += p
+                acc[i][2] += h == winner
+        if any(a[0] for a in acc):
+            bands.append(f'| {name} | ' + ' | '.join(f'{a[0]}頭 {a[1] / a[0]:.1%}→{a[2] / a[0]:.1%}' if a[0] else '—'
+                                                   for a in acc) + ' |')
     return ['## 勝率の答え合わせ', '',
             '勝ち馬に付けていた勝率。「未記録」はその出どころの記録が無いレース、「0（損失∞）」は確率0と予測した馬が勝ったレース。',
-            '平均対数損失（−log p、小さいほど良い）は、行ごとに同じレースの集合だけで計算する（Codex の記録が無いレースは'
-            'Codex との比較に入れない）。混合率・温度・加減点はレース数が十分たまるまで変えない。', '',
-            '| レース（勝ち馬） | ' + ' | '.join(names) + ' |', '|---|' + '---:|' * len(names), *rows, *avg_rows, '']
+            '平均（対数損失 −log p・Brier、どちらも小さいほど良い）は、比較ごとに比べる出どころが全て記録されたレースだけで計算する。',
+            '「Codex形式の参考」は作成元が独立したCodexと記録されていない予測（10/4の2レースはClaudeがCodex形式で作成）で、'
+            '独立モデルの比較には入れない。混合率・温度・加減点はレース数が十分たまるまで変えない。', '',
+            '| レース（勝ち馬） | ' + ' | '.join(names) + ' |', '|---|' + '---:|' * len(names), *rows, *out_rows,
+            *bands, '']
 
 
 def main(argv):

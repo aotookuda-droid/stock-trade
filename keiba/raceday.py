@@ -53,14 +53,16 @@ def _fetch_complete(race, now, decision, sleep, fetch):
     return got, missing
 
 
-def _codex_probs(race, scratched):
-    """Codex版の最新分析の勝率（取消を除いて正規化）。答え合わせ用に記録するだけ。無ければ空。"""
-    codex = live_card.load_codex(race['race_id'])
+def _codex_probs(race, scratched, decision):
+    """Codex版の勝率を答え合わせ用に記録する（買い目には使わない）。作成元・モデルID・確定時刻・採用しない理由は
+    race['codex_meta'] に残す。独立したCodex予測は 'codex'、Claude作成など独立でないものは 'codex_reference' に入れる。"""
+    running = [h['num'] for h in race['horses'] if h['num'] not in scratched]
+    codex = live_card.load_codex(race['race_id'], scratched, decision, running)
     if not codex:
         return {}
-    win = {n: p for n, p in codex['win'].items() if n not in scratched}
-    total = sum(win.values())
-    return {'codex': {n: p / total for n, p in win.items()}} if total else {}
+    race['codex_meta'] = {k: codex[k] for k in ('file', 'author', 'model_id', 'model_status', 'independent', 'kind',
+                                                'prep_status', 'frozen_at', 'reason', 'scratch_note')}
+    return {codex['kind']: codex['win']} if codex['win'] else {}
 
 
 def _run(race, ledger, record_path, ledger_path, now, sleep, fetch):
@@ -89,7 +91,7 @@ def _run(race, ledger, record_path, ledger_path, now, sleep, fetch):
     race['odds_meta'] = {'kind': 'observed', 'source': ODDS_PAGE.format(race['race_id']) + '（netkeiba オッズAPI）',
                          'official_at': got['asof'], 'fetched_at': got['fetched_at'],
                          'sanrentan_missing': tri_missing}
-    res = engine.finalize(race, record_path, ledger, ledger_path, extra_probs=_codex_probs(race, scratched))
+    res = engine.finalize(race, record_path, ledger, ledger_path, extra_probs=_codex_probs(race, scratched, decision))
     print(engine.format_result(res))
     if res['market_source'] != 'sanrentan':
         print(f"※ 三連単オッズが揃わず、市場側を単勝オッズで代用した（不足 {res['sanrentan_missing']}組）")

@@ -58,6 +58,21 @@ class EngineTest(unittest.TestCase):
         h['minus'] = ['temperament']
         self.assertEqual(engine.total_score(h, 'middle', 'flat', 'flat'), base - 3)
 
+    def test_bets_outcome_and_pace_sensitivity(self):
+        orders = {(1, 2, 3): 0.5, (2, 1, 3): 0.3, (3, 2, 1): 0.2}
+        bets = [{'type': '単勝', 'horses': [1], 'stake': 100, 'odds': 3.0},
+                {'type': 'ワイド', 'horses': [1, 2], 'stake': 100, 'odds': 2.0}]
+        out = engine.bets_outcome(bets, orders)
+        # 1-2-3: 300+200、2-1-3: 200、3-2-1: 200 → (0.5×500+0.3×200+0.2×200)/200
+        self.assertAlmostEqual(out['return'], (250 + 60 + 40) / 200)
+        self.assertAlmostEqual(out['loss'], 0.0)
+        hs = [horse(i, 80 - i, '逃げ' if i == 4 else '差し') for i in range(1, 5)]
+        race = {'race': 'test', 'horses': hs, 'pace': 'middle', 'odds': {'win': {'1': 6.0, '2': 6.0, '3': 8.0, '4': 9.0}}}
+        res = engine.analyze(race)
+        self.assertTrue(res['bets'])
+        self.assertEqual(set(res['pace_sensitivity']), {'slow', 'middle', 'high'})
+        self.assertIn('展開別', engine.format_result(res))
+
     def test_divergence_warnings(self):
         model = {1: 0.25, 2: 0.15, 3: 0.60}
         market = {1: 0.10, 2: 0.30, 3: 0.60}

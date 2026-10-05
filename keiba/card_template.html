@@ -180,7 +180,10 @@ function render() {
   cp.hidden = !r.codex;
   if (r.codex) {
     document.getElementById('scen').innerHTML = r.codex.scenarios.map(s => `<div><b>${Math.round(s.weight * 100)}% ${esc(PACE[s.pace] || s.pace)}・${esc(BIAS[s.inner_outer] || s.inner_outer)}/${esc(BIAS[s.front_back] || s.front_back)}</b><br>${esc(s.rationale)}</div>`).join('');
-    document.getElementById('codex-src').textContent = `出典：${r.codex.file}（${r.codex.status}・確認 ${r.codex.known_at}）。Codex勝率は各シナリオの相対強度を正規化して重み付き平均したもの（市場オッズとは混ぜていない）。`;
+    const c = r.codex;
+    document.getElementById('codex-src').textContent = `${c.label}。作成者 ${c.author}・モデル ${c.model_id}（${c.model_status || '状態不明'}）・勝率の完成状態 ${c.prep_status}・確定 ${c.frozen_at || '記録なし'}。出典：${c.file}（確認 ${c.known_at}）。`
+      + (c.reason ? `勝率は表示しない（${c.reason}）。` : '勝率は各シナリオの相対強度を正規化して重み付き平均したもの（市場オッズとは混ぜていない）。')
+      + (c.scratch_note ? c.scratch_note + '。' : '');
   }
   const hs = [...r.horses];
   const by = {num: h => h.num, score: h => -h.score, ability: h => -h.ability, edge: h => -(h.p - h.mkt), codex: h => -Math.abs((h.codex ?? h.p) - h.p)};

@@ -6,6 +6,7 @@
 隣の codex-keiba/records に同じ race_id の分析があれば、Codex版のシナリオと勝率を参考表示する（読むだけ）。
 """
 import json
+import math
 import re
 import sys
 import urllib.request
@@ -65,26 +66,93 @@ def fetch_odds(race_id):
             'scratched': sorted(scratched)}
 
 
-def load_codex(race_id):
-    """Codex版の最新分析から {scenarios, win, notes, ...} を返す。無ければ None。"""
+INDEPENDENT_AUTHOR = 'Codex'
+
+
+def _codex_meta(rec, file):
+    """作成元の情報。author が Codex で、モデルIDが Claude 作成を示さないものだけを独立予測とする。
+    作者の記録が無い分析（10/4 以前）は作成元不明として独立予測に数えない。"""
+    model = rec.get('model', {})
+    author, model_id = model.get('author'), model.get('id', '')
+    independent = author == INDEPENDENT_AUTHOR and not model_id.lower().startswith('claude')
+    prep = rec.get('probability_preparation') or {}
+    return {'file': file, 'author': author or '不明', 'model_id': model_id or '不明',
+            'model_status': model.get('status', ''), 'independent': independent,
+            'kind': 'codex' if independent else 'codex_reference',
+            'label': 'Codex（独立）' if independent else f"Codex形式の参考（作成: {author or '不明'}・独立予測ではない）",
+            'prep_status': prep.get('status') or '記録なし',
+            'frozen_at': (rec.get('prediction_meta') or {}).get('frozen_at')}
+
+
+def _codex_problems(rec, scenarios, running, decision_at):
+    """勝率を表示・採用できない理由（空なら採用できる）。"""
+    problems = []
+    prep = (rec.get('probability_preparation') or {}).get('status')
+    if prep != 'ready':
+        problems.append(f"勝率の完成状態が {prep or '記録なし'}（ready ではない）")
+    if not scenarios:
+        return problems + ['重みが正のシナリオがない']
+    for sc in scenarios:
+        w = sc.get('weight')
+        if not isinstance(w, (int, float)) or not math.isfinite(w) or w <= 0:
+            problems.append(f"シナリオ {sc.get('id')} の重みが不正: {w}")
+        st = {int(k): v for k, v in sc.get('strengths', {}).items()}
+        lack = sorted(n for n in running if n not in st)
+        if lack:
+            problems.append(f"シナリオ {sc.get('id')} が全頭を網羅していない（{lack}番なし）")
+        bad = sorted(n for n, v in st.items() if not isinstance(v, (int, float)) or not math.isfinite(v) or v <= 0)
+        if bad:
+            problems.append(f"シナリオ {sc.get('id')} の強度が正の有限値でない（{bad}番）")
+    if decision_at:
+        frozen = (rec.get('prediction_meta') or {}).get('frozen_at')
+        if not frozen:
+            problems.append('予測の確定時刻（prediction_meta.frozen_at）がない')
+        elif datetime.fromisoformat(frozen) > decision_at:
+            problems.append(f'判断時刻より後に確定（{frozen}）')
+        known = [x.get('known_at') for x in scenarios] + [e.get('known_at') for h in rec.get('horses', [])
+                                                          for e in h.get('evidence', [])]
+        late = [k for k in known if k and datetime.fromisoformat(k) > decision_at]
+        if late:
+            problems.append(f'判断時刻より後の根拠を含む（{max(late)}）')
+    return problems
+
+
+def load_codex(race_id, scratched=(), decision_at=None, running=None):
+    """Codex版の最新分析。分析が無ければ None。
+
+    戻り値は作成元の情報（_codex_meta）に、win（{馬番: 勝率}。採用できなければ None）、reason（採用しない理由）、
+    notes・scenarios（表示用）を加えたもの。勝率はシナリオごとに取消馬を除いて強度を正規化し、シナリオの重みで平均する
+    （取消後の勝率を混合後に一律で再正規化するのとは一般に一致しない）。取消で隊列が変わる場合は Codex に判断前の再分析を依頼する。
+    running（出走予定の馬番）を渡すと全頭の網羅を確かめる。decision_at を渡すと確定時刻・根拠の時刻を確かめる。
+    """
     try:
         index = json.loads((CODEX_RECORDS / 'index.json').read_text(encoding='utf-8'))
         rec = json.loads((CODEX_RECORDS / index[race_id]).read_text(encoding='utf-8'))
     except (OSError, KeyError, ValueError):
         return None
-    scenarios = [s for s in rec.get('scenarios', []) if s.get('weight', 0) > 0 and s.get('strengths')]
-    if not scenarios:
-        return None
-    total_w = sum(s['weight'] for s in scenarios)
-    win = {}
-    for s in scenarios:
-        tot = sum(s['strengths'].values())
-        for k, v in s['strengths'].items():
-            win[int(k)] = win.get(int(k), 0.0) + s['weight'] / total_w * v / tot
+    scratched = {int(n) for n in scratched}
+    scenarios = [s for s in rec.get('scenarios', []) if isinstance(s.get('weight'), (int, float)) and s['weight'] > 0]
+    nums = running if running is not None else sorted({int(k) for s in scenarios for k in s.get('strengths', {})})
+    nums = [n for n in nums if n not in scratched]
+    meta = _codex_meta(rec, f"codex-keiba/records/{index[race_id]}")
+    problems = _codex_problems(rec, scenarios, nums, decision_at)
+    win = None
+    if not problems:
+        total_w = sum(s['weight'] for s in scenarios)
+        win = {n: 0.0 for n in nums}
+        for s in scenarios:
+            st = {int(k): v for k, v in s['strengths'].items() if int(k) in win}
+            tot = sum(st.values())
+            for n, v in st.items():
+                win[n] += s['weight'] / total_w * v / tot
     notes = {h['num']: h['evidence'][-1]['note'] for h in rec.get('horses', []) if h.get('evidence')}
     known = max((s.get('known_at', '') for s in scenarios), default='')
-    return {'file': f"codex-keiba/records/{index[race_id]}", 'status': rec.get('model', {}).get('status', ''),
-            'known_at': known[5:16].replace('T', ' ').replace('-', '/'), 'win': win, 'notes': notes,
+    gone = sorted(scratched & {int(k) for s in scenarios for k in s.get('strengths', {})})
+    return {**meta, 'status': rec.get('model', {}).get('status', ''), 'win': win,
+            'reason': '・'.join(problems) or None,
+            'scratch_note': (f"取消 {gone}番をシナリオごとに除いて再計算した近似。隊列が変わる場合は Codex に再分析を依頼する"
+                             if gone and win else None),
+            'known_at': known[5:16].replace('T', ' ').replace('-', '/'), 'notes': notes,
             'scenarios': [{k: s.get(k) for k in ('id', 'weight', 'pace', 'inner_outer', 'front_back', 'rationale')}
                           for s in scenarios]}
 
@@ -146,8 +214,10 @@ def build_race(path, key):
         odds, asof = {'win': {str(h['num']): h[pred_key] for h in rec['horses'] if h['num'] not in scratched}}, None
     win = {int(k): v for k, v in odds['win'].items()}
     running = [h for h in rec['horses'] if h['num'] not in scratched]
-    codex = load_codex(rec['race_id']) if rec.get('race_id') else None
-    others = {'Codex': engine._normalize({n: p for n, p in codex['win'].items() if n not in scratched})} if codex else None
+    start = _start_iso(rec['race'])
+    decision_at = datetime.fromisoformat(start) - engine.DECISION_BEFORE if start else None
+    codex = load_codex(rec['race_id'], scratched, decision_at, [h['num'] for h in running]) if rec.get('race_id') else None
+    others = {codex['kind']: codex['win']} if codex and codex['win'] else None
     res = engine.analyze(dict(rec, odds=odds, scratched=sorted(scratched)), others=others)
     mkt = engine._normalize({h['num']: 1 / win[h['num']] for h in running})
     name_m = re.search(r'\d+R (.+?)\(', rec['race'])
@@ -166,7 +236,7 @@ def build_race(path, key):
             'new': [k for k in h['plus'] + h['minus'] if '→' + k in train + rule], 'rule': rule,
             'notes': notes.rstrip('。'), 'train': train, 'grade': (grade.group(1) or grade.group(2)) if grade else '',
             'odds': win.get(n), 'pred': h.get(pred_key), 'scratched': is_scratched,
-            'codex': round(codex['win'][n], 4) if codex and n in codex['win'] else None,
+            'codex': round(codex['win'][n], 4) if codex and codex['win'] and n in codex['win'] else None,
             'codex_note': codex['notes'].get(n, '') if codex else '',
             'trend': trends.get(n),
             'front': engine.is_front_candidate(h.get('early_positions', [])), 'early': h.get('early_positions', []),
@@ -181,7 +251,7 @@ def build_race(path, key):
             'missing': missing, 'skip': engine.SKIP_REASONS.get(res['skip_reason'], ''), 'market': engine.market_label(res),
             'codex': {k: v for k, v in codex.items() if k not in ('win', 'notes')} if codex else None,
             'trend_meta': trend_meta,
-            'start_at': _start_iso(rec['race']),
+            'start_at': start,
             'links': [{'label': label, 'url': f'https://race.netkeiba.com/{"" if page.startswith("odds") else "race/"}'
                        f'{page}.html?race_id={rec["race_id"]}'} for label, page in LINKS] if rec.get('race_id') else []}
 

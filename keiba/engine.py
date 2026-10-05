@@ -456,6 +456,31 @@ def involves_longshot(bet, win_odds, horses):
     return any(n in longshot for n in bet['horses'])
 
 
+def bets_outcome(bets, orders, gates=None, places=3):
+    """着順分布 orders のもとでの買い目全体の（回収期待＝期待払戻÷提案額, 全損の確率）。"""
+    total = sum(b['stake'] for b in bets)
+    if not total:
+        return None
+    keys = list(orders)
+    pay = [0.0] * len(keys)
+    for b in bets:
+        for i in _hits(b, orders, gates, places):
+            pay[i] += b['stake'] * b['odds']
+    expected = sum(orders[k] * v for k, v in zip(keys, pay)) / total
+    loss = sum(orders[k] for k, v in zip(keys, pay) if v == 0)
+    return {'return': expected, 'loss': loss}
+
+
+def pace_sensitivity(bets, horses, inner_outer, front_back, odds, model_weight, market, gates, places):
+    """各ペースに決め打ちした場合の、決めた買い目の回収期待と全損の確率（展開を読み違えたときの損失の目安）。"""
+    out = {}
+    for pace in PACE_FIT:
+        scores = {h['num']: total_score(h, pace, inner_outer, front_back) for h in horses}
+        orders, _, _ = order_distribution(scores, odds, model_weight, market)
+        out[pace] = bets_outcome(bets, orders, gates, places)
+    return out
+
+
 def divergence_warnings(model, market, bets, others=None):
     """モデルと市場・他の出どころとの大きなずれ（表示用）。
 
@@ -522,14 +547,20 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others
         'growth': growth,
         'skip_reason': skip,
         'warnings': divergence_warnings(model_probabilities(scores), market_win, bets, others),
+        'pace_sensitivity': pace_sensitivity(bets, horses, inner_outer, front_back, odds, model_weight, market,
+                                             gates, places) if bets else None,
     }
+
+
+PACE_JA = {'slow': 'スロー', 'middle': 'ミドル', 'high': 'ハイ'}
+SOURCE_LABELS = {'codex': 'Codex', 'codex_reference': 'Codex形式の参考'}
 
 
 def format_warnings(res):
     w = res.get('warnings') or {}
     lines = []
     for h in w.get('horses', []):
-        ratios = '・'.join(f"{name}の{r:.1f}倍" for name, r in h['ratios'].items())
+        ratios = '・'.join(f"{SOURCE_LABELS.get(name, name)}の{r:.1f}倍" for name, r in h['ratios'].items())
         lines.append(f"⚠ 乖離 {h['num']}番 モデル勝率{h['model']:.1%}（{ratios}）、買い目の{h['stake_share']:.0%}がこの馬絡み。"
                      "評価の根拠を見直す")
     for b in w.get('tickets', []):
@@ -554,6 +585,14 @@ def format_result(res):
         lines.append(f"{b['type']:<4} {horses:<8} {b['stake']:>5}円  オッズ{b['odds']:>6.1f}  "
                      f"確率{b['prob']:.3f}  期待値{b['ev']:.2f}")
     lines.append(f"合計 {res['total_stake']}円")
+    sens = res.get('pace_sensitivity')
+    if sens:
+        lines.append('展開別（そのペースに決め打ち）: ' + ' / '.join(
+            f"{PACE_JA[k]} 回収期待{v['return']:.2f}・全損{v['loss']:.0%}" for k, v in sens.items()))
+    w = res.get('warnings') or {}
+    if w.get('horses') or w.get('tickets'):
+        review = res.get('warning_review')
+        lines.append(f"再点検: {review}" if review else '⚠ 警告に対する再点検の記録なし（レコードの warning_review に書く）')
     return '\n'.join(lines)
 
 
@@ -696,6 +735,7 @@ def finalize(race, path, ledger=None, ledger_path=None, extra_probs=None):
     cap = weekend_cap(ledger, race['race_id']) if ledger is not None else RACE_CAP
     others = {name: {int(k): v for k, v in p.items()} for name, p in (extra_probs or {}).items()}
     res = analyze(race, cap, others=others)
+    res['warning_review'] = race.get('warning_review')
     race['probabilities'] = decision_probabilities(race, res, extra_probs)
     # 検証用の参考試算（市場側を単勝の Harville だけにした旧方式相当）。台帳には入れず、後で公式払戻と照合する
     ref = analyze(race, cap, market='win')

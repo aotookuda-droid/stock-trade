@@ -213,26 +213,35 @@ class SettleRecordTest(unittest.TestCase):
         rec = record([bet('単勝', [5], 300)])
         rec['probabilities'] = {'claude_model': {winner: 0.2}, 'market_win': {winner: 0.1},
                                 'final': {winner: 0.15}, 'codex': {winner: 0.25}}
+        rec['codex_meta'] = {'independent': True, 'author': 'Codex', 'model_id': 'codex-independent-win-v2'}
         self.write(rec)
         settlement.save(settlement.settle(self.rec, PAGE, 'fixture'), self.out)
         text = settlement.report(self.out)
         self.assertIn('## 勝率の答え合わせ', text)
-        self.assertIn('| 20.0% | 25.0% | 10.0% | 15.0% |', text)
-        self.assertIn('| 平均対数損失（全て記録あり1レース） | 1.609 | 1.386 | 2.303 | 1.897 |', text)
-        self.assertNotIn('Codex以外が記録あり', text)
-        # Codex の記録が無いレースは「未記録」で、共通レースから外す（平均は比べられる集合だけ）
-        del rec['probabilities']['codex']
+        self.assertIn('| 20.0% | 25.0% | 未記録 | 10.0% | 15.0% |', text)
+        self.assertIn('| 平均対数損失（Claude・市場・最終が記録あり1レース） | 1.609 | — | — | 2.303 | 1.897 |', text)
+        self.assertIn('| 平均対数損失（独立Codexも記録あり1レース） | 1.609 | 1.386 | — | 2.303 | 1.897 |', text)
+        # Brier: 勝ち馬だけ記録した確率 p なら (p−1)²
+        self.assertIn('| 平均Brier（独立Codexも記録あり1レース） | 0.640 | 0.562 | — | 0.810 | 0.722 |', text)
+        self.assertIn('### 勝率帯ごとの実績', text)
+        # 作成元が独立Codexと記録されていなければ参考予測として扱い、独立比較に入れない
+        del rec['codex_meta']
         self.write(rec)
         text = settlement.report(self.out)
-        self.assertIn('| 20.0% | 未記録 | 10.0% | 15.0% |', text)
-        self.assertIn('（全て記録あり0レース） | — | — | — | — |', text)
-        self.assertIn('（Codex以外が記録あり1レース） | 1.609 | — | 2.303 | 1.897 |', text)
+        self.assertIn('| 20.0% | 未記録 | 25.0% | 10.0% | 15.0% |', text)
+        self.assertNotIn('独立Codexも記録あり', text)
+        self.assertIn('（参考・独立比較ではない 1レース） | 1.609 | — | 1.386 | 2.303 | 1.897 |', text)
         # 勝ち馬に0を付けていた（記録はある）なら損失は無限大で、平均から外さない
         rec['probabilities']['codex'] = {winner: 0.0}
         self.write(rec)
         text = settlement.report(self.out)
-        self.assertIn('| 20.0% | 0（損失∞） | 10.0% | 15.0% |', text)
-        self.assertIn('（全て記録あり1レース） | 1.609 | ∞ | 2.303 | 1.897 |', text)
+        self.assertIn('| 20.0% | 未記録 | 0（損失∞） | 10.0% | 15.0% |', text)
+        self.assertIn('（参考・独立比較ではない 1レース） | 1.609 | — | ∞ | 2.303 | 1.897 |', text)
+
+    def test_brier(self):
+        self.assertAlmostEqual(settlement._brier({'1': 0.6, '2': 0.4}, '1'), 0.32)
+        self.assertAlmostEqual(settlement._brier({'1': 0.6, '2': 0.4}, '3'), 0.36 + 0.16 + 1.0)
+
 
 if __name__ == '__main__':
     unittest.main()
