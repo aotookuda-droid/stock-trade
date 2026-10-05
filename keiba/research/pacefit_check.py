@@ -53,16 +53,33 @@ def probs(scores):
 
 
 def evaluate(races, prior, mult, base, oracle=False):
-    """(勝率の対数損失, Brier, 上位3頭の着順の対数損失) の平均。"""
+    """(勝率の対数損失, Brier, 上位3頭の着順の対数損失) の平均。指標を定義できないレース（None）は、その指標だけ平均から除く。"""
     per = per_race(races, prior, mult, base, oracle)
-    return tuple(sum(x[i] for x in per) / len(per) for i in range(3))
+    out = []
+    for i in range(3):
+        xs = [x[i] for x in per if x[i] is not None]
+        out.append(sum(xs) / len(xs))
+    return tuple(out)
+
+
+def unique_top(race):
+    """{着順: 馬番}。1着が1頭だけなら1着を、1〜3着がそれぞれ1頭だけなら1〜3着を返す（同着の着順は入れない）。"""
+    ranks = [h['rank'] for h in race['horses']]
+    return {k: next(h['num'] for h in race['horses'] if h['rank'] == str(k))
+            for k in (1, 2, 3) if ranks.count(str(k)) == 1}
+
+
+def counts(races):
+    """(勝率・Brier を評価できるレース数, 着順を評価できるレース数)。同着で一意に決まらないレースは除く。"""
+    tops = [unique_top(r) for r in races]
+    return sum(1 for t in tops if 1 in t), sum(1 for t in tops if len(t) == 3)
 
 
 def per_race(races, prior, mult, base, oracle=False):
-    """レースごとの (勝率の対数損失, Brier, 着順の対数損失)。"""
+    """レースごとの (勝率の対数損失, Brier, 着順の対数損失)。1着が同着のレースは勝率・Brier を、
+    1〜3着のどれかが同着のレースは着順を None にする（0 を入れて平均しない。倍率によらず同じレース集合になる）。"""
     out = []
     for r in races:
-        ll = br = order = 0.0
         pace = {r['pace']: 1.0} if oracle else prior[P.bucket(r['leaders'])]
         mk = engine._normalize({h['num']: 1 / h['odds'] for h in r['horses']})
         sc = {}
@@ -71,22 +88,24 @@ def per_race(races, prior, mult, base, oracle=False):
             b = h['obj'] if base == 'ability' else engine.SOFTMAX_TEMP * math.log(mk[h['num']])
             sc[h['num']] = b + mult * pf
         p = probs(sc)
-        win = next(h['num'] for h in r['horses'] if h['rank'] == '1')
-        ll -= math.log(p[win])
-        br += sum((v - (n == win)) ** 2 for n, v in p.items())
-        top = {int(h['rank']): h['num'] for h in r['horses'] if h['rank'] in ('1', '2', '3')}
+        top = unique_top(r)
+        ll = br = order = None
+        if 1 in top:
+            ll = -math.log(p[top[1]])
+            br = sum((v - (n == top[1])) ** 2 for n, v in p.items())
         if len(top) == 3:
             rest, lp = dict(p), 0.0
             for k in (1, 2, 3):
                 lp += math.log(rest[top[k]] / sum(rest.values()))
                 del rest[top[k]]
-            order -= lp
+            order = -lp
         out.append((ll, br, order))
     return out
 
 
 def paired(races, prior, base, m1, m0, i):
-    d = [a[i] - b[i] for a, b in zip(per_race(races, prior, m1, base), per_race(races, prior, m0, base))]
+    d = [a[i] - b[i] for a, b in zip(per_race(races, prior, m1, base), per_race(races, prior, m0, base))
+         if a[i] is not None]
     m = sum(d) / len(d)
     return m, (sum((v - m) ** 2 for v in d) / (len(d) - 1) / len(d)) ** 0.5
 
@@ -99,7 +118,10 @@ def main(src, dst):
     out = ['# 位置取りの点数（PACE_FIT）の縮小の検証', '',
            f'対象 {len(races)} レース（学習 {len(train)}: 〜2024年、検証 {len(test)}: 2025年〜）。'
            'ペース確率は学習期間だけで推定したハナ候補の頭数ごとの割合。脚質は直近5走の通過順から機械的に決めた（本番は分析者が決める）。'
-           '市場は確定単勝オッズ。倍率は現行の PACE_FIT に掛ける値で、探索の候補。', '']
+           '市場は確定単勝オッズ。倍率は現行の PACE_FIT に掛ける値で、探索の候補。'
+           '同着で着順が一意に決まらないレースは、その指標だけから除いた（倍率の比較は同じレース集合）: '
+           '勝率・Brier は学習{}・検証{}レース、着順は学習{}・検証{}レース。'.format(
+               counts(train)[0], counts(test)[0], counts(train)[1], counts(test)[1]), '']
     for base, label in (('ability', '土台：客観能力（温度8）'), ('market', '土台：単勝市場')):
         tr = {m: evaluate(train, prior, m, base) for m in MULTS}
         best = min(MULTS, key=lambda m: tr[m][0])

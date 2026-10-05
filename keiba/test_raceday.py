@@ -75,6 +75,8 @@ class RacedayTest(unittest.TestCase):
         # 同じ入力・オッズで混合率を変えた参考試算と設定の版を残す（台帳には入れない）
         self.assertEqual(rec['reference']['model_weight_0.5']['model_weight'], 0.5)
         self.assertEqual(rec['reference']['market_only']['model_weight'], 0.0)
+        for name in ('model_weight_0.5', 'market_only'):
+            self.assertAlmostEqual(sum(rec['reference'][name]['win_prob'].values()), 1, places=3)
         self.assertEqual(rec['engine_config']['model_weight'], engine.MODEL_WEIGHT)
         self.assertEqual(rec['result']['model_weight'], engine.MODEL_WEIGHT)
         # Codex の記録（10/4 は作成元が Claude、勝率の完成状態なし）は勝率を保存せず、理由を残す

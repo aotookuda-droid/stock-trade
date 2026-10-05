@@ -238,6 +238,20 @@ class SettleRecordTest(unittest.TestCase):
         self.assertIn('| 20.0% | 未記録 | 未記録 | 0（損失∞） | 10.0% | 15.0% |', text)
         self.assertIn('（参考・独立比較ではない 1レース） | 1.609 | — | — | ∞ | 2.303 | 1.897 |', text)
 
+    def test_reference_win_probabilities_are_compared(self):
+        winner = str(OFFICIAL['finish'][0])
+        rec = record([bet('単勝', [5], 300)])
+        rec['probabilities'] = {'claude_model': {winner: 0.2}, 'market_win': {winner: 0.1}, 'final': {winner: 0.15}}
+        rec['reference']['model_weight_0.5'] = {'model_weight': 0.5, 'bets': [], 'win_prob': {winner: 0.18}}
+        rec['reference']['market_only'] = {'model_weight': 0.0, 'bets': [], 'win_prob': {winner: 0.1}}
+        self.write(rec)
+        settlement.save(settlement.settle(self.rec, PAGE, 'fixture'), self.out)
+        text = settlement.report(self.out)
+        self.assertIn('| 15.0% | 18.0% | 10.0% |', text)
+        self.assertIn('（混合率の参考試算も記録あり1レース）', text)
+        # 参考試算の勝率は確率の答え合わせだけで、馬券の仮想精算は別の表
+        self.assertIn('## 参考（混合率0.5）', text)
+
     def test_brier(self):
         self.assertAlmostEqual(settlement._brier({'1': 0.6, '2': 0.4}, '1'), 0.32)
         self.assertAlmostEqual(settlement._brier({'1': 0.6, '2': 0.4}, '3'), 0.36 + 0.16 + 1.0)

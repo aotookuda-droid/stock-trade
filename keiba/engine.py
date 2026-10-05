@@ -763,7 +763,8 @@ def finalize(race, path, ledger=None, ledger_path=None, extra_probs=None):
     race['reference'] = {'win_market_only': {k: ref[k] for k in keep}}
     for name, w in REFERENCE_MODEL_WEIGHTS.items():
         r = analyze(race, cap, model_weight=w)
-        race['reference'][name] = {'model_weight': w, **{k: r[k] for k in keep}}
+        # 勝率も判断時の値をそのまま残す（後日の再計算に頼らず、本番との確率の精度を比べるため）
+        race['reference'][name] = {'model_weight': w, 'win_prob': r['win_prob'], **{k: r[k] for k in keep}}
     race['engine_config'] = engine_config()
     commit(race, path, ledger, ledger_path, res['total_stake'])
     return res

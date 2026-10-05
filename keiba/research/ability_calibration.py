@@ -90,7 +90,8 @@ def build(races):
     for r in races:
         # 取消・除外は除き、競走中止・失格は出走馬として残す（勝ちには数えない）
         hs = [h for h in r['horses'] if h['rank'] not in ('取', '除') and h['horse_id'] and h['odds']]
-        if len(hs) < 5 or not any(h['rank'] == '1' for h in hs):
+        # 1着が同着（2頭以上）のレースは勝ち馬が一意に決まらないので除く
+        if len(hs) < 5 or sum(h['rank'] == '1' for h in hs) != 1:
             continue
         rows = []
         for h in hs:

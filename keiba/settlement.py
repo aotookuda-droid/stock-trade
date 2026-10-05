@@ -302,7 +302,10 @@ def report(directory=SETTLEMENT_DIR):
 
 
 PROB_SOURCES = (('claude_model', 'Claude（市場前）'), ('ability_only', 'abilityのみ'), ('codex', 'Codex（独立）'),
-                ('codex_reference', 'Codex形式の参考'), ('market_win', '市場（単勝）'), ('final', '最終（買い目に使用）'))
+                ('codex_reference', 'Codex形式の参考'), ('market_win', '市場（単勝）'), ('final', '最終（買い目に使用）'),
+                ('ref_model_weight_0.5', '参考 混合率0.5'), ('ref_market_only', '参考 市場のみ'))
+# 判断時に保存した参考試算の勝率（2026/10/5〜の記録だけにある）
+REFERENCE_PROBS = {'ref_model_weight_0.5': 'model_weight_0.5', 'ref_market_only': 'market_only'}
 CORE_SOURCES = ('claude_model', 'market_win', 'final')
 PROB_BANDS = (0.0, 0.02, 0.05, 0.10, 0.20, 0.35, 1.01)
 
@@ -311,6 +314,10 @@ def _probabilities(record):
     """判断時に記録した出どころ別の勝率。作成元が独立した Codex と記録されていない 'codex'（10/4 以前の記録など）は
     'codex_reference' として扱い、独立予測との比較に入れない（記録ファイル自体は変えない）。"""
     probs = dict(record.get('probabilities') or {})
+    for key, name in REFERENCE_PROBS.items():
+        p = ((record.get('reference') or {}).get(name) or {}).get('win_prob')
+        if p:
+            probs[key] = {str(k): v for k, v in p.items()}
     if 'codex' in probs and not (record.get('codex_meta') or {}).get('independent'):
         probs['codex_reference'] = probs.pop('codex')
     return probs
@@ -359,6 +366,8 @@ def probability_check(items):
                 f'| 平均Brier（{label}{len(common)}レース） | ' + ' | '.join(br) + ' |']
     names = [n for _, n in PROB_SOURCES]
     out_rows = avg_rows(CORE_SOURCES, 'Claude・市場・最終が記録あり')
+    if all(any(g[k] is not None for g, _ in recorded) for k in REFERENCE_PROBS):
+        out_rows += avg_rows(CORE_SOURCES + tuple(REFERENCE_PROBS), '混合率の参考試算も記録あり')
     if any(g['ability_only'] is not None for g, _ in recorded):
         out_rows += avg_rows(CORE_SOURCES + ('ability_only',), 'abilityのみも記録あり')
     if any(g['codex'] is not None for g, _ in recorded):
