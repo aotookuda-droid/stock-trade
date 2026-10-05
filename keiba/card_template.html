@@ -200,7 +200,7 @@ function render() {
       <td><div class="name">${esc(h.name)}${h.front ? '<span class="front">ハナ候補</span>' : ''}</div><div class="sub">${esc(h.jockey)}</div></td>
       <td><div>${esc(h.style)}</div><div class="sub">展開 ${pf > 0 ? '+' : ''}${pf}</div></td>
       <td><span class="zone">${esc(h.zone)}</span></td>
-      <td><div class="ab"><span class="num" style="min-width:22px">${h.ability}</span><span class="track"><span class="fill" style="width:${Math.max(0, (h.ability - 50) / 35 * 100)}%"></span></span></div></td>
+      <td><div class="ab"><span class="num" style="min-width:22px">${h.ability}</span><span class="track"><span class="fill" style="width:${Math.max(0, (h.ability - 50) / 35 * 100)}%"></span></span></div>${h.ref ? `<div class="sub" title="ability だけの順位 / 近走成績ベースの参照値の順位（レース内）">順位 ${h.ref.ab_rank} / 参照 ${h.ref.ref_rank}</div>` : ''}</td>
       <td><span class="grade g${h.grade}" title="デイリー最終追切評価">${h.grade || '—'}</span></td>
       <td><div class="chips">${chips || '<span class="sub">—</span>'}</div></td>
       <td class="score">${h.score}</td>
@@ -211,7 +211,7 @@ function render() {
       <td class="num">${h.codex == null ? '—' : (h.codex * 100).toFixed(1) + '%'}${h.codex == null ? '' : `<div class="sub ${h.codex - h.p >= 0.02 ? 'edge-up' : h.codex - h.p <= -0.02 ? 'edge-dn' : ''}">${h.codex - h.p >= 0 ? '+' : ''}${((h.codex - h.p) * 100).toFixed(1)}</div>`}</td>
       <td>${h.trend ? `<span class="edge-up">${'▲'.repeat(h.trend.up)}</span><span class="edge-dn">${'▼'.repeat(h.trend.down)}</span>` || '<span class="sub">—</span>' : '<span class="sub">—</span>'}</td>
       <td class="num">${h.scratched ? '取消' : h.odds.toFixed(1)}</td>
-    </tr>` + (open.has(h.num) ? `<tr class="nt"><td colspan="13">${esc(h.notes)}<span class="tr10">10/3 調教・厩舎：${esc(h.train)}</span>${h.rule ? `<span class="tr10">10/3 ルール照合：${esc(h.rule)}</span>` : ''}<br>過去の1角通過順（古→新）：${h.early.join(' → ')}${h.pred ? ` ／ 前日予想オッズ ${h.pred}` : ''}${h.codex_note ? `<span class="tr10">Codex評価：${esc(h.codex_note)}</span>` : ''}${h.trend && r.trend_meta ? `<span class="tr10">過去${r.trend_meta.n_races}年の同レース（${esc(r.trend_meta.years)}）の3着以内率：${h.trend.items.map(t => `${esc(t.value)} ${Math.round(t.rate * 100)}%（${t.top3}/${t.n}）`).join('・')}</span>` : ''}</td></tr>` : '');
+    </tr>` + (open.has(h.num) ? `<tr class="nt"><td colspan="13">${esc(h.notes)}<span class="tr10">10/3 調教・厩舎：${esc(h.train)}</span>${h.rule ? `<span class="tr10">10/3 ルール照合：${esc(h.rule)}</span>` : ''}<br>過去の1角通過順（古→新）：${h.early.join(' → ')}${h.pred ? ` ／ 前日予想オッズ ${h.pred}` : ''}${h.ref ? `<span class="tr10">近走成績ベースの能力参照値（クラスと着差だけ。不利・適性は未補正）：勝率 ${(h.ref.ref_p * 100).toFixed(1)}%（レース内${h.ref.ref_rank}位） ／ ability だけ：勝率 ${(h.ref.ab_p * 100).toFixed(1)}%（${h.ref.ab_rank}位）</span>` : ''}${h.codex_note ? `<span class="tr10">Codex評価：${esc(h.codex_note)}</span>` : ''}${h.trend && r.trend_meta ? `<span class="tr10">過去${r.trend_meta.n_races}年の同レース（${esc(r.trend_meta.years)}）の3着以内率：${h.trend.items.map(t => `${esc(t.value)} ${Math.round(t.rate * 100)}%（${t.top3}/${t.n}）`).join('・')}</span>` : ''}</td></tr>` : '');
   }).join('');
 }
 document.getElementById('tb').addEventListener('click', e => {

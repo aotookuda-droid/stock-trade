@@ -190,6 +190,53 @@ def load_trends(short, win):
     return meta, per
 
 
+ABILITY_PARAMS = Path(__file__).resolve().parent / 'reports' / 'ability_calibration.json'
+SHUTUBA = 'https://race.netkeiba.com/race/shutuba.html?race_id={}'
+
+
+def horse_ids(race_id):
+    """{馬番: netkeiba の馬ID}。出馬表（キャッシュがあればそれ）から読む。"""
+    from keiba.research import history
+    cached = history.CACHE / f'shutuba_past_{race_id}.html'
+    page = cached.read_text(encoding='utf-8') if cached.exists() else \
+        history._get(SHUTUBA.format(race_id), f'shutuba_{race_id}.html', 'euc-jp')
+    ids = {}
+    for tr in re.findall(r'<tr class="HorseList.*?</tr>', page, re.S):
+        # 馬番の欄（出馬表は Umaban、馬柱は Waku。枠番の Waku1〜8 とは別）
+        n = re.search(r'<td class="(?:Waku|Umaban\d*(?: [^"]*)?)">\s*(\d+)\s*</td>', tr)
+        m = re.search(r'db\.netkeiba\.com/horse/(\d{10})', tr)
+        if n and m:
+            ids[int(n.group(1))] = m.group(1)
+    return ids
+
+
+def reference_abilities(rec, running):
+    """近走成績ベースの能力参照値（keiba.research.ability_calibration の客観能力）のレース内順位と勝率、
+    ability だけの順位と勝率。不利・対戦相手のその後・個体の適性は未補正で、ability とは点数の原点が違うので
+    生の点差では比べない。取得できなければ None。"""
+    try:
+        import numpy as np
+        from keiba.research import ability_calibration as A
+        raw = np.array(json.loads(ABILITY_PARAMS.read_text(encoding='utf-8'))['raw'])
+        ids = horse_ids(rec['race_id'])
+        day = re.search(r'(\d{4})/(\d{2})/(\d{2})', rec['race'])
+        day = f'{day[1]}-{day[2]}-{day[3]}'
+        ref = {}
+        for h in running:
+            f = A.features(A.past_runs(ids[h['num']], day), day)
+            if f is None:
+                return None
+            ref[h['num']] = float(A.ability(raw, f))
+    except Exception as e:  # 参照値は補助表示。取れなくても馬柱は出す
+        print(f'能力参照値を出せなかった: {e}', file=sys.stderr)
+        return None
+    ab = {h['num']: h['ability'] for h in running}
+    rank = lambda d: {n: i + 1 for i, n in enumerate(sorted(d, key=lambda k: -d[k]))}
+    rp, ap = engine.model_probabilities(ref), engine.model_probabilities(ab)
+    rr, ar = rank(ref), rank(ab)
+    return {n: {'ref_p': round(rp[n], 4), 'ref_rank': rr[n], 'ab_p': round(ap[n], 4), 'ab_rank': ar[n]} for n in ref}
+
+
 def _start_iso(race):
     m = re.search(r'(\d{4})/(\d{2})/(\d{2}).*?(\d{1,2}):(\d{2})発走', race)
     return f"{m[1]}-{m[2]}-{m[3]}T{int(m[4]):02d}:{m[5]}:00+09:00" if m else None
@@ -220,6 +267,7 @@ def build_race(path, key):
     others = {codex['kind']: codex['win']} if codex and codex['win'] else None
     res = engine.analyze(dict(rec, odds=odds, scratched=sorted(scratched)), others=others)
     mkt = engine._normalize({h['num']: 1 / win[h['num']] for h in running})
+    refs = reference_abilities(rec, running) if rec.get('race_id') else None
     name_m = re.search(r'\d+R (.+?)\(', rec['race'])
     trend_meta, trends = load_trends(name_m.group(1) if name_m else '', win)
     horses = []
@@ -239,6 +287,7 @@ def build_race(path, key):
             'codex': round(codex['win'][n], 4) if codex and codex['win'] and n in codex['win'] else None,
             'codex_note': codex['notes'].get(n, '') if codex else '',
             'trend': trends.get(n),
+            'ref': refs.get(n) if refs else None,
             'front': engine.is_front_candidate(h.get('early_positions', [])), 'early': h.get('early_positions', []),
             'pacefit': round(engine.pace_fit(h['style'], res['pace_probs']), 1),
             'score': res['scores'].get(n, 0), 'p': round(res['win_prob'].get(n, 0.0), 4), 'mkt': round(mkt.get(n, 0.0), 4),

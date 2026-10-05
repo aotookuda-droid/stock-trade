@@ -130,3 +130,19 @@ class LoadCodexTest(unittest.TestCase):
         self.assertAlmostEqual(c['win'][1], (6 / 9 + 1 / 4) / 2)
         self.assertNotIn(3, c['win'])
         self.assertIn('取消 [3]番', c['scratch_note'])
+
+
+class HorseIdsTest(unittest.TestCase):
+    def test_reads_horse_number_not_gate(self):
+        from keiba.research import history
+        page = ('<tr class="HorseList"><td class="Waku2 Txt_C">2</td><td class="Umaban2 Txt_C">3</td>'
+                '<a href="https://db.netkeiba.com/horse/2019102632">x</a></tr>'
+                '<tr class="HorseList" id="tr_3"><td class="Waku1">1</td><td class="Waku">1</td>'
+                '<a href="https://db.netkeiba.com/horse/2020100001">y</a></tr>')
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(history, 'CACHE', Path(d)), \
+                mock.patch.object(history, '_get', return_value=page):
+            self.assertEqual(live_card.horse_ids('R'), {3: '2019102632', 1: '2020100001'})
+
+    def test_reference_failure_does_not_break_card(self):
+        with mock.patch.object(live_card, 'horse_ids', side_effect=OSError('offline')):
+            self.assertIsNone(live_card.reference_abilities({'race_id': 'R', 'race': '2026/10/04'}, []))
