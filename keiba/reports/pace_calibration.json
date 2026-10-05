@@ -1,0 +1,6352 @@
+[
+ {
+  "race_id": "202107050811",
+  "name": "第25回シリウスS(GIII)",
+  "date": "2021-10-02",
+  "band": "ダ1900〜2200",
+  "index": -8.400000000000002,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202106040911",
+  "name": "第55回スプリンターズS(GI)",
+  "date": "2021-10-03",
+  "band": "芝〜1400",
+  "index": -0.5,
+  "pace": "middle",
+  "leaders": 5,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202105040111",
+  "name": "第7回サウジアラビアRC(GIII)",
+  "date": "2021-10-09",
+  "band": "芝1500〜1800",
+  "index": 3.9000000000000057,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202105040211",
+  "name": "第72回毎日王冠(GII)",
+  "date": "2021-10-10",
+  "band": "芝1500〜1800",
+  "index": 0.19999999999999574,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202109040211",
+  "name": "第56回京都大賞典(GII)",
+  "date": "2021-10-10",
+  "band": "芝2300〜",
+  "index": 0.8000000000000043,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202105040311",
+  "name": "第69回アイルランド府中牝馬(GII)",
+  "date": "2021-10-16",
+  "band": "芝1500〜1800",
+  "index": 0.8999999999999986,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202109040411",
+  "name": "第26回秋華賞(GI)",
+  "date": "2021-10-17",
+  "band": "芝1900〜2200",
+  "index": 0.10000000000000142,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202105040511",
+  "name": "第24回富士S(GII)",
+  "date": "2021-10-23",
+  "band": "芝1500〜1800",
+  "index": 0.7999999999999972,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202109040611",
+  "name": "第82回菊花賞(GI)",
+  "date": "2021-10-24",
+  "band": "芝2300〜",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202105040711",
+  "name": "第10回アルテミスS(GIII)",
+  "date": "2021-10-30",
+  "band": "芝1500〜1800",
+  "index": 0.4000000000000057,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202109040711",
+  "name": "第64回MBS賞スワンS(GII)",
+  "date": "2021-10-30",
+  "band": "芝〜1400",
+  "index": -1.0,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202105040811",
+  "name": "第164回天皇賞(秋)(GI)",
+  "date": "2021-10-31",
+  "band": "芝1900〜2200",
+  "index": 2.6000000000000014,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202105050111",
+  "name": "第57回京王杯2歳S(GII)",
+  "date": "2021-11-06",
+  "band": "芝〜1400",
+  "index": 1.0,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202109050111",
+  "name": "第26回KBSファンタジーS(GIII)",
+  "date": "2021-11-06",
+  "band": "芝〜1400",
+  "index": -0.8000000000000043,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202105050211",
+  "name": "第59回アルゼンチン共和国杯(GII)",
+  "date": "2021-11-07",
+  "band": "芝2300〜",
+  "index": -3.200000000000003,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202109050211",
+  "name": "第11回みやこS(GIII)",
+  "date": "2021-11-07",
+  "band": "ダ1500〜1800",
+  "index": 0.7000000000000028,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202105050311",
+  "name": "第26回東京中日S杯武蔵野S(GIII)",
+  "date": "2021-11-13",
+  "band": "ダ1500〜1800",
+  "index": -2.1000000000000014,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202109050311",
+  "name": "第56回デイリー杯2歳S(GII)",
+  "date": "2021-11-13",
+  "band": "芝1500〜1800",
+  "index": 2.1000000000000014,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202109050411",
+  "name": "第46回エリザベス女王杯(GI)",
+  "date": "2021-11-14",
+  "band": "芝1900〜2200",
+  "index": -2.3999999999999986,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202103020411",
+  "name": "第57回福島記念(GIII)",
+  "date": "2021-11-14",
+  "band": "芝1900〜2200",
+  "index": -4.0,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202105050511",
+  "name": "第26回東京スポーツ杯2歳S(GII)",
+  "date": "2021-11-20",
+  "band": "芝1500〜1800",
+  "index": 1.9000000000000057,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202109050611",
+  "name": "第38回マイルチャンピオンS(GI)",
+  "date": "2021-11-21",
+  "band": "芝1500〜1800",
+  "index": 2.3000000000000043,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202109050711",
+  "name": "第8回ラジオN杯京都2歳S(GIII)",
+  "date": "2021-11-27",
+  "band": "芝1900〜2200",
+  "index": 1.7999999999999972,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202105050812",
+  "name": "第41回ジャパンC(GI)",
+  "date": "2021-11-28",
+  "band": "芝2300〜",
+  "index": 1.7000000000000028,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202109050812",
+  "name": "第66回京阪杯(GIII)",
+  "date": "2021-11-28",
+  "band": "芝〜1400",
+  "index": -0.20000000000000284,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202109060111",
+  "name": "第72回チャレンジC(GIII)",
+  "date": "2021-12-04",
+  "band": "芝1900〜2200",
+  "index": 4.200000000000003,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202107060211",
+  "name": "第22回チャンピオンズC(GI)",
+  "date": "2021-12-05",
+  "band": "ダ1500〜1800",
+  "index": 0.5,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202107060311",
+  "name": "第57回中日新聞杯(GIII)",
+  "date": "2021-12-11",
+  "band": "芝1900〜2200",
+  "index": 1.5,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202106050411",
+  "name": "第14回カペラS(GIII)",
+  "date": "2021-12-12",
+  "band": "ダ〜1400",
+  "index": -3.9000000000000057,
+  "pace": "middle",
+  "leaders": 4,
+  "old_leaders": 8
+ },
+ {
+  "race_id": "202109060411",
+  "name": "第73回阪神ジュベナイルF(GI)",
+  "date": "2021-12-12",
+  "band": "芝1500〜1800",
+  "index": -0.6999999999999957,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202106050511",
+  "name": "第7回ターコイズS(GIII)",
+  "date": "2021-12-18",
+  "band": "芝1500〜1800",
+  "index": -1.7000000000000028,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202109060611",
+  "name": "第73回朝日フューチュリティ(GI)",
+  "date": "2021-12-19",
+  "band": "芝1500〜1800",
+  "index": -0.9000000000000057,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202109060711",
+  "name": "第16回阪神C(GII)",
+  "date": "2021-12-25",
+  "band": "芝〜1400",
+  "index": -0.7000000000000028,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202106050811",
+  "name": "第66回有馬記念(GI)",
+  "date": "2021-12-26",
+  "band": "芝2300〜",
+  "index": -6.900000000000002,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202207010311",
+  "name": "第56回日刊スポシンザン記念(GIII)",
+  "date": "2022-01-09",
+  "band": "芝1500〜1800",
+  "index": 0.10000000000000142,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202206010411",
+  "name": "第38回フェアリーS(GIII)",
+  "date": "2022-01-10",
+  "band": "芝1500〜1800",
+  "index": 0.20000000000000284,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202207010511",
+  "name": "第59回愛知杯(GIII)",
+  "date": "2022-01-15",
+  "band": "芝1900〜2200",
+  "index": 2.1000000000000014,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202206010611",
+  "name": "第62回京成杯(GIII)",
+  "date": "2022-01-16",
+  "band": "芝1900〜2200",
+  "index": 0.20000000000000284,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202207010611",
+  "name": "第69回日経新春杯(GII)",
+  "date": "2022-01-16",
+  "band": "芝1900〜2200",
+  "index": 0.8999999999999986,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202206010811",
+  "name": "第63回アメリカジョッキーC(GII)",
+  "date": "2022-01-23",
+  "band": "芝1900〜2200",
+  "index": 0.7999999999999972,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202207010811",
+  "name": "第39回東海テレビ杯東海S(GII)",
+  "date": "2022-01-23",
+  "band": "ダ1500〜1800",
+  "index": -1.6999999999999957,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202205010211",
+  "name": "第36回根岸S(GIII)",
+  "date": "2022-01-30",
+  "band": "ダ〜1400",
+  "index": -2.5,
+  "pace": "middle",
+  "leaders": 4,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202207011011",
+  "name": "第27回シルクロードS(GIII)",
+  "date": "2022-01-30",
+  "band": "芝〜1400",
+  "index": -0.8999999999999986,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202205010411",
+  "name": "第72回東京新聞杯(GIII)",
+  "date": "2022-02-06",
+  "band": "芝1500〜1800",
+  "index": 0.4000000000000057,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202207011211",
+  "name": "第62回きさらぎ賞(GIII)",
+  "date": "2022-02-06",
+  "band": "芝1900〜2200",
+  "index": 0.30000000000000426,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202205010511",
+  "name": "第57回デイリー杯クイーンC(GIII)",
+  "date": "2022-02-12",
+  "band": "芝1500〜1800",
+  "index": 0.8999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202205010611",
+  "name": "第56回共同通信杯(GIII)",
+  "date": "2022-02-13",
+  "band": "芝1500〜1800",
+  "index": 1.8000000000000043,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202209010211",
+  "name": "第115回京都記念(GII)",
+  "date": "2022-02-13",
+  "band": "芝1900〜2200",
+  "index": 1.5,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202205010711",
+  "name": "第72回ダイヤモンドS(GIII)",
+  "date": "2022-02-19",
+  "band": "ダ2300〜",
+  "index": 1.6000000000000014,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202209010311",
+  "name": "第57回京都牝馬S(GIII)",
+  "date": "2022-02-19",
+  "band": "芝〜1400",
+  "index": 0.3999999999999986,
+  "pace": "slow",
+  "leaders": 4,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202205010811",
+  "name": "第39回フェブラリーS(GI)",
+  "date": "2022-02-20",
+  "band": "ダ1500〜1800",
+  "index": -0.10000000000000142,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202210020411",
+  "name": "第56回小倉大賞典(GIII)",
+  "date": "2022-02-20",
+  "band": "芝1500〜1800",
+  "index": 0.8999999999999986,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202206020211",
+  "name": "第96回中山記念(GII)",
+  "date": "2022-02-27",
+  "band": "芝1500〜1800",
+  "index": -2.0999999999999943,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202209010611",
+  "name": "第66回阪急杯(GIII)",
+  "date": "2022-02-27",
+  "band": "芝〜1400",
+  "index": -0.5,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202206020311",
+  "name": "第17回夕刊フジオーシャンS(GIII)",
+  "date": "2022-03-05",
+  "band": "芝〜1400",
+  "index": -1.1000000000000014,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202209010711",
+  "name": "第29回チューリップ賞(GII)",
+  "date": "2022-03-05",
+  "band": "芝1500〜1800",
+  "index": -0.4000000000000057,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202206020411",
+  "name": "第59回報知弥生ディープ記念(GII)",
+  "date": "2022-03-06",
+  "band": "芝1900〜2200",
+  "index": 1.0,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202206020511",
+  "name": "第40回中山牝馬S(GIII)",
+  "date": "2022-03-12",
+  "band": "芝1500〜1800",
+  "index": 1.2000000000000028,
+  "pace": "slow",
+  "leaders": 4,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202209011011",
+  "name": "第56回フィリーズレビュー(GII)",
+  "date": "2022-03-13",
+  "band": "芝〜1400",
+  "index": -1.5,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202207020211",
+  "name": "第58回金鯱賞(GII)",
+  "date": "2022-03-13",
+  "band": "芝1900〜2200",
+  "index": 1.1000000000000014,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202207020311",
+  "name": "第36回中スポ賞ファルコンS(GIII)",
+  "date": "2022-03-19",
+  "band": "芝〜1400",
+  "index": -3.3999999999999986,
+  "pace": "high",
+  "leaders": 6,
+  "old_leaders": 9
+ },
+ {
+  "race_id": "202206020711",
+  "name": "第71回フジTVスプリングS(GII)",
+  "date": "2022-03-20",
+  "band": "芝1500〜1800",
+  "index": 1.4000000000000057,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202209011211",
+  "name": "第70回阪神大賞典(GII)",
+  "date": "2022-03-20",
+  "band": "芝2300〜",
+  "index": 2.1000000000000014,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202206020811",
+  "name": "第36回フラワーC(GIII)",
+  "date": "2022-03-21",
+  "band": "芝1500〜1800",
+  "index": 1.5,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202206030111",
+  "name": "第70回日経賞(GII)",
+  "date": "2022-03-26",
+  "band": "芝2300〜",
+  "index": -3.200000000000003,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202209020111",
+  "name": "第69回毎日杯(GIII)",
+  "date": "2022-03-26",
+  "band": "芝1500〜1800",
+  "index": 0.29999999999999716,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202206030211",
+  "name": "第29回マーチS(GIII)",
+  "date": "2022-03-27",
+  "band": "ダ1500〜1800",
+  "index": -1.3000000000000043,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202207020611",
+  "name": "第52回高松宮記念(GI)",
+  "date": "2022-03-27",
+  "band": "芝〜1400",
+  "index": -1.5,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202206030311",
+  "name": "第54回ダービー卿チャレンジ(GIII)",
+  "date": "2022-04-02",
+  "band": "ダ1500〜1800",
+  "index": -1.0,
+  "pace": "middle",
+  "leaders": 4,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202209020411",
+  "name": "第66回大阪杯(GI)",
+  "date": "2022-04-03",
+  "band": "芝1900〜2200",
+  "index": -1.1999999999999957,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202206030511",
+  "name": "第40回ニュージーランドT(GII)",
+  "date": "2022-04-09",
+  "band": "芝1500〜1800",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202209020511",
+  "name": "第65回サンスポ杯阪神牝馬S(GII)",
+  "date": "2022-04-09",
+  "band": "芝1500〜1800",
+  "index": 0.5999999999999943,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202209020611",
+  "name": "第82回桜花賞(GI)",
+  "date": "2022-04-10",
+  "band": "芝1500〜1800",
+  "index": 0.5,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202209020711",
+  "name": "第31回アーリントンC(GIII)",
+  "date": "2022-04-16",
+  "band": "芝1500〜1800",
+  "index": 0.09999999999999432,
+  "pace": "middle",
+  "leaders": 4,
+  "old_leaders": 9
+ },
+ {
+  "race_id": "202206030811",
+  "name": "第82回皐月賞(GI)",
+  "date": "2022-04-17",
+  "band": "芝1900〜2200",
+  "index": 0.30000000000000426,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202209020811",
+  "name": "第27回アンタレスS(GIII)",
+  "date": "2022-04-17",
+  "band": "ダ1500〜1800",
+  "index": -0.5,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202203010311",
+  "name": "第19回福島牝馬S(GIII)",
+  "date": "2022-04-23",
+  "band": "芝1500〜1800",
+  "index": -1.3999999999999986,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202205020211",
+  "name": "第57回サンスポ賞フローラS(GII)",
+  "date": "2022-04-24",
+  "band": "芝1900〜2200",
+  "index": 1.1000000000000014,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202209021011",
+  "name": "第53回読売マイラーズC(GII)",
+  "date": "2022-04-24",
+  "band": "芝1500〜1800",
+  "index": -1.1999999999999957,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202205020311",
+  "name": "第29回テレビ東京杯青葉賞(GII)",
+  "date": "2022-04-30",
+  "band": "芝2300〜",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202209021211",
+  "name": "第165回天皇賞(春)(GI)",
+  "date": "2022-05-01",
+  "band": "芝2300〜",
+  "index": 0.10000000000000142,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202207030111",
+  "name": "第70回京都新聞杯(GII)",
+  "date": "2022-05-07",
+  "band": "芝1900〜2200",
+  "index": -1.6000000000000014,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202205020611",
+  "name": "第27回NHKマイルC(GI)",
+  "date": "2022-05-08",
+  "band": "芝1500〜1800",
+  "index": -0.7999999999999972,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202204010211",
+  "name": "第44回新潟大賞典(GIII)",
+  "date": "2022-05-08",
+  "band": "芝1900〜2200",
+  "index": -0.3999999999999986,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202205020711",
+  "name": "第67回京王杯スプリングC(GII)",
+  "date": "2022-05-14",
+  "band": "芝〜1400",
+  "index": 0.0,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202205020811",
+  "name": "第17回ヴィクトリアマイル(GI)",
+  "date": "2022-05-15",
+  "band": "芝1500〜1800",
+  "index": 0.5,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202207030511",
+  "name": "第29回平安S(GIII)",
+  "date": "2022-05-21",
+  "band": "ダ1900〜2200",
+  "index": -6.800000000000004,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202205021011",
+  "name": "第83回優駿牝馬(GI)",
+  "date": "2022-05-22",
+  "band": "芝2300〜",
+  "index": 0.5,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202207030711",
+  "name": "第5回葵S(GIII)",
+  "date": "2022-05-28",
+  "band": "芝〜1400",
+  "index": -1.7999999999999972,
+  "pace": "high",
+  "leaders": 7,
+  "old_leaders": 12
+ },
+ {
+  "race_id": "202205021211",
+  "name": "第89回東京優駿(GI)",
+  "date": "2022-05-29",
+  "band": "芝2300〜",
+  "index": -0.10000000000000142,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202205021212",
+  "name": "第136回目黒記念(GII)",
+  "date": "2022-05-29",
+  "band": "芝2300〜",
+  "index": -4.400000000000002,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202207040111",
+  "name": "第75回鳴尾記念(GIII)",
+  "date": "2022-06-04",
+  "band": "芝1900〜2200",
+  "index": 1.8000000000000043,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202205030211",
+  "name": "第72回安田記念(GI)",
+  "date": "2022-06-05",
+  "band": "芝1500〜1800",
+  "index": 1.1000000000000014,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202205030411",
+  "name": "第39回エプソムC(GIII)",
+  "date": "2022-06-12",
+  "band": "芝1500〜1800",
+  "index": 1.1000000000000014,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202202010211",
+  "name": "第29回函館スプリントS(GIII)",
+  "date": "2022-06-12",
+  "band": "芝〜1400",
+  "index": -1.6000000000000014,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202205030611",
+  "name": "第27回ユニコーンS(GIII)",
+  "date": "2022-06-19",
+  "band": "ダ1500〜1800",
+  "index": -2.6000000000000014,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202209030211",
+  "name": "第27回マーメイドS(GIII)",
+  "date": "2022-06-19",
+  "band": "芝1900〜2200",
+  "index": 0.6000000000000014,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202209030411",
+  "name": "第63回宝塚記念(GI)",
+  "date": "2022-06-26",
+  "band": "芝1900〜2200",
+  "index": -2.3999999999999986,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202203020211",
+  "name": "第71回ラジオNIKKEI賞(GIII)",
+  "date": "2022-07-03",
+  "band": "芝1500〜1800",
+  "index": -1.0,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202210030211",
+  "name": "第58回CBC賞(GIII)",
+  "date": "2022-07-03",
+  "band": "芝〜1400",
+  "index": -2.1999999999999993,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202203020411",
+  "name": "第58回七夕賞(GIII)",
+  "date": "2022-07-10",
+  "band": "芝1900〜2200",
+  "index": -0.8999999999999986,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202210030411",
+  "name": "第27回プロキオンS(GIII)",
+  "date": "2022-07-10",
+  "band": "ダ1500〜1800",
+  "index": -8.7,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202202011111",
+  "name": "第54回函館2歳S(GIII)",
+  "date": "2022-07-16",
+  "band": "芝〜1400",
+  "index": -2.799999999999997,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202202011211",
+  "name": "第58回函館記念(GIII)",
+  "date": "2022-07-17",
+  "band": "芝1900〜2200",
+  "index": -3.0,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202210030811",
+  "name": "第70回トヨタ賞中京記念(GIII)",
+  "date": "2022-07-24",
+  "band": "芝1500〜1800",
+  "index": 1.5,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202204020211",
+  "name": "第22回アイビスサマーD(GIII)",
+  "date": "2022-07-31",
+  "band": "芝〜1400",
+  "index": -0.30000000000000426,
+  "pace": "slow",
+  "leaders": 4,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202201010411",
+  "name": "第70回クイーンS(GIII)",
+  "date": "2022-07-31",
+  "band": "芝1500〜1800",
+  "index": 2.0999999999999943,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202204020411",
+  "name": "第14回レパードS(GIII)",
+  "date": "2022-08-07",
+  "band": "ダ1500〜1800",
+  "index": -3.0,
+  "pace": "high",
+  "leaders": 4,
+  "old_leaders": 9
+ },
+ {
+  "race_id": "202201010611",
+  "name": "第27回エルムS(GIII)",
+  "date": "2022-08-07",
+  "band": "ダ1500〜1800",
+  "index": -6.199999999999999,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202204030211",
+  "name": "第57回関屋記念(GIII)",
+  "date": "2022-08-14",
+  "band": "芝1500〜1800",
+  "index": 3.200000000000003,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202210040211",
+  "name": "第58回小倉記念(GIII)",
+  "date": "2022-08-14",
+  "band": "芝1900〜2200",
+  "index": -0.29999999999999716,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202210040411",
+  "name": "第57回TV西日本北九州記念(GIII)",
+  "date": "2022-08-21",
+  "band": "芝〜1400",
+  "index": -1.3000000000000043,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202201020411",
+  "name": "第58回札幌記念(GII)",
+  "date": "2022-08-21",
+  "band": "芝1900〜2200",
+  "index": -2.200000000000003,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202204030611",
+  "name": "第42回新潟2歳S(GIII)",
+  "date": "2022-08-28",
+  "band": "芝1500〜1800",
+  "index": 2.8999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202201020611",
+  "name": "第17回キーンランドC(GIII)",
+  "date": "2022-08-28",
+  "band": "芝〜1400",
+  "index": -0.10000000000000142,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202201020711",
+  "name": "第57回札幌2歳S(GIII)",
+  "date": "2022-09-03",
+  "band": "芝1500〜1800",
+  "index": 0.4000000000000057,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202204030811",
+  "name": "第58回新潟記念(GIII)",
+  "date": "2022-09-04",
+  "band": "芝1900〜2200",
+  "index": 2.8000000000000043,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202210040811",
+  "name": "第42回小倉2歳S(GIII)",
+  "date": "2022-09-04",
+  "band": "芝〜1400",
+  "index": -1.6999999999999957,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202206040111",
+  "name": "第7回紫苑S(GIII)",
+  "date": "2022-09-10",
+  "band": "芝1900〜2200",
+  "index": 0.7999999999999972,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202206040211",
+  "name": "第67回京成杯オータムH(GIII)",
+  "date": "2022-09-11",
+  "band": "芝1500〜1800",
+  "index": 1.1000000000000014,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202207050211",
+  "name": "第36回産経賞セントウルS(GII)",
+  "date": "2022-09-11",
+  "band": "芝〜1400",
+  "index": -1.2000000000000028,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202207050411",
+  "name": "第40回関西TVローズS(GII)",
+  "date": "2022-09-18",
+  "band": "芝1900〜2200",
+  "index": 1.2000000000000028,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202206040511",
+  "name": "第76回朝日セントライト記念(GII)",
+  "date": "2022-09-19",
+  "band": "芝1900〜2200",
+  "index": 0.10000000000000142,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202206040711",
+  "name": "第68回産経賞オールカマー(GII)",
+  "date": "2022-09-25",
+  "band": "芝1900〜2200",
+  "index": 0.8999999999999986,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202207050711",
+  "name": "第70回神戸新聞杯(GII)",
+  "date": "2022-09-25",
+  "band": "芝1900〜2200",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202207050811",
+  "name": "第26回シリウスS(GIII)",
+  "date": "2022-10-01",
+  "band": "ダ1900〜2200",
+  "index": -8.3,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202206040911",
+  "name": "第56回スプリンターズS(GI)",
+  "date": "2022-10-02",
+  "band": "芝〜1400",
+  "index": -2.3999999999999986,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202205040111",
+  "name": "第8回サウジアラビアRC(GIII)",
+  "date": "2022-10-08",
+  "band": "芝1500〜1800",
+  "index": -0.8000000000000043,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202205040211",
+  "name": "第73回毎日王冠(GII)",
+  "date": "2022-10-09",
+  "band": "芝1500〜1800",
+  "index": 0.10000000000000142,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202209040311",
+  "name": "第57回京都大賞典(GII)",
+  "date": "2022-10-10",
+  "band": "芝2300〜",
+  "index": 1.8999999999999986,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202205040411",
+  "name": "第70回アイルランド府中牝馬(GII)",
+  "date": "2022-10-15",
+  "band": "芝1500〜1800",
+  "index": -0.30000000000000426,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202209040511",
+  "name": "第27回秋華賞(GI)",
+  "date": "2022-10-16",
+  "band": "芝1900〜2200",
+  "index": 0.9000000000000057,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202205040611",
+  "name": "第25回富士S(GII)",
+  "date": "2022-10-22",
+  "band": "芝1500〜1800",
+  "index": 0.09999999999999432,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202209040711",
+  "name": "第83回菊花賞(GI)",
+  "date": "2022-10-23",
+  "band": "芝2300〜",
+  "index": -2.1000000000000014,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202205040811",
+  "name": "第11回アルテミスS(GIII)",
+  "date": "2022-10-29",
+  "band": "芝1500〜1800",
+  "index": 2.0,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202209040811",
+  "name": "第65回MBS賞スワンS(GII)",
+  "date": "2022-10-29",
+  "band": "芝〜1400",
+  "index": -0.5,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202205040911",
+  "name": "第166回天皇賞(秋)(GI)",
+  "date": "2022-10-30",
+  "band": "芝1900〜2200",
+  "index": -2.0,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202205050111",
+  "name": "第58回京王杯2歳S(GII)",
+  "date": "2022-11-05",
+  "band": "芝〜1400",
+  "index": 0.10000000000000142,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202209050111",
+  "name": "第27回KBSファンタジーS(GIII)",
+  "date": "2022-11-05",
+  "band": "芝〜1400",
+  "index": -0.5,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202205050211",
+  "name": "第60回アルゼンチン共和国杯(GII)",
+  "date": "2022-11-06",
+  "band": "芝2300〜",
+  "index": -5.399999999999999,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202209050211",
+  "name": "第12回みやこS(GIII)",
+  "date": "2022-11-06",
+  "band": "ダ1500〜1800",
+  "index": -0.10000000000000142,
+  "pace": "slow",
+  "leaders": 4,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202205050311",
+  "name": "第27回東京中日S杯武蔵野S(GIII)",
+  "date": "2022-11-12",
+  "band": "ダ1500〜1800",
+  "index": 0.29999999999999716,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202209050311",
+  "name": "第57回デイリー杯2歳S(GII)",
+  "date": "2022-11-12",
+  "band": "芝1500〜1800",
+  "index": 1.0999999999999943,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202209050411",
+  "name": "第47回エリザベス女王杯(GI)",
+  "date": "2022-11-13",
+  "band": "芝1900〜2200",
+  "index": -1.1000000000000014,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202203030411",
+  "name": "第58回福島記念(GIII)",
+  "date": "2022-11-13",
+  "band": "芝1900〜2200",
+  "index": -2.0,
+  "pace": "high",
+  "leaders": 4,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202205050511",
+  "name": "第27回東京スポーツ杯2歳S(GII)",
+  "date": "2022-11-19",
+  "band": "芝1500〜1800",
+  "index": 0.30000000000000426,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202209050611",
+  "name": "第39回マイルチャンピオンS(GI)",
+  "date": "2022-11-20",
+  "band": "芝1500〜1800",
+  "index": 1.1000000000000014,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202209050711",
+  "name": "第9回ラジオN杯京都2歳S(GIII)",
+  "date": "2022-11-26",
+  "band": "芝1900〜2200",
+  "index": 0.19999999999999574,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202205050812",
+  "name": "第42回ジャパンC(GI)",
+  "date": "2022-11-27",
+  "band": "芝2300〜",
+  "index": 2.0999999999999943,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202209050812",
+  "name": "第67回京阪杯(GIII)",
+  "date": "2022-11-27",
+  "band": "芝〜1400",
+  "index": -0.6000000000000014,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202209060111",
+  "name": "第73回チャレンジC(GIII)",
+  "date": "2022-12-03",
+  "band": "芝1900〜2200",
+  "index": -1.2000000000000028,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202207060211",
+  "name": "第23回チャンピオンズC(GI)",
+  "date": "2022-12-04",
+  "band": "ダ1500〜1800",
+  "index": 0.10000000000000142,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202207060311",
+  "name": "第58回中日新聞杯(GIII)",
+  "date": "2022-12-10",
+  "band": "芝1900〜2200",
+  "index": 2.1000000000000014,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202206050411",
+  "name": "第15回カペラS(GIII)",
+  "date": "2022-12-11",
+  "band": "ダ〜1400",
+  "index": -4.5,
+  "pace": "high",
+  "leaders": 5,
+  "old_leaders": 9
+ },
+ {
+  "race_id": "202209060411",
+  "name": "第74回阪神ジュベナイルF(GI)",
+  "date": "2022-12-11",
+  "band": "芝1500〜1800",
+  "index": -2.3999999999999986,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202206050511",
+  "name": "第8回ターコイズS(GIII)",
+  "date": "2022-12-17",
+  "band": "芝1500〜1800",
+  "index": 0.30000000000000426,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202209060611",
+  "name": "第74回朝日フューチュリティ(GI)",
+  "date": "2022-12-18",
+  "band": "芝1500〜1800",
+  "index": -2.0,
+  "pace": "high",
+  "leaders": 5,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202209060711",
+  "name": "第17回阪神C(GII)",
+  "date": "2022-12-24",
+  "band": "芝〜1400",
+  "index": -2.1000000000000014,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202206050811",
+  "name": "第67回有馬記念(GI)",
+  "date": "2022-12-25",
+  "band": "芝2300〜",
+  "index": -5.899999999999999,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202307010311",
+  "name": "第57回日刊スポシンザン記念(GIII)",
+  "date": "2023-01-08",
+  "band": "芝1500〜1800",
+  "index": -0.8000000000000043,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202306010411",
+  "name": "第39回フェアリーS(GIII)",
+  "date": "2023-01-09",
+  "band": "芝1500〜1800",
+  "index": -1.6000000000000014,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202307010511",
+  "name": "第60回愛知杯(GIII)",
+  "date": "2023-01-14",
+  "band": "芝1900〜2200",
+  "index": 3.6000000000000014,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202306010611",
+  "name": "第63回京成杯(GIII)",
+  "date": "2023-01-15",
+  "band": "芝1900〜2200",
+  "index": 2.200000000000003,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202307010611",
+  "name": "第70回日経新春杯(GII)",
+  "date": "2023-01-15",
+  "band": "芝1900〜2200",
+  "index": 0.8999999999999986,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202306010811",
+  "name": "第64回アメリカジョッキーC(GII)",
+  "date": "2023-01-22",
+  "band": "芝1900〜2200",
+  "index": 1.0999999999999943,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202307010811",
+  "name": "第40回東海テレビ杯東海S(GII)",
+  "date": "2023-01-22",
+  "band": "ダ1500〜1800",
+  "index": 1.2000000000000028,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202305010211",
+  "name": "第37回根岸S(GIII)",
+  "date": "2023-01-29",
+  "band": "ダ〜1400",
+  "index": -1.2999999999999972,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 8
+ },
+ {
+  "race_id": "202307011011",
+  "name": "第28回シルクロードS(GIII)",
+  "date": "2023-01-29",
+  "band": "芝〜1400",
+  "index": 0.29999999999999716,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202305010411",
+  "name": "第73回東京新聞杯(GIII)",
+  "date": "2023-02-05",
+  "band": "芝1500〜1800",
+  "index": -0.30000000000000426,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202307011211",
+  "name": "第63回きさらぎ賞(GIII)",
+  "date": "2023-02-05",
+  "band": "芝1900〜2200",
+  "index": 1.9000000000000057,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202305010511",
+  "name": "第58回デイリー杯クイーンC(GIII)",
+  "date": "2023-02-11",
+  "band": "芝1500〜1800",
+  "index": -0.6000000000000014,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202305010611",
+  "name": "第57回共同通信杯(GIII)",
+  "date": "2023-02-12",
+  "band": "芝1500〜1800",
+  "index": 1.1999999999999957,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202309010211",
+  "name": "第116回京都記念(GII)",
+  "date": "2023-02-12",
+  "band": "芝1900〜2200",
+  "index": 0.10000000000000142,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202305010711",
+  "name": "第73回ダイヤモンドS(GIII)",
+  "date": "2023-02-18",
+  "band": "ダ2300〜",
+  "index": 1.5999999999999943,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202309010311",
+  "name": "第58回京都牝馬S(GIII)",
+  "date": "2023-02-18",
+  "band": "芝〜1400",
+  "index": 1.2000000000000028,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202305010811",
+  "name": "第40回フェブラリーS(GI)",
+  "date": "2023-02-19",
+  "band": "ダ1500〜1800",
+  "index": -1.8999999999999986,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202310020411",
+  "name": "第57回小倉大賞典(GIII)",
+  "date": "2023-02-19",
+  "band": "芝1500〜1800",
+  "index": -0.5,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202306020211",
+  "name": "第97回中山記念(GII)",
+  "date": "2023-02-26",
+  "band": "芝1500〜1800",
+  "index": 1.0,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202309010611",
+  "name": "第67回阪急杯(GIII)",
+  "date": "2023-02-26",
+  "band": "芝〜1400",
+  "index": -0.3999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202306020311",
+  "name": "第18回夕刊フジオーシャンS(GIII)",
+  "date": "2023-03-04",
+  "band": "芝〜1400",
+  "index": -0.6000000000000014,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202309010711",
+  "name": "第30回チューリップ賞(GII)",
+  "date": "2023-03-04",
+  "band": "芝1500〜1800",
+  "index": 1.1000000000000014,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202306020411",
+  "name": "第60回報知弥生ディープ記念(GII)",
+  "date": "2023-03-05",
+  "band": "芝1900〜2200",
+  "index": 0.8999999999999986,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202306020511",
+  "name": "第41回中山牝馬S(GIII)",
+  "date": "2023-03-11",
+  "band": "芝1500〜1800",
+  "index": 2.200000000000003,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202309011011",
+  "name": "第57回フィリーズレビュー(GII)",
+  "date": "2023-03-12",
+  "band": "芝〜1400",
+  "index": -2.5999999999999943,
+  "pace": "high",
+  "leaders": 4,
+  "old_leaders": 11
+ },
+ {
+  "race_id": "202307020211",
+  "name": "第59回金鯱賞(GII)",
+  "date": "2023-03-12",
+  "band": "芝1900〜2200",
+  "index": 1.6999999999999957,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202306020711",
+  "name": "第37回フラワーC(GIII)",
+  "date": "2023-03-18",
+  "band": "芝1500〜1800",
+  "index": -0.10000000000000142,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202307020311",
+  "name": "第37回中スポ賞ファルコンS(GIII)",
+  "date": "2023-03-18",
+  "band": "芝〜1400",
+  "index": -1.1000000000000014,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 8
+ },
+ {
+  "race_id": "202306020811",
+  "name": "第72回フジTVスプリングS(GII)",
+  "date": "2023-03-19",
+  "band": "芝1500〜1800",
+  "index": -1.8000000000000043,
+  "pace": "high",
+  "leaders": 5,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202309011211",
+  "name": "第71回阪神大賞典(GII)",
+  "date": "2023-03-19",
+  "band": "芝2300〜",
+  "index": 4.200000000000003,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202306030111",
+  "name": "第71回日経賞(GII)",
+  "date": "2023-03-25",
+  "band": "芝2300〜",
+  "index": -6.199999999999996,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202309020111",
+  "name": "第70回毎日杯(GIII)",
+  "date": "2023-03-25",
+  "band": "芝1500〜1800",
+  "index": -0.6000000000000014,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202306030211",
+  "name": "第30回マーチS(GIII)",
+  "date": "2023-03-26",
+  "band": "ダ1500〜1800",
+  "index": -0.9000000000000057,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202307020611",
+  "name": "第53回高松宮記念(GI)",
+  "date": "2023-03-26",
+  "band": "芝〜1400",
+  "index": -0.29999999999999716,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202306030311",
+  "name": "第55回ダービー卿チャレンジ(GIII)",
+  "date": "2023-04-01",
+  "band": "ダ1500〜1800",
+  "index": 1.2999999999999972,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202309020411",
+  "name": "第67回大阪杯(GI)",
+  "date": "2023-04-02",
+  "band": "芝1900〜2200",
+  "index": 0.20000000000000284,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202306030511",
+  "name": "第41回ニュージーランドT(GII)",
+  "date": "2023-04-08",
+  "band": "芝1500〜1800",
+  "index": -1.0,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202309020511",
+  "name": "第66回サンスポ杯阪神牝馬S(GII)",
+  "date": "2023-04-08",
+  "band": "芝1500〜1800",
+  "index": 1.8999999999999986,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202309020611",
+  "name": "第83回桜花賞(GI)",
+  "date": "2023-04-09",
+  "band": "芝1500〜1800",
+  "index": -0.5,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202309020711",
+  "name": "第32回アーリントンC(GIII)",
+  "date": "2023-04-15",
+  "band": "芝1500〜1800",
+  "index": -2.1000000000000014,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202306030811",
+  "name": "第83回皐月賞(GI)",
+  "date": "2023-04-16",
+  "band": "芝1900〜2200",
+  "index": -2.1000000000000014,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202309020811",
+  "name": "第28回アンタレスS(GIII)",
+  "date": "2023-04-16",
+  "band": "ダ1500〜1800",
+  "index": -2.5,
+  "pace": "high",
+  "leaders": 4,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202303010511",
+  "name": "第20回福島牝馬S(GIII)",
+  "date": "2023-04-22",
+  "band": "芝1500〜1800",
+  "index": 1.5,
+  "pace": "slow",
+  "leaders": 4,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202305020211",
+  "name": "第58回サンスポ賞フローラS(GII)",
+  "date": "2023-04-23",
+  "band": "芝1900〜2200",
+  "index": 2.0,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202308010211",
+  "name": "第54回読売マイラーズC(GII)",
+  "date": "2023-04-23",
+  "band": "芝1500〜1800",
+  "index": 0.29999999999999716,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202305020311",
+  "name": "第30回テレビ東京杯青葉賞(GII)",
+  "date": "2023-04-29",
+  "band": "芝2300〜",
+  "index": 0.6000000000000014,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202308010411",
+  "name": "第167回天皇賞(春)(GI)",
+  "date": "2023-04-30",
+  "band": "芝2300〜",
+  "index": -0.29999999999999716,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202308010511",
+  "name": "第71回京都新聞杯(GII)",
+  "date": "2023-05-06",
+  "band": "芝1900〜2200",
+  "index": 3.8000000000000043,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202305020611",
+  "name": "第28回NHKマイルC(GI)",
+  "date": "2023-05-07",
+  "band": "芝1500〜1800",
+  "index": -1.1000000000000014,
+  "pace": "high",
+  "leaders": 4,
+  "old_leaders": 9
+ },
+ {
+  "race_id": "202304010411",
+  "name": "第45回新潟大賞典(GIII)",
+  "date": "2023-05-07",
+  "band": "芝1900〜2200",
+  "index": -0.6000000000000014,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202305020711",
+  "name": "第68回京王杯スプリングC(GII)",
+  "date": "2023-05-13",
+  "band": "芝〜1400",
+  "index": 1.1999999999999957,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202305020811",
+  "name": "第18回ヴィクトリアマイル(GI)",
+  "date": "2023-05-14",
+  "band": "芝1500〜1800",
+  "index": 0.5,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202308010911",
+  "name": "第30回平安S(GIII)",
+  "date": "2023-05-20",
+  "band": "ダ1900〜2200",
+  "index": -9.0,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202305021011",
+  "name": "第84回優駿牝馬(GI)",
+  "date": "2023-05-21",
+  "band": "芝2300〜",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202308011111",
+  "name": "第6回葵S(GIII)",
+  "date": "2023-05-27",
+  "band": "芝〜1400",
+  "index": 0.6999999999999957,
+  "pace": "slow",
+  "leaders": 5,
+  "old_leaders": 9
+ },
+ {
+  "race_id": "202305021211",
+  "name": "第90回東京優駿(GI)",
+  "date": "2023-05-28",
+  "band": "芝2300〜",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202305021212",
+  "name": "第137回目黒記念(GII)",
+  "date": "2023-05-28",
+  "band": "芝2300〜",
+  "index": -4.800000000000001,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202309030111",
+  "name": "第76回鳴尾記念(GIII)",
+  "date": "2023-06-03",
+  "band": "芝1900〜2200",
+  "index": 0.19999999999999574,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202305030211",
+  "name": "第73回安田記念(GI)",
+  "date": "2023-06-04",
+  "band": "芝1500〜1800",
+  "index": 0.4000000000000057,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202305030411",
+  "name": "第40回エプソムC(GIII)",
+  "date": "2023-06-11",
+  "band": "芝1500〜1800",
+  "index": -0.30000000000000426,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202302010211",
+  "name": "第30回函館スプリントS(GIII)",
+  "date": "2023-06-11",
+  "band": "芝〜1400",
+  "index": -2.200000000000003,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202305030611",
+  "name": "第28回ユニコーンS(GIII)",
+  "date": "2023-06-18",
+  "band": "ダ1500〜1800",
+  "index": -2.3999999999999986,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202309030611",
+  "name": "第28回マーメイドS(GIII)",
+  "date": "2023-06-18",
+  "band": "芝1900〜2200",
+  "index": -2.700000000000003,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202309030811",
+  "name": "第64回宝塚記念(GI)",
+  "date": "2023-06-25",
+  "band": "芝1900〜2200",
+  "index": -1.5,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202303020211",
+  "name": "第72回ラジオNIKKEI賞(GIII)",
+  "date": "2023-07-02",
+  "band": "芝1500〜1800",
+  "index": 0.29999999999999716,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202307030211",
+  "name": "第59回CBC賞(GIII)",
+  "date": "2023-07-02",
+  "band": "芝〜1400",
+  "index": 0.20000000000000284,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202303020411",
+  "name": "第59回七夕賞(GIII)",
+  "date": "2023-07-09",
+  "band": "芝1900〜2200",
+  "index": 0.5,
+  "pace": "middle",
+  "leaders": 5,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202307030411",
+  "name": "第28回プロキオンS(GIII)",
+  "date": "2023-07-09",
+  "band": "ダ〜1400",
+  "index": -3.6000000000000014,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202302020511",
+  "name": "第55回函館2歳S(GIII)",
+  "date": "2023-07-15",
+  "band": "芝〜1400",
+  "index": -2.299999999999997,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202302020611",
+  "name": "第59回函館記念(GIII)",
+  "date": "2023-07-16",
+  "band": "芝1900〜2200",
+  "index": -1.2000000000000028,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202307030811",
+  "name": "第71回中京記念(GIII)",
+  "date": "2023-07-23",
+  "band": "芝1500〜1800",
+  "index": -1.0,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202304020211",
+  "name": "第23回アイビスサマーD(GIII)",
+  "date": "2023-07-30",
+  "band": "芝〜1400",
+  "index": -1.0,
+  "pace": "middle",
+  "leaders": 5,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202301010411",
+  "name": "第71回クイーンS(GIII)",
+  "date": "2023-07-30",
+  "band": "芝1500〜1800",
+  "index": 1.1000000000000014,
+  "pace": "slow",
+  "leaders": 4,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202304020411",
+  "name": "第15回レパードS(GIII)",
+  "date": "2023-08-06",
+  "band": "ダ1500〜1800",
+  "index": -1.8999999999999986,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202301010611",
+  "name": "第28回エルムS(GIII)",
+  "date": "2023-08-06",
+  "band": "ダ1500〜1800",
+  "index": -6.699999999999996,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202304030211",
+  "name": "第58回関屋記念(GIII)",
+  "date": "2023-08-13",
+  "band": "芝1500〜1800",
+  "index": 0.7000000000000028,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202310030211",
+  "name": "第59回小倉記念(GIII)",
+  "date": "2023-08-13",
+  "band": "芝1900〜2200",
+  "index": -0.7999999999999972,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202310030411",
+  "name": "第58回TV西日本北九州記念(GIII)",
+  "date": "2023-08-20",
+  "band": "芝〜1400",
+  "index": -1.5,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202301020411",
+  "name": "第59回札幌記念(GII)",
+  "date": "2023-08-20",
+  "band": "芝1900〜2200",
+  "index": -0.8999999999999986,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202304030611",
+  "name": "第43回新潟2歳S(GIII)",
+  "date": "2023-08-27",
+  "band": "芝1500〜1800",
+  "index": 1.3999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202301020611",
+  "name": "第18回キーンランドC(GIII)",
+  "date": "2023-08-27",
+  "band": "芝〜1400",
+  "index": -1.3000000000000043,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202301020711",
+  "name": "第58回札幌2歳S(GIII)",
+  "date": "2023-09-02",
+  "band": "芝1500〜1800",
+  "index": 0.29999999999999716,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202304030811",
+  "name": "第59回新潟記念(GIII)",
+  "date": "2023-09-03",
+  "band": "芝1900〜2200",
+  "index": 1.8000000000000043,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202310030811",
+  "name": "第43回小倉2歳S(GIII)",
+  "date": "2023-09-03",
+  "band": "芝〜1400",
+  "index": -2.0,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202306040111",
+  "name": "第8回紫苑S(GII)",
+  "date": "2023-09-09",
+  "band": "芝1900〜2200",
+  "index": -1.2999999999999972,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202306040211",
+  "name": "第68回京成杯オータムH(GIII)",
+  "date": "2023-09-10",
+  "band": "芝1500〜1800",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202309040211",
+  "name": "第37回産経賞セントウルS(GII)",
+  "date": "2023-09-10",
+  "band": "芝〜1400",
+  "index": -0.20000000000000284,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202309040411",
+  "name": "第41回関西TVローズS(GII)",
+  "date": "2023-09-17",
+  "band": "芝1500〜1800",
+  "index": 0.3999999999999986,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202306040511",
+  "name": "第77回朝日セントライト記念(GII)",
+  "date": "2023-09-18",
+  "band": "芝1900〜2200",
+  "index": 0.8000000000000043,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202306040711",
+  "name": "第69回産経賞オールカマー(GII)",
+  "date": "2023-09-24",
+  "band": "芝1900〜2200",
+  "index": 0.5,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202309040711",
+  "name": "第71回神戸新聞杯(GII)",
+  "date": "2023-09-24",
+  "band": "芝2300〜",
+  "index": 3.299999999999997,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202309040811",
+  "name": "第27回シリウスS(GIII)",
+  "date": "2023-09-30",
+  "band": "ダ1900〜2200",
+  "index": -0.8999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202306040911",
+  "name": "第57回スプリンターズS(GI)",
+  "date": "2023-10-01",
+  "band": "芝〜1400",
+  "index": -1.4000000000000057,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202305040111",
+  "name": "第9回サウジアラビアRC(GIII)",
+  "date": "2023-10-07",
+  "band": "芝1500〜1800",
+  "index": 0.6999999999999957,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202305040211",
+  "name": "第74回毎日王冠(GII)",
+  "date": "2023-10-08",
+  "band": "芝1500〜1800",
+  "index": 1.8999999999999986,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202308020311",
+  "name": "第58回京都大賞典(GII)",
+  "date": "2023-10-09",
+  "band": "芝2300〜",
+  "index": 0.6000000000000014,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202305040411",
+  "name": "第71回アイルランド府中牝馬(GII)",
+  "date": "2023-10-14",
+  "band": "芝1500〜1800",
+  "index": 2.0,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202308020511",
+  "name": "第28回秋華賞(GI)",
+  "date": "2023-10-15",
+  "band": "芝1900〜2200",
+  "index": 2.3999999999999986,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202305040611",
+  "name": "第26回富士S(GII)",
+  "date": "2023-10-21",
+  "band": "芝1500〜1800",
+  "index": -0.7000000000000028,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202308020711",
+  "name": "第84回菊花賞(GI)",
+  "date": "2023-10-22",
+  "band": "芝2300〜",
+  "index": 0.6000000000000014,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202305040811",
+  "name": "第12回アルテミスS(GIII)",
+  "date": "2023-10-28",
+  "band": "芝1500〜1800",
+  "index": 2.299999999999997,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202308020811",
+  "name": "第66回MBS賞スワンS(GII)",
+  "date": "2023-10-28",
+  "band": "芝〜1400",
+  "index": -0.3999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202305040911",
+  "name": "第168回天皇賞(秋)(GI)",
+  "date": "2023-10-29",
+  "band": "芝1900〜2200",
+  "index": 0.19999999999999574,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202305050111",
+  "name": "第59回京王杯2歳S(GII)",
+  "date": "2023-11-04",
+  "band": "芝〜1400",
+  "index": -0.6999999999999957,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202308030111",
+  "name": "第28回KBSファンタジーS(GIII)",
+  "date": "2023-11-04",
+  "band": "芝〜1400",
+  "index": -1.1000000000000014,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202305050211",
+  "name": "第61回アルゼンチン共和国杯(GII)",
+  "date": "2023-11-05",
+  "band": "芝2300〜",
+  "index": -5.100000000000001,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202308030211",
+  "name": "第13回みやこS(GIII)",
+  "date": "2023-11-05",
+  "band": "ダ1500〜1800",
+  "index": -1.1000000000000014,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202305050311",
+  "name": "第28回東京中日S杯武蔵野S(GIII)",
+  "date": "2023-11-11",
+  "band": "ダ1500〜1800",
+  "index": -2.299999999999997,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202308030311",
+  "name": "第58回デイリー杯2歳S(GII)",
+  "date": "2023-11-11",
+  "band": "芝1500〜1800",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202308030411",
+  "name": "第48回エリザベス女王杯(GI)",
+  "date": "2023-11-12",
+  "band": "芝1900〜2200",
+  "index": 1.3999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202303030411",
+  "name": "第59回福島記念(GIII)",
+  "date": "2023-11-12",
+  "band": "芝1900〜2200",
+  "index": -2.299999999999997,
+  "pace": "high",
+  "leaders": 4,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202305050511",
+  "name": "第28回東京スポーツ杯2歳S(GII)",
+  "date": "2023-11-18",
+  "band": "芝1500〜1800",
+  "index": -0.5,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202308030611",
+  "name": "第40回マイルチャンピオンS(GI)",
+  "date": "2023-11-19",
+  "band": "芝1500〜1800",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202308030711",
+  "name": "第10回ラジオN杯京都2歳S(GIII)",
+  "date": "2023-11-25",
+  "band": "芝1900〜2200",
+  "index": -0.8999999999999986,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202305050812",
+  "name": "第43回ジャパンC(GI)",
+  "date": "2023-11-26",
+  "band": "芝2300〜",
+  "index": -1.0,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202308030812",
+  "name": "第68回京阪杯(GIII)",
+  "date": "2023-11-26",
+  "band": "芝〜1400",
+  "index": 0.0,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202309050111",
+  "name": "第74回チャレンジC(GIII)",
+  "date": "2023-12-02",
+  "band": "芝1900〜2200",
+  "index": 1.1999999999999957,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202307040211",
+  "name": "第24回チャンピオンズC(GI)",
+  "date": "2023-12-03",
+  "band": "ダ1500〜1800",
+  "index": -0.8999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202307040311",
+  "name": "第59回中日新聞杯(GIII)",
+  "date": "2023-12-09",
+  "band": "芝1900〜2200",
+  "index": -0.09999999999999432,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202306050411",
+  "name": "第16回カペラS(GIII)",
+  "date": "2023-12-10",
+  "band": "ダ〜1400",
+  "index": -2.299999999999997,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202309050411",
+  "name": "第75回阪神ジュベナイルF(GI)",
+  "date": "2023-12-10",
+  "band": "芝1500〜1800",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202306050511",
+  "name": "第9回ターコイズS(GIII)",
+  "date": "2023-12-16",
+  "band": "芝1500〜1800",
+  "index": 0.9000000000000057,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202309050611",
+  "name": "第75回朝日フューチュリティ(GI)",
+  "date": "2023-12-17",
+  "band": "芝1500〜1800",
+  "index": -1.2999999999999972,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202309050711",
+  "name": "第18回阪神C(GII)",
+  "date": "2023-12-23",
+  "band": "芝〜1400",
+  "index": -1.8999999999999986,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202306050811",
+  "name": "第68回有馬記念(GI)",
+  "date": "2023-12-24",
+  "band": "芝2300〜",
+  "index": -5.699999999999999,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202406010111",
+  "name": "第73回日刊スポ賞中山金杯(GIII)",
+  "date": "2024-01-06",
+  "band": "芝1900〜2200",
+  "index": 1.3000000000000043,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202408010111",
+  "name": "第62回スポニチ賞京都金杯(GIII)",
+  "date": "2024-01-06",
+  "band": "芝1500〜1800",
+  "index": -3.3999999999999986,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202406010211",
+  "name": "第40回フェアリーS(GIII)",
+  "date": "2024-01-07",
+  "band": "芝1500〜1800",
+  "index": -0.3999999999999986,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202408010311",
+  "name": "第58回日刊スポシンザン記念(GIII)",
+  "date": "2024-01-08",
+  "band": "芝1500〜1800",
+  "index": -1.8000000000000043,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202410010111",
+  "name": "第61回愛知杯(GIII)",
+  "date": "2024-01-13",
+  "band": "芝1900〜2200",
+  "index": -2.299999999999997,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202406010511",
+  "name": "第64回京成杯(GIII)",
+  "date": "2024-01-14",
+  "band": "芝1900〜2200",
+  "index": 0.8000000000000043,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202408010511",
+  "name": "第71回日経新春杯(GII)",
+  "date": "2024-01-14",
+  "band": "芝2300〜",
+  "index": -2.6999999999999957,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202406010711",
+  "name": "第65回アメリカジョッキーC(GII)",
+  "date": "2024-01-21",
+  "band": "芝1900〜2200",
+  "index": -0.6999999999999957,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202408010711",
+  "name": "第41回東海テレビ杯東海S(GII)",
+  "date": "2024-01-21",
+  "band": "ダ1500〜1800",
+  "index": 0.5,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202405010211",
+  "name": "第38回根岸S(GIII)",
+  "date": "2024-01-28",
+  "band": "ダ〜1400",
+  "index": 0.0,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202408020211",
+  "name": "第29回シルクロードS(GIII)",
+  "date": "2024-01-28",
+  "band": "芝〜1400",
+  "index": -0.8999999999999986,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202405010411",
+  "name": "第74回東京新聞杯(GIII)",
+  "date": "2024-02-04",
+  "band": "芝1500〜1800",
+  "index": 0.10000000000000142,
+  "pace": "middle",
+  "leaders": 4,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202408020411",
+  "name": "第64回きさらぎ賞(GIII)",
+  "date": "2024-02-04",
+  "band": "芝1500〜1800",
+  "index": 1.2000000000000028,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202405010511",
+  "name": "第59回デイリー杯クイーンC(GIII)",
+  "date": "2024-02-10",
+  "band": "芝1500〜1800",
+  "index": 1.0,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202405010611",
+  "name": "第58回共同通信杯(GIII)",
+  "date": "2024-02-11",
+  "band": "芝1500〜1800",
+  "index": 4.199999999999996,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202408020611",
+  "name": "第117回京都記念(GII)",
+  "date": "2024-02-11",
+  "band": "芝1900〜2200",
+  "index": -0.4000000000000057,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202405010711",
+  "name": "第74回ダイヤモンドS(GIII)",
+  "date": "2024-02-17",
+  "band": "ダ2300〜",
+  "index": 1.6000000000000014,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202408020711",
+  "name": "第59回京都牝馬S(GIII)",
+  "date": "2024-02-17",
+  "band": "芝〜1400",
+  "index": 0.0,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202405010811",
+  "name": "第41回フェブラリーS(GI)",
+  "date": "2024-02-18",
+  "band": "ダ1500〜1800",
+  "index": -3.8999999999999986,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202410020411",
+  "name": "第58回小倉大賞典(GIII)",
+  "date": "2024-02-18",
+  "band": "芝1500〜1800",
+  "index": -1.5,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202406020211",
+  "name": "第98回中山記念(GII)",
+  "date": "2024-02-25",
+  "band": "芝1500〜1800",
+  "index": -2.0,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202409010211",
+  "name": "第68回阪急杯(GIII)",
+  "date": "2024-02-25",
+  "band": "芝〜1400",
+  "index": -2.0,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202406020311",
+  "name": "第19回夕刊フジオーシャンS(GIII)",
+  "date": "2024-03-02",
+  "band": "芝〜1400",
+  "index": -1.4000000000000057,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202409010311",
+  "name": "第31回チューリップ賞(GII)",
+  "date": "2024-03-02",
+  "band": "芝1500〜1800",
+  "index": -0.8999999999999986,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202406020411",
+  "name": "第61回報知弥生ディープ記念(GII)",
+  "date": "2024-03-03",
+  "band": "芝1900〜2200",
+  "index": 0.10000000000000142,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202406020511",
+  "name": "第42回中山牝馬S(GIII)",
+  "date": "2024-03-09",
+  "band": "芝1500〜1800",
+  "index": 1.1999999999999957,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202409010611",
+  "name": "第58回フィリーズレビュー(GII)",
+  "date": "2024-03-10",
+  "band": "芝〜1400",
+  "index": -1.3000000000000043,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202407010211",
+  "name": "第60回金鯱賞(GII)",
+  "date": "2024-03-10",
+  "band": "芝1900〜2200",
+  "index": 0.29999999999999716,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202406020711",
+  "name": "第38回フラワーC(GIII)",
+  "date": "2024-03-16",
+  "band": "芝1500〜1800",
+  "index": 0.10000000000000142,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202407010311",
+  "name": "第38回中スポ賞ファルコンS(GIII)",
+  "date": "2024-03-16",
+  "band": "芝〜1400",
+  "index": -0.9000000000000057,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202406020811",
+  "name": "第73回フジTVスプリングS(GII)",
+  "date": "2024-03-17",
+  "band": "芝1500〜1800",
+  "index": 3.799999999999997,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202409010811",
+  "name": "第72回阪神大賞典(GII)",
+  "date": "2024-03-17",
+  "band": "芝2300〜",
+  "index": 2.5,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202406030111",
+  "name": "第72回日経賞(GII)",
+  "date": "2024-03-23",
+  "band": "芝2300〜",
+  "index": -5.400000000000002,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202409020111",
+  "name": "第71回毎日杯(GIII)",
+  "date": "2024-03-23",
+  "band": "芝1500〜1800",
+  "index": 0.8000000000000043,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202406030211",
+  "name": "第31回マーチS(GIII)",
+  "date": "2024-03-24",
+  "band": "ダ1500〜1800",
+  "index": -0.9000000000000057,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202407010611",
+  "name": "第54回高松宮記念(GI)",
+  "date": "2024-03-24",
+  "band": "芝〜1400",
+  "index": 0.8999999999999986,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202406030311",
+  "name": "第56回ダービー卿チャレンジ(GIII)",
+  "date": "2024-03-30",
+  "band": "ダ1500〜1800",
+  "index": 0.3999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202409020411",
+  "name": "第68回大阪杯(GI)",
+  "date": "2024-03-31",
+  "band": "芝1900〜2200",
+  "index": 0.7999999999999972,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202406030511",
+  "name": "第42回ニュージーランドT(GII)",
+  "date": "2024-04-06",
+  "band": "芝1500〜1800",
+  "index": 0.5,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202409020511",
+  "name": "第67回サンスポ杯阪神牝馬S(GII)",
+  "date": "2024-04-06",
+  "band": "芝1500〜1800",
+  "index": 1.8999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202409020611",
+  "name": "第84回桜花賞(GI)",
+  "date": "2024-04-07",
+  "band": "芝1500〜1800",
+  "index": 0.3999999999999986,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202409020711",
+  "name": "第33回アーリントンC(GIII)",
+  "date": "2024-04-13",
+  "band": "芝1500〜1800",
+  "index": 2.5999999999999943,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202406030811",
+  "name": "第84回皐月賞(GI)",
+  "date": "2024-04-14",
+  "band": "芝1900〜2200",
+  "index": -1.5999999999999943,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202409020811",
+  "name": "第29回アンタレスS(GIII)",
+  "date": "2024-04-14",
+  "band": "ダ1500〜1800",
+  "index": -0.3999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202403010511",
+  "name": "第21回福島牝馬S(GIII)",
+  "date": "2024-04-20",
+  "band": "芝1500〜1800",
+  "index": 0.29999999999999716,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202405020211",
+  "name": "第59回サンスポ賞フローラS(GII)",
+  "date": "2024-04-21",
+  "band": "芝1900〜2200",
+  "index": 0.6000000000000014,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202408030211",
+  "name": "第55回読売マイラーズC(GII)",
+  "date": "2024-04-21",
+  "band": "芝1500〜1800",
+  "index": -1.2999999999999972,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202405020311",
+  "name": "第31回テレビ東京杯青葉賞(GII)",
+  "date": "2024-04-27",
+  "band": "芝2300〜",
+  "index": -0.6000000000000014,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202408030311",
+  "name": "第29回ユニコーンS(GIII)",
+  "date": "2024-04-27",
+  "band": "ダ1900〜2200",
+  "index": -8.600000000000001,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202408030411",
+  "name": "第169回天皇賞(春)(GI)",
+  "date": "2024-04-28",
+  "band": "芝2300〜",
+  "index": 1.3000000000000043,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202408030511",
+  "name": "第72回京都新聞杯(GII)",
+  "date": "2024-05-04",
+  "band": "芝1900〜2200",
+  "index": 1.9000000000000057,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202405020611",
+  "name": "第29回NHKマイルC(GI)",
+  "date": "2024-05-05",
+  "band": "芝1500〜1800",
+  "index": 0.19999999999999574,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202404010411",
+  "name": "第46回新潟大賞典(GIII)",
+  "date": "2024-05-05",
+  "band": "芝1900〜2200",
+  "index": 2.5,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202405020711",
+  "name": "第69回京王杯スプリングC(GII)",
+  "date": "2024-05-11",
+  "band": "芝〜1400",
+  "index": 0.8999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202405020811",
+  "name": "第19回ヴィクトリアマイル(GI)",
+  "date": "2024-05-12",
+  "band": "芝1500〜1800",
+  "index": -1.2000000000000028,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202408030911",
+  "name": "第31回平安S(GIII)",
+  "date": "2024-05-18",
+  "band": "ダ1900〜2200",
+  "index": -7.800000000000001,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202405021011",
+  "name": "第85回優駿牝馬(GI)",
+  "date": "2024-05-19",
+  "band": "芝2300〜",
+  "index": -0.3999999999999986,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202408031111",
+  "name": "第7回葵S(GIII)",
+  "date": "2024-05-25",
+  "band": "芝〜1400",
+  "index": -0.6999999999999957,
+  "pace": "middle",
+  "leaders": 4,
+  "old_leaders": 10
+ },
+ {
+  "race_id": "202405021211",
+  "name": "第91回東京優駿(GI)",
+  "date": "2024-05-26",
+  "band": "芝2300〜",
+  "index": 2.5,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202405021212",
+  "name": "第138回目黒記念(GII)",
+  "date": "2024-05-26",
+  "band": "芝2300〜",
+  "index": -3.8999999999999986,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202408040111",
+  "name": "第77回鳴尾記念(GIII)",
+  "date": "2024-06-01",
+  "band": "芝1900〜2200",
+  "index": 0.5,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202405030211",
+  "name": "第74回安田記念(GI)",
+  "date": "2024-06-02",
+  "band": "芝1500〜1800",
+  "index": 0.6000000000000014,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202405030411",
+  "name": "第41回エプソムC(GIII)",
+  "date": "2024-06-09",
+  "band": "芝1500〜1800",
+  "index": 0.6000000000000014,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202402010211",
+  "name": "第31回函館スプリントS(GIII)",
+  "date": "2024-06-09",
+  "band": "芝〜1400",
+  "index": -1.6000000000000014,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202408040611",
+  "name": "第29回マーメイドS(GIII)",
+  "date": "2024-06-16",
+  "band": "芝1900〜2200",
+  "index": -1.3000000000000043,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202408040811",
+  "name": "第65回宝塚記念(GI)",
+  "date": "2024-06-23",
+  "band": "芝1900〜2200",
+  "index": 1.1000000000000014,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202403020211",
+  "name": "第73回ラジオNIKKEI賞(GIII)",
+  "date": "2024-06-30",
+  "band": "芝1500〜1800",
+  "index": -0.5,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202410030211",
+  "name": "第59回TV西日本北九州記念(GIII)",
+  "date": "2024-06-30",
+  "band": "芝〜1400",
+  "index": -3.3000000000000043,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202403020411",
+  "name": "第60回七夕賞(GIII)",
+  "date": "2024-07-07",
+  "band": "芝1900〜2200",
+  "index": -3.0,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202410030411",
+  "name": "第29回プロキオンS(GIII)",
+  "date": "2024-07-07",
+  "band": "ダ1500〜1800",
+  "index": -9.299999999999997,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202402011111",
+  "name": "第56回函館2歳S(GIII)",
+  "date": "2024-07-13",
+  "band": "芝〜1400",
+  "index": -1.2000000000000028,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202402011211",
+  "name": "第60回函館記念(GIII)",
+  "date": "2024-07-14",
+  "band": "芝1900〜2200",
+  "index": -0.30000000000000426,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202410030811",
+  "name": "第72回中京記念(GIII)",
+  "date": "2024-07-21",
+  "band": "芝1500〜1800",
+  "index": -3.0,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202404020207",
+  "name": "第24回アイビスサマーD(GIII)",
+  "date": "2024-07-28",
+  "band": "芝〜1400",
+  "index": -1.0,
+  "pace": "middle",
+  "leaders": 5,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202401010411",
+  "name": "第72回クイーンS(GIII)",
+  "date": "2024-07-28",
+  "band": "芝1500〜1800",
+  "index": 0.4000000000000057,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202404020407",
+  "name": "第16回レパードS(GIII)",
+  "date": "2024-08-04",
+  "band": "ダ1500〜1800",
+  "index": -2.0999999999999943,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202401010611",
+  "name": "第29回エルムS(GIII)",
+  "date": "2024-08-04",
+  "band": "ダ1500〜1800",
+  "index": -6.0,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202404030211",
+  "name": "第59回関屋記念(GIII)",
+  "date": "2024-08-11",
+  "band": "芝1500〜1800",
+  "index": 2.1000000000000014,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202407020211",
+  "name": "第60回小倉記念(GIII)",
+  "date": "2024-08-11",
+  "band": "芝1900〜2200",
+  "index": -1.2000000000000028,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202407020411",
+  "name": "第60回CBC賞(GIII)",
+  "date": "2024-08-18",
+  "band": "芝〜1400",
+  "index": -0.29999999999999716,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202401020411",
+  "name": "第60回札幌記念(GII)",
+  "date": "2024-08-18",
+  "band": "芝1900〜2200",
+  "index": 0.7999999999999972,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202404030611",
+  "name": "第44回新潟2歳S(GIII)",
+  "date": "2024-08-25",
+  "band": "芝1500〜1800",
+  "index": 0.5,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202401020611",
+  "name": "第19回キーンランドC(GIII)",
+  "date": "2024-08-25",
+  "band": "芝〜1400",
+  "index": -0.6999999999999957,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202401020711",
+  "name": "第59回札幌2歳S(GIII)",
+  "date": "2024-08-31",
+  "band": "芝1500〜1800",
+  "index": -0.9000000000000057,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202404030811",
+  "name": "第60回新潟記念(GIII)",
+  "date": "2024-09-01",
+  "band": "芝1900〜2200",
+  "index": 0.3999999999999986,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202407020811",
+  "name": "第44回小倉2歳S(GIII)",
+  "date": "2024-09-01",
+  "band": "芝〜1400",
+  "index": 0.0,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202406040111",
+  "name": "第9回紫苑S(GII)",
+  "date": "2024-09-07",
+  "band": "芝1900〜2200",
+  "index": 0.7000000000000028,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 9
+ },
+ {
+  "race_id": "202406040211",
+  "name": "第69回京成杯オータムH(GIII)",
+  "date": "2024-09-08",
+  "band": "芝1500〜1800",
+  "index": 0.7000000000000028,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202407030211",
+  "name": "第38回産経賞セントウルS(GII)",
+  "date": "2024-09-08",
+  "band": "芝〜1400",
+  "index": -0.5,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202407030411",
+  "name": "第42回関西TVローズS(GII)",
+  "date": "2024-09-15",
+  "band": "芝1900〜2200",
+  "index": 0.5,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202406040511",
+  "name": "第78回朝日セントライト記念(GII)",
+  "date": "2024-09-16",
+  "band": "芝1900〜2200",
+  "index": 1.6000000000000014,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202406040711",
+  "name": "第70回産経賞オールカマー(GII)",
+  "date": "2024-09-22",
+  "band": "芝1900〜2200",
+  "index": 1.8999999999999986,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202407030711",
+  "name": "第72回神戸新聞杯(GII)",
+  "date": "2024-09-22",
+  "band": "芝1900〜2200",
+  "index": -0.6000000000000014,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202407030811",
+  "name": "第28回シリウスS(GIII)",
+  "date": "2024-09-28",
+  "band": "ダ1900〜2200",
+  "index": -7.600000000000001,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202406040911",
+  "name": "第58回スプリンターズS(GI)",
+  "date": "2024-09-29",
+  "band": "芝〜1400",
+  "index": -2.799999999999997,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202405040111",
+  "name": "第10回サウジアラビアRC(GIII)",
+  "date": "2024-10-05",
+  "band": "芝1500〜1800",
+  "index": -1.2999999999999972,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202405040211",
+  "name": "第75回毎日王冠(GII)",
+  "date": "2024-10-06",
+  "band": "芝1500〜1800",
+  "index": 1.5999999999999943,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202408050211",
+  "name": "第59回京都大賞典(GII)",
+  "date": "2024-10-06",
+  "band": "芝2300〜",
+  "index": -0.6000000000000014,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202408050411",
+  "name": "第29回秋華賞(GI)",
+  "date": "2024-10-13",
+  "band": "芝1900〜2200",
+  "index": -2.200000000000003,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202405040411",
+  "name": "第72回アイルランド府中牝馬(GII)",
+  "date": "2024-10-14",
+  "band": "芝1500〜1800",
+  "index": 1.0,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202405040511",
+  "name": "第27回富士S(GII)",
+  "date": "2024-10-19",
+  "band": "芝1500〜1800",
+  "index": 0.20000000000000284,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202408050611",
+  "name": "第85回菊花賞(GI)",
+  "date": "2024-10-20",
+  "band": "芝2300〜",
+  "index": 1.1000000000000014,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202405040711",
+  "name": "第13回アルテミスS(GIII)",
+  "date": "2024-10-26",
+  "band": "芝1500〜1800",
+  "index": 1.5,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202408050711",
+  "name": "第67回MBS賞スワンS(GII)",
+  "date": "2024-10-26",
+  "band": "芝〜1400",
+  "index": -1.0,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202405040811",
+  "name": "第170回天皇賞(秋)(GI)",
+  "date": "2024-10-27",
+  "band": "芝1900〜2200",
+  "index": 2.1999999999999957,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202405050111",
+  "name": "第60回京王杯2歳S(GII)",
+  "date": "2024-11-02",
+  "band": "芝〜1400",
+  "index": 0.0,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202408060111",
+  "name": "第29回KBSファンタジーS(GIII)",
+  "date": "2024-11-02",
+  "band": "芝〜1400",
+  "index": 1.2999999999999972,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202405050211",
+  "name": "第62回アルゼンチン共和国杯(GII)",
+  "date": "2024-11-03",
+  "band": "芝2300〜",
+  "index": -6.5,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202408060211",
+  "name": "第14回みやこS(GIII)",
+  "date": "2024-11-03",
+  "band": "ダ1500〜1800",
+  "index": -1.5,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202405050311",
+  "name": "第29回東京中日S杯武蔵野S(GIII)",
+  "date": "2024-11-09",
+  "band": "ダ1500〜1800",
+  "index": -3.3000000000000043,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202408060311",
+  "name": "第59回デイリー杯2歳S(GII)",
+  "date": "2024-11-09",
+  "band": "芝1500〜1800",
+  "index": 1.8999999999999986,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202408060411",
+  "name": "第49回エリザベス女王杯(GI)",
+  "date": "2024-11-10",
+  "band": "芝1900〜2200",
+  "index": 0.8000000000000043,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202403030411",
+  "name": "第60回福島記念(GIII)",
+  "date": "2024-11-10",
+  "band": "芝1900〜2200",
+  "index": -2.4000000000000057,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202405050511",
+  "name": "第29回東京スポーツ杯2歳S(GII)",
+  "date": "2024-11-16",
+  "band": "芝1500〜1800",
+  "index": 2.700000000000003,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202408060611",
+  "name": "第41回マイルチャンピオンS(GI)",
+  "date": "2024-11-17",
+  "band": "芝1500〜1800",
+  "index": -0.7000000000000028,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202408060711",
+  "name": "第11回ラジオN杯京都2歳S(GIII)",
+  "date": "2024-11-23",
+  "band": "芝1900〜2200",
+  "index": 2.299999999999997,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202405050812",
+  "name": "第44回ジャパンC(GI)",
+  "date": "2024-11-24",
+  "band": "芝2300〜",
+  "index": 3.700000000000003,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202408060812",
+  "name": "第69回京阪杯(GIII)",
+  "date": "2024-11-24",
+  "band": "芝〜1400",
+  "index": -0.29999999999999716,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 8
+ },
+ {
+  "race_id": "202408070111",
+  "name": "第75回チャレンジC(GIII)",
+  "date": "2024-11-30",
+  "band": "芝1900〜2200",
+  "index": -0.6999999999999957,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202407040211",
+  "name": "第25回チャンピオンズC(GI)",
+  "date": "2024-12-01",
+  "band": "ダ1500〜1800",
+  "index": -0.8999999999999986,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202407040311",
+  "name": "第60回中日新聞杯(GIII)",
+  "date": "2024-12-07",
+  "band": "芝1900〜2200",
+  "index": -0.30000000000000426,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202406050411",
+  "name": "第17回カペラS(GIII)",
+  "date": "2024-12-08",
+  "band": "ダ〜1400",
+  "index": -5.100000000000001,
+  "pace": "high",
+  "leaders": 4,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202408070411",
+  "name": "第76回阪神ジュベナイルF(GI)",
+  "date": "2024-12-08",
+  "band": "芝1500〜1800",
+  "index": -0.6999999999999957,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202406050511",
+  "name": "第10回ターコイズS(GIII)",
+  "date": "2024-12-14",
+  "band": "芝1500〜1800",
+  "index": -0.3999999999999986,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202408070611",
+  "name": "第76回朝日フューチュリティ(GI)",
+  "date": "2024-12-15",
+  "band": "芝1500〜1800",
+  "index": 1.6999999999999957,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202408070711",
+  "name": "第19回阪神C(GII)",
+  "date": "2024-12-21",
+  "band": "芝〜1400",
+  "index": 0.10000000000000142,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202406050811",
+  "name": "第69回有馬記念(GI)",
+  "date": "2024-12-22",
+  "band": "芝2300〜",
+  "index": -3.8000000000000043,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202406050911",
+  "name": "第41回ホープフルS(GI)",
+  "date": "2024-12-28",
+  "band": "芝1900〜2200",
+  "index": 0.5,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202506010111",
+  "name": "第74回日刊スポ賞中山金杯(GIII)",
+  "date": "2025-01-05",
+  "band": "芝1900〜2200",
+  "index": -0.8000000000000043,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202507010111",
+  "name": "第63回スポニチ賞京都金杯(GIII)",
+  "date": "2025-01-05",
+  "band": "芝1500〜1800",
+  "index": -0.6999999999999957,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202506010411",
+  "name": "第41回フェアリーS(GIII)",
+  "date": "2025-01-12",
+  "band": "芝1500〜1800",
+  "index": -1.3999999999999986,
+  "pace": "high",
+  "leaders": 4,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202507010511",
+  "name": "第59回日刊スポシンザン記念(GIII)",
+  "date": "2025-01-13",
+  "band": "芝1500〜1800",
+  "index": -0.6999999999999957,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202506010711",
+  "name": "第65回京成杯(GIII)",
+  "date": "2025-01-19",
+  "band": "芝1900〜2200",
+  "index": -1.7999999999999972,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202507010711",
+  "name": "第72回日経新春杯(GII)",
+  "date": "2025-01-19",
+  "band": "芝1900〜2200",
+  "index": -2.8999999999999986,
+  "pace": "high",
+  "leaders": 4,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202510010111",
+  "name": "第1回小倉牝馬S(GIII)",
+  "date": "2025-01-25",
+  "band": "芝1900〜2200",
+  "index": -2.3999999999999986,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202506010911",
+  "name": "第66回アメリカジョッキーC(GII)",
+  "date": "2025-01-26",
+  "band": "芝1900〜2200",
+  "index": -0.10000000000000142,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202507010911",
+  "name": "第30回プロキオンS(GII)",
+  "date": "2025-01-26",
+  "band": "ダ1500〜1800",
+  "index": -0.09999999999999432,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202505010211",
+  "name": "第39回根岸S(GIII)",
+  "date": "2025-02-02",
+  "band": "ダ〜1400",
+  "index": -3.0,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202508010211",
+  "name": "第30回シルクロードS(GIII)",
+  "date": "2025-02-02",
+  "band": "芝〜1400",
+  "index": -2.0,
+  "pace": "high",
+  "leaders": 4,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202505010411",
+  "name": "第75回東京新聞杯(GIII)",
+  "date": "2025-02-09",
+  "band": "芝1500〜1800",
+  "index": -0.29999999999999716,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202508010411",
+  "name": "第65回きさらぎ賞(GIII)",
+  "date": "2025-02-09",
+  "band": "芝1500〜1800",
+  "index": -1.3000000000000043,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202505010511",
+  "name": "第60回デイリー杯クイーンC(GIII)",
+  "date": "2025-02-15",
+  "band": "芝1500〜1800",
+  "index": -0.7999999999999972,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202505010611",
+  "name": "第59回共同通信杯(GIII)",
+  "date": "2025-02-16",
+  "band": "芝1500〜1800",
+  "index": 2.1999999999999957,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202508010611",
+  "name": "第118回京都記念(GII)",
+  "date": "2025-02-16",
+  "band": "芝1900〜2200",
+  "index": 2.3999999999999986,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202505010711",
+  "name": "第75回ダイヤモンドS(GIII)",
+  "date": "2025-02-22",
+  "band": "ダ2300〜",
+  "index": 2.8999999999999986,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202508010711",
+  "name": "第69回阪急杯(GIII)",
+  "date": "2025-02-22",
+  "band": "芝〜1400",
+  "index": 0.4000000000000057,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202505010811",
+  "name": "第42回フェブラリーS(GI)",
+  "date": "2025-02-23",
+  "band": "ダ1500〜1800",
+  "index": -1.1000000000000014,
+  "pace": "middle",
+  "leaders": 4,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202510011011",
+  "name": "第59回小倉大賞典(GIII)",
+  "date": "2025-02-23",
+  "band": "芝1500〜1800",
+  "index": -0.30000000000000426,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202506020111",
+  "name": "第20回オーシャンS(GIII)",
+  "date": "2025-03-01",
+  "band": "芝〜1400",
+  "index": 0.30000000000000426,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202506020211",
+  "name": "第99回中山記念(GII)",
+  "date": "2025-03-02",
+  "band": "芝1500〜1800",
+  "index": 0.8000000000000043,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202509010211",
+  "name": "第32回チューリップ賞(GII)",
+  "date": "2025-03-02",
+  "band": "芝1500〜1800",
+  "index": 1.5,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202506020311",
+  "name": "第43回中山牝馬S(GIII)",
+  "date": "2025-03-08",
+  "band": "芝1500〜1800",
+  "index": 0.7999999999999972,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202509010311",
+  "name": "第59回フィリーズレビュー(GII)",
+  "date": "2025-03-08",
+  "band": "芝〜1400",
+  "index": -2.5999999999999943,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202506020411",
+  "name": "第62回報知弥生ディープ記念(GII)",
+  "date": "2025-03-09",
+  "band": "芝1900〜2200",
+  "index": -1.3000000000000043,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202506020611",
+  "name": "第74回スプリングS(GII)",
+  "date": "2025-03-16",
+  "band": "芝1500〜1800",
+  "index": -0.6000000000000014,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202507020211",
+  "name": "第61回東海テレビ杯金鯱賞(GII)",
+  "date": "2025-03-16",
+  "band": "芝1900〜2200",
+  "index": -2.8999999999999986,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202506020711",
+  "name": "第39回フラワーC(GIII)",
+  "date": "2025-03-22",
+  "band": "芝1500〜1800",
+  "index": 0.10000000000000142,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202507020311",
+  "name": "第39回中スポ賞ファルコンS(GIII)",
+  "date": "2025-03-22",
+  "band": "芝〜1400",
+  "index": -0.6000000000000014,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202509010811",
+  "name": "第73回阪神大賞典(GII)",
+  "date": "2025-03-23",
+  "band": "芝2300〜",
+  "index": 2.6000000000000014,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202507020411",
+  "name": "第62回愛知杯(GIII)",
+  "date": "2025-03-23",
+  "band": "芝〜1400",
+  "index": -3.299999999999997,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202506030111",
+  "name": "第73回日経賞(GII)",
+  "date": "2025-03-29",
+  "band": "芝2300〜",
+  "index": -6.100000000000001,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202509020111",
+  "name": "第72回毎日杯(GIII)",
+  "date": "2025-03-29",
+  "band": "芝1500〜1800",
+  "index": 1.9000000000000057,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202506030211",
+  "name": "第32回マーチS(GIII)",
+  "date": "2025-03-30",
+  "band": "ダ1500〜1800",
+  "index": -2.3999999999999986,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202507020611",
+  "name": "第55回高松宮記念(GI)",
+  "date": "2025-03-30",
+  "band": "芝〜1400",
+  "index": -0.30000000000000426,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202506030311",
+  "name": "第57回ダービー卿チャレンジ(GIII)",
+  "date": "2025-04-05",
+  "band": "ダ1500〜1800",
+  "index": 0.3999999999999986,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202509020311",
+  "name": "第34回チャーチルダウンズC(GIII)",
+  "date": "2025-04-05",
+  "band": "ダ1500〜1800",
+  "index": 0.19999999999999574,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202509020411",
+  "name": "第69回大阪杯(GI)",
+  "date": "2025-04-06",
+  "band": "芝1900〜2200",
+  "index": -0.20000000000000284,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202506030511",
+  "name": "第43回ニュージーランドT(GII)",
+  "date": "2025-04-12",
+  "band": "芝1500〜1800",
+  "index": -0.4000000000000057,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202509020511",
+  "name": "第68回サンスポ杯阪神牝馬S(GII)",
+  "date": "2025-04-12",
+  "band": "芝1500〜1800",
+  "index": 2.1000000000000014,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202509020611",
+  "name": "第85回桜花賞(GI)",
+  "date": "2025-04-13",
+  "band": "芝1500〜1800",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202509020711",
+  "name": "第30回アンタレスS(GIII)",
+  "date": "2025-04-19",
+  "band": "ダ1500〜1800",
+  "index": -2.299999999999997,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202506030811",
+  "name": "第85回皐月賞(GI)",
+  "date": "2025-04-20",
+  "band": "芝1900〜2200",
+  "index": -0.29999999999999716,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202503010411",
+  "name": "第22回福島牝馬S(GIII)",
+  "date": "2025-04-20",
+  "band": "芝1500〜1800",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 5,
+  "old_leaders": 9
+ },
+ {
+  "race_id": "202505020111",
+  "name": "第32回テレビ東京杯青葉賞(GII)",
+  "date": "2025-04-26",
+  "band": "芝2300〜",
+  "index": 0.7000000000000028,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202505020211",
+  "name": "第60回サンスポ賞フローラS(GII)",
+  "date": "2025-04-27",
+  "band": "芝1900〜2200",
+  "index": 1.8999999999999986,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202508020211",
+  "name": "第56回読売マイラーズC(GII)",
+  "date": "2025-04-27",
+  "band": "芝1500〜1800",
+  "index": 1.1000000000000014,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202505020311",
+  "name": "第70回京王杯スプリングC(GII)",
+  "date": "2025-05-03",
+  "band": "芝〜1400",
+  "index": 0.6999999999999957,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202508020311",
+  "name": "第30回ユニコーンS(GIII)",
+  "date": "2025-05-03",
+  "band": "ダ1900〜2200",
+  "index": -6.800000000000001,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202508020411",
+  "name": "第171回天皇賞(春)(GI)",
+  "date": "2025-05-04",
+  "band": "芝2300〜",
+  "index": 0.6999999999999957,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202505020511",
+  "name": "第42回エプソムC(GIII)",
+  "date": "2025-05-10",
+  "band": "芝1500〜1800",
+  "index": -0.8999999999999986,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202508020511",
+  "name": "第73回京都新聞杯(GII)",
+  "date": "2025-05-10",
+  "band": "芝1900〜2200",
+  "index": 3.200000000000003,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202505020611",
+  "name": "第30回NHKマイルC(GI)",
+  "date": "2025-05-11",
+  "band": "芝1500〜1800",
+  "index": -1.8999999999999986,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202504010511",
+  "name": "第47回新潟大賞典(GIII)",
+  "date": "2025-05-17",
+  "band": "芝1900〜2200",
+  "index": 1.7999999999999972,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202505020811",
+  "name": "第20回ヴィクトリアマイル(GI)",
+  "date": "2025-05-18",
+  "band": "芝1500〜1800",
+  "index": -1.3999999999999986,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202508020911",
+  "name": "第32回平安S(GIII)",
+  "date": "2025-05-24",
+  "band": "ダ1900〜2200",
+  "index": -5.0,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202505021011",
+  "name": "第86回優駿牝馬(GI)",
+  "date": "2025-05-25",
+  "band": "芝2300〜",
+  "index": 0.09999999999999432,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202508021111",
+  "name": "第8回葵S(GIII)",
+  "date": "2025-05-31",
+  "band": "芝〜1400",
+  "index": -1.2999999999999972,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202505021211",
+  "name": "第92回東京優駿(GI)",
+  "date": "2025-06-01",
+  "band": "芝2300〜",
+  "index": 0.9000000000000057,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202505021212",
+  "name": "第139回目黒記念(GII)",
+  "date": "2025-06-01",
+  "band": "芝2300〜",
+  "index": -3.3999999999999986,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202505030211",
+  "name": "第75回安田記念(GI)",
+  "date": "2025-06-08",
+  "band": "芝1500〜1800",
+  "index": 0.7000000000000028,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202502010111",
+  "name": "第32回函館スプリントS(GIII)",
+  "date": "2025-06-14",
+  "band": "芝〜1400",
+  "index": -1.6000000000000014,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 9
+ },
+ {
+  "race_id": "202509030411",
+  "name": "第66回宝塚記念(GI)",
+  "date": "2025-06-15",
+  "band": "芝1900〜2200",
+  "index": -1.2000000000000028,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202505030611",
+  "name": "第73回府中牝馬S(GIII)",
+  "date": "2025-06-22",
+  "band": "芝1500〜1800",
+  "index": 0.10000000000000142,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202509030611",
+  "name": "第1回しらさぎS(GIII)",
+  "date": "2025-06-22",
+  "band": "芝1500〜1800",
+  "index": 1.2000000000000028,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202503020211",
+  "name": "第74回ラジオNIKKEI賞(GIII)",
+  "date": "2025-06-29",
+  "band": "芝1500〜1800",
+  "index": -0.19999999999999574,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202502010611",
+  "name": "第61回函館記念(GIII)",
+  "date": "2025-06-29",
+  "band": "芝1900〜2200",
+  "index": -1.2999999999999972,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202510020411",
+  "name": "第60回TV西日本北九州記念(GIII)",
+  "date": "2025-07-06",
+  "band": "芝〜1400",
+  "index": -2.799999999999997,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202503020611",
+  "name": "第61回七夕賞(GIII)",
+  "date": "2025-07-13",
+  "band": "芝1900〜2200",
+  "index": -1.2999999999999972,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202510020811",
+  "name": "第61回小倉記念(GIII)",
+  "date": "2025-07-20",
+  "band": "芝1900〜2200",
+  "index": -2.3999999999999986,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202502011211",
+  "name": "第57回函館2歳S(GIII)",
+  "date": "2025-07-20",
+  "band": "芝〜1400",
+  "index": 0.19999999999999574,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202504020207",
+  "name": "第60回関屋記念(GIII)",
+  "date": "2025-07-27",
+  "band": "芝1500〜1800",
+  "index": -0.20000000000000284,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202507030207",
+  "name": "第42回東海S(GIII)",
+  "date": "2025-07-27",
+  "band": "ダ〜1400",
+  "index": -1.2999999999999972,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202504020407",
+  "name": "第25回アイビスサマーD(GIII)",
+  "date": "2025-08-03",
+  "band": "芝〜1400",
+  "index": 0.0,
+  "pace": "slow",
+  "leaders": 4,
+  "old_leaders": 9
+ },
+ {
+  "race_id": "202501010411",
+  "name": "第73回クイーンS(GIII)",
+  "date": "2025-08-03",
+  "band": "芝1500〜1800",
+  "index": -1.0,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202501010511",
+  "name": "第30回エルムS(GIII)",
+  "date": "2025-08-09",
+  "band": "ダ1500〜1800",
+  "index": -6.799999999999997,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202504020607",
+  "name": "第17回レパードS(GIII)",
+  "date": "2025-08-10",
+  "band": "ダ1500〜1800",
+  "index": -1.1000000000000014,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202507030607",
+  "name": "第61回CBC賞(GIII)",
+  "date": "2025-08-10",
+  "band": "芝〜1400",
+  "index": 0.6000000000000014,
+  "pace": "slow",
+  "leaders": 6,
+  "old_leaders": 10
+ },
+ {
+  "race_id": "202507030807",
+  "name": "第73回中京記念(GIII)",
+  "date": "2025-08-17",
+  "band": "芝1500〜1800",
+  "index": 1.5,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202501010811",
+  "name": "第61回札幌記念(GII)",
+  "date": "2025-08-17",
+  "band": "芝1900〜2200",
+  "index": -0.7999999999999972,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202504030211",
+  "name": "第45回新潟2歳S(GIII)",
+  "date": "2025-08-24",
+  "band": "芝1500〜1800",
+  "index": 2.0,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202501020211",
+  "name": "第20回キーンランドC(GIII)",
+  "date": "2025-08-24",
+  "band": "芝〜1400",
+  "index": -1.0,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 8
+ },
+ {
+  "race_id": "202504030411",
+  "name": "第61回新潟記念(GIII)",
+  "date": "2025-08-31",
+  "band": "芝1900〜2200",
+  "index": 2.3999999999999986,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202507040411",
+  "name": "第1回中京2歳S(GIII)",
+  "date": "2025-08-31",
+  "band": "芝〜1400",
+  "index": -1.6000000000000014,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202506040111",
+  "name": "第70回京成杯オータムH(GIII)",
+  "date": "2025-09-06",
+  "band": "芝1500〜1800",
+  "index": 0.7000000000000028,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202501020511",
+  "name": "第60回札幌2歳S(GIII)",
+  "date": "2025-09-06",
+  "band": "芝1500〜1800",
+  "index": 2.1000000000000014,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202506040211",
+  "name": "第10回紫苑S(GII)",
+  "date": "2025-09-07",
+  "band": "芝1900〜2200",
+  "index": 0.7000000000000028,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202509040211",
+  "name": "第39回産経賞セントウルS(GII)",
+  "date": "2025-09-07",
+  "band": "芝〜1400",
+  "index": -1.3999999999999986,
+  "pace": "high",
+  "leaders": 4,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202509040311",
+  "name": "第76回チャレンジC(GIII)",
+  "date": "2025-09-13",
+  "band": "芝1900〜2200",
+  "index": 0.29999999999999716,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202509040411",
+  "name": "第43回関西TVローズS(GII)",
+  "date": "2025-09-14",
+  "band": "芝1500〜1800",
+  "index": -1.0,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202506040511",
+  "name": "第79回朝日セントライト記念(GII)",
+  "date": "2025-09-15",
+  "band": "芝1900〜2200",
+  "index": 0.7000000000000028,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202506040711",
+  "name": "第71回産経賞オールカマー(GII)",
+  "date": "2025-09-21",
+  "band": "芝1900〜2200",
+  "index": 0.6000000000000014,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202509040711",
+  "name": "第73回神戸新聞杯(GII)",
+  "date": "2025-09-21",
+  "band": "芝2300〜",
+  "index": 3.799999999999997,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202509040811",
+  "name": "第29回シリウスS(GIII)",
+  "date": "2025-09-27",
+  "band": "ダ1900〜2200",
+  "index": -2.1000000000000014,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202506040911",
+  "name": "第59回スプリンターズS(GI)",
+  "date": "2025-09-28",
+  "band": "芝〜1400",
+  "index": 0.5,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202505040211",
+  "name": "第76回毎日王冠(GII)",
+  "date": "2025-10-05",
+  "band": "芝1500〜1800",
+  "index": 1.0999999999999943,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202508030211",
+  "name": "第60回京都大賞典(GII)",
+  "date": "2025-10-05",
+  "band": "芝2300〜",
+  "index": 0.3999999999999986,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202505040311",
+  "name": "第11回サウジアラビアRC(GIII)",
+  "date": "2025-10-11",
+  "band": "芝1500〜1800",
+  "index": 1.7000000000000028,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202505040411",
+  "name": "第1回アイルランドT(GII)",
+  "date": "2025-10-12",
+  "band": "芝1500〜1800",
+  "index": 3.1999999999999957,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202508030511",
+  "name": "第68回MBS賞スワンS(GII)",
+  "date": "2025-10-13",
+  "band": "芝〜1400",
+  "index": -0.5,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202505040611",
+  "name": "第28回富士S(GII)",
+  "date": "2025-10-18",
+  "band": "芝1500〜1800",
+  "index": 1.7000000000000028,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202508030711",
+  "name": "第30回秋華賞(GI)",
+  "date": "2025-10-19",
+  "band": "芝1900〜2200",
+  "index": 0.30000000000000426,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 8
+ },
+ {
+  "race_id": "202505040811",
+  "name": "第14回アルテミスS(GIII)",
+  "date": "2025-10-25",
+  "band": "芝1500〜1800",
+  "index": 0.7000000000000028,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202508030911",
+  "name": "第86回菊花賞(GI)",
+  "date": "2025-10-26",
+  "band": "芝2300〜",
+  "index": 1.1000000000000014,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202508031011",
+  "name": "第30回KBSファンタジーS(GIII)",
+  "date": "2025-11-01",
+  "band": "芝〜1400",
+  "index": 1.2999999999999972,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202505041111",
+  "name": "第172回天皇賞(秋)(GI)",
+  "date": "2025-11-02",
+  "band": "芝1900〜2200",
+  "index": 4.200000000000003,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202505050111",
+  "name": "第61回京王杯2歳S(GII)",
+  "date": "2025-11-08",
+  "band": "芝〜1400",
+  "index": 1.5,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202505050211",
+  "name": "第63回アルゼンチン共和国杯(GII)",
+  "date": "2025-11-09",
+  "band": "芝2300〜",
+  "index": -4.0,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202508040211",
+  "name": "第15回みやこS(GIII)",
+  "date": "2025-11-09",
+  "band": "ダ1500〜1800",
+  "index": -1.1000000000000014,
+  "pace": "middle",
+  "leaders": 4,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202505050311",
+  "name": "第30回武蔵野S(GIII)",
+  "date": "2025-11-15",
+  "band": "ダ1500〜1800",
+  "index": -0.20000000000000284,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202508040311",
+  "name": "第60回デイリー杯2歳S(GII)",
+  "date": "2025-11-15",
+  "band": "芝1500〜1800",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202508040411",
+  "name": "第50回エリザベス女王杯(GI)",
+  "date": "2025-11-16",
+  "band": "芝1900〜2200",
+  "index": 0.5,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202503030511",
+  "name": "第61回福島記念(GIII)",
+  "date": "2025-11-22",
+  "band": "芝1900〜2200",
+  "index": 1.8999999999999986,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202508040611",
+  "name": "第42回マイルチャンピオンS(GI)",
+  "date": "2025-11-23",
+  "band": "芝1500〜1800",
+  "index": 0.6000000000000014,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202505050611",
+  "name": "第30回東京スポーツ杯2歳S(GII)",
+  "date": "2025-11-24",
+  "band": "芝1500〜1800",
+  "index": 2.3999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202508040711",
+  "name": "第12回ラジオN杯京都2歳S(GIII)",
+  "date": "2025-11-29",
+  "band": "芝1900〜2200",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202505050812",
+  "name": "第45回ジャパンC(GI)",
+  "date": "2025-11-30",
+  "band": "芝2300〜",
+  "index": -0.10000000000000142,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202508040812",
+  "name": "第70回京阪杯(GIII)",
+  "date": "2025-11-30",
+  "band": "芝〜1400",
+  "index": -2.0,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202509050111",
+  "name": "第78回鳴尾記念(GIII)",
+  "date": "2025-12-06",
+  "band": "芝1500〜1800",
+  "index": -0.8000000000000043,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202507050211",
+  "name": "第26回チャンピオンズC(GI)",
+  "date": "2025-12-07",
+  "band": "ダ1500〜1800",
+  "index": -1.5,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202507050311",
+  "name": "第61回中日新聞杯(GIII)",
+  "date": "2025-12-13",
+  "band": "芝1900〜2200",
+  "index": 1.0,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202506050411",
+  "name": "第18回カペラS(GIII)",
+  "date": "2025-12-14",
+  "band": "ダ〜1400",
+  "index": -2.8000000000000043,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202509050411",
+  "name": "第77回阪神ジュベナイルF(GI)",
+  "date": "2025-12-14",
+  "band": "芝1500〜1800",
+  "index": -1.5999999999999943,
+  "pace": "high",
+  "leaders": 4,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202506050511",
+  "name": "第11回ターコイズS(GIII)",
+  "date": "2025-12-20",
+  "band": "芝1500〜1800",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202509050611",
+  "name": "第77回朝日フューチュリティ(GI)",
+  "date": "2025-12-21",
+  "band": "芝1500〜1800",
+  "index": -0.3999999999999986,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202506050711",
+  "name": "第42回ホープフルS(GI)",
+  "date": "2025-12-27",
+  "band": "芝1900〜2200",
+  "index": 0.29999999999999716,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202509050711",
+  "name": "第20回阪神C(GII)",
+  "date": "2025-12-27",
+  "band": "芝〜1400",
+  "index": -1.8999999999999986,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202506050811",
+  "name": "第70回有馬記念(GI)",
+  "date": "2025-12-28",
+  "band": "芝2300〜",
+  "index": -5.900000000000002,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202606010111",
+  "name": "第75回日刊スポ賞中山金杯(GIII)",
+  "date": "2026-01-04",
+  "band": "芝1900〜2200",
+  "index": 1.3999999999999986,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202608010111",
+  "name": "第64回スポニチ賞京都金杯(GIII)",
+  "date": "2026-01-04",
+  "band": "芝1500〜1800",
+  "index": 0.6999999999999957,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202606010411",
+  "name": "第42回フェアリーS(GIII)",
+  "date": "2026-01-11",
+  "band": "芝1500〜1800",
+  "index": -1.5,
+  "pace": "high",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202608010511",
+  "name": "第60回日刊スポシンザン記念(GIII)",
+  "date": "2026-01-12",
+  "band": "芝1500〜1800",
+  "index": -0.6000000000000014,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202606010711",
+  "name": "第66回京成杯(GIII)",
+  "date": "2026-01-18",
+  "band": "芝1900〜2200",
+  "index": 0.8999999999999986,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202608010711",
+  "name": "第73回日経新春杯(GII)",
+  "date": "2026-01-18",
+  "band": "芝2300〜",
+  "index": 1.5,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202610010111",
+  "name": "第2回小倉牝馬S(GIII)",
+  "date": "2026-01-24",
+  "band": "芝1900〜2200",
+  "index": 0.3999999999999986,
+  "pace": "middle",
+  "leaders": 4,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202606010911",
+  "name": "第67回アメリカジョッキーC(GII)",
+  "date": "2026-01-25",
+  "band": "芝1900〜2200",
+  "index": -1.1999999999999957,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202608010911",
+  "name": "第31回プロキオンS(GII)",
+  "date": "2026-01-25",
+  "band": "ダ1500〜1800",
+  "index": -0.7999999999999972,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202605010211",
+  "name": "第40回根岸S(GIII)",
+  "date": "2026-02-01",
+  "band": "ダ〜1400",
+  "index": -0.29999999999999716,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202608020211",
+  "name": "第31回シルクロードS(GIII)",
+  "date": "2026-02-01",
+  "band": "芝〜1400",
+  "index": 1.0,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202605010511",
+  "name": "第61回デイリー杯クイーンC(GIII)",
+  "date": "2026-02-14",
+  "band": "芝1500〜1800",
+  "index": 1.0,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202605010611",
+  "name": "第60回共同通信杯(GIII)",
+  "date": "2026-02-15",
+  "band": "芝1500〜1800",
+  "index": 0.9000000000000057,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202608020611",
+  "name": "第119回京都記念(GII)",
+  "date": "2026-02-15",
+  "band": "芝1900〜2200",
+  "index": 3.8000000000000043,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202605010711",
+  "name": "第76回ダイヤモンドS(GIII)",
+  "date": "2026-02-21",
+  "band": "ダ2300〜",
+  "index": 2.200000000000003,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202609010111",
+  "name": "第70回阪急杯(GIII)",
+  "date": "2026-02-21",
+  "band": "芝〜1400",
+  "index": -1.3999999999999986,
+  "pace": "high",
+  "leaders": 4,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202605010811",
+  "name": "第43回フェブラリーS(GI)",
+  "date": "2026-02-22",
+  "band": "ダ1500〜1800",
+  "index": -1.1000000000000014,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202610011011",
+  "name": "第60回小倉大賞典(GIII)",
+  "date": "2026-02-22",
+  "band": "芝1500〜1800",
+  "index": 0.29999999999999716,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202606020111",
+  "name": "第21回オーシャンS(GIII)",
+  "date": "2026-02-28",
+  "band": "芝〜1400",
+  "index": -3.0,
+  "pace": "high",
+  "leaders": 4,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202606020211",
+  "name": "第100回中山記念(GII)",
+  "date": "2026-03-01",
+  "band": "芝1500〜1800",
+  "index": 1.8999999999999986,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202609010411",
+  "name": "第33回チューリップ賞(GII)",
+  "date": "2026-03-01",
+  "band": "芝1500〜1800",
+  "index": 2.3999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202606020311",
+  "name": "第44回中山牝馬S(GIII)",
+  "date": "2026-03-07",
+  "band": "芝1500〜1800",
+  "index": 0.10000000000000142,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202609010511",
+  "name": "第60回フィリーズレビュー(GII)",
+  "date": "2026-03-07",
+  "band": "芝〜1400",
+  "index": -0.6999999999999957,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202606020411",
+  "name": "第63回報知弥生ディープ記念(GII)",
+  "date": "2026-03-08",
+  "band": "芝1900〜2200",
+  "index": -0.3999999999999986,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202606020611",
+  "name": "第75回フジTVスプリングS(GII)",
+  "date": "2026-03-15",
+  "band": "芝1500〜1800",
+  "index": 0.7000000000000028,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 8
+ },
+ {
+  "race_id": "202607010211",
+  "name": "第62回東海テレビ杯金鯱賞(GII)",
+  "date": "2026-03-15",
+  "band": "芝1900〜2200",
+  "index": 1.0,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202606020711",
+  "name": "第40回フラワーC(GIII)",
+  "date": "2026-03-21",
+  "band": "芝1500〜1800",
+  "index": 1.6000000000000014,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202607010311",
+  "name": "第40回中スポ賞ファルコンS(GIII)",
+  "date": "2026-03-21",
+  "band": "芝〜1400",
+  "index": -0.10000000000000142,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 9
+ },
+ {
+  "race_id": "202609011011",
+  "name": "第74回阪神大賞典(GII)",
+  "date": "2026-03-22",
+  "band": "芝2300〜",
+  "index": 2.299999999999997,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202607010411",
+  "name": "第63回愛知杯(GIII)",
+  "date": "2026-03-22",
+  "band": "芝〜1400",
+  "index": -0.30000000000000426,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202606030111",
+  "name": "第74回日経賞(GII)",
+  "date": "2026-03-28",
+  "band": "芝2300〜",
+  "index": -6.600000000000001,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202609020111",
+  "name": "第73回毎日杯(GIII)",
+  "date": "2026-03-28",
+  "band": "芝1500〜1800",
+  "index": 1.6000000000000014,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202606030211",
+  "name": "第33回マーチS(GIII)",
+  "date": "2026-03-29",
+  "band": "ダ1500〜1800",
+  "index": -0.6000000000000014,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202607010611",
+  "name": "第56回高松宮記念(GI)",
+  "date": "2026-03-29",
+  "band": "芝〜1400",
+  "index": -1.2999999999999972,
+  "pace": "high",
+  "leaders": 5,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202606030311",
+  "name": "第58回ダービー卿チャレンジ(GIII)",
+  "date": "2026-04-04",
+  "band": "ダ1500〜1800",
+  "index": -0.10000000000000142,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202609020311",
+  "name": "第35回チャーチルダウンズC(GIII)",
+  "date": "2026-04-04",
+  "band": "ダ1500〜1800",
+  "index": 1.7000000000000028,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202609020411",
+  "name": "第70回大阪杯(GI)",
+  "date": "2026-04-05",
+  "band": "芝1900〜2200",
+  "index": -0.6000000000000014,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202606030511",
+  "name": "第44回ニュージーランドT(GII)",
+  "date": "2026-04-11",
+  "band": "芝1500〜1800",
+  "index": 1.1000000000000014,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202609020511",
+  "name": "第69回サンスポ杯阪神牝馬S(GII)",
+  "date": "2026-04-11",
+  "band": "芝1500〜1800",
+  "index": 1.3999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202609020611",
+  "name": "第86回桜花賞(GI)",
+  "date": "2026-04-12",
+  "band": "芝1500〜1800",
+  "index": -0.19999999999999574,
+  "pace": "high",
+  "leaders": 3,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202609020711",
+  "name": "第31回アンタレスS(GIII)",
+  "date": "2026-04-18",
+  "band": "ダ1500〜1800",
+  "index": 0.30000000000000426,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202606030811",
+  "name": "第86回皐月賞(GI)",
+  "date": "2026-04-19",
+  "band": "芝1900〜2200",
+  "index": 0.8999999999999986,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202603010411",
+  "name": "第23回福島牝馬S(GIII)",
+  "date": "2026-04-19",
+  "band": "芝1500〜1800",
+  "index": 0.20000000000000284,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202605020111",
+  "name": "第33回テレビ東京杯青葉賞(GII)",
+  "date": "2026-04-25",
+  "band": "芝2300〜",
+  "index": 1.6999999999999957,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202605020211",
+  "name": "第61回サンスポ賞フローラS(GII)",
+  "date": "2026-04-26",
+  "band": "芝1900〜2200",
+  "index": 3.6999999999999957,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202608030211",
+  "name": "第57回読売マイラーズC(GII)",
+  "date": "2026-04-26",
+  "band": "芝1500〜1800",
+  "index": 0.8999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202605020311",
+  "name": "第71回京王杯スプリングC(GII)",
+  "date": "2026-05-02",
+  "band": "芝〜1400",
+  "index": 0.7000000000000028,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202608030311",
+  "name": "第31回ユニコーンS(GIII)",
+  "date": "2026-05-02",
+  "band": "ダ1900〜2200",
+  "index": -7.700000000000003,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202608030411",
+  "name": "第173回天皇賞(春)(GI)",
+  "date": "2026-05-03",
+  "band": "芝2300〜",
+  "index": 0.6000000000000014,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202605020511",
+  "name": "第43回エプソムC(GIII)",
+  "date": "2026-05-09",
+  "band": "芝1500〜1800",
+  "index": 1.7999999999999972,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202608030511",
+  "name": "第74回京都新聞杯(GII)",
+  "date": "2026-05-09",
+  "band": "芝1900〜2200",
+  "index": -0.5,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202605020611",
+  "name": "第31回NHKマイルC(GI)",
+  "date": "2026-05-10",
+  "band": "芝1500〜1800",
+  "index": -0.8999999999999986,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202604010511",
+  "name": "第48回新潟大賞典(GIII)",
+  "date": "2026-05-16",
+  "band": "芝1900〜2200",
+  "index": 1.8999999999999986,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202605020811",
+  "name": "第21回ヴィクトリアマイル(GI)",
+  "date": "2026-05-17",
+  "band": "芝1500〜1800",
+  "index": 1.0,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202608030911",
+  "name": "第33回平安S(GIII)",
+  "date": "2026-05-23",
+  "band": "ダ1900〜2200",
+  "index": -8.599999999999998,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202605021011",
+  "name": "第87回優駿牝馬(GI)",
+  "date": "2026-05-24",
+  "band": "芝2300〜",
+  "index": 2.0,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202608031111",
+  "name": "第9回葵S(GIII)",
+  "date": "2026-05-30",
+  "band": "芝〜1400",
+  "index": -0.19999999999999574,
+  "pace": "slow",
+  "leaders": 5,
+  "old_leaders": 10
+ },
+ {
+  "race_id": "202605021211",
+  "name": "第93回東京優駿(GI)",
+  "date": "2026-05-31",
+  "band": "芝2300〜",
+  "index": 1.3999999999999986,
+  "pace": "slow",
+  "leaders": 2,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202605021212",
+  "name": "第140回目黒記念(GII)",
+  "date": "2026-05-31",
+  "band": "芝2300〜",
+  "index": -3.6000000000000014,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202605030211",
+  "name": "第76回安田記念(GI)",
+  "date": "2026-06-07",
+  "band": "芝1500〜1800",
+  "index": 0.29999999999999716,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202602010111",
+  "name": "第33回函館スプリントS(GIII)",
+  "date": "2026-06-13",
+  "band": "芝〜1400",
+  "index": -0.6000000000000014,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202609030411",
+  "name": "第67回宝塚記念(GI)",
+  "date": "2026-06-14",
+  "band": "芝1900〜2200",
+  "index": -0.20000000000000284,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202605030611",
+  "name": "第74回府中牝馬S(GIII)",
+  "date": "2026-06-21",
+  "band": "芝1500〜1800",
+  "index": 0.3999999999999986,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202609030611",
+  "name": "第2回しらさぎS(GIII)",
+  "date": "2026-06-21",
+  "band": "芝1500〜1800",
+  "index": -0.3999999999999986,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202603020211",
+  "name": "第75回ラジオNIKKEI賞(GIII)",
+  "date": "2026-06-28",
+  "band": "芝1500〜1800",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202602010611",
+  "name": "第62回函館記念(GIII)",
+  "date": "2026-06-28",
+  "band": "芝1900〜2200",
+  "index": -0.6000000000000014,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202610020411",
+  "name": "第61回TV西日本北九州記念(GIII)",
+  "date": "2026-07-05",
+  "band": "芝〜1400",
+  "index": -1.7999999999999972,
+  "pace": "high",
+  "leaders": 5,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202603020611",
+  "name": "第62回七夕賞(GIII)",
+  "date": "2026-07-12",
+  "band": "芝1900〜2200",
+  "index": -2.0,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202610020811",
+  "name": "第62回小倉記念(GIII)",
+  "date": "2026-07-19",
+  "band": "芝1900〜2200",
+  "index": -1.2000000000000028,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202602011211",
+  "name": "第58回函館2歳S(GIII)",
+  "date": "2026-07-19",
+  "band": "芝〜1400",
+  "index": -2.0,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202604020207",
+  "name": "第61回関屋記念(GIII)",
+  "date": "2026-07-26",
+  "band": "芝1500〜1800",
+  "index": -0.29999999999999716,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202607020207",
+  "name": "第43回東海S(GIII)",
+  "date": "2026-07-26",
+  "band": "ダ〜1400",
+  "index": -2.6999999999999957,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202604020407",
+  "name": "第26回アイビスサマーD(GIII)",
+  "date": "2026-08-02",
+  "band": "芝〜1400",
+  "index": 0.5000000000000036,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 8
+ },
+ {
+  "race_id": "202601010411",
+  "name": "第74回クイーンS(GIII)",
+  "date": "2026-08-02",
+  "band": "芝1500〜1800",
+  "index": 0.20000000000000284,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202601010511",
+  "name": "第31回エルムS(GIII)",
+  "date": "2026-08-08",
+  "band": "ダ1500〜1800",
+  "index": -7.799999999999997,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202604020607",
+  "name": "第18回レパードS(GIII)",
+  "date": "2026-08-09",
+  "band": "ダ1500〜1800",
+  "index": -2.1000000000000014,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202607020607",
+  "name": "第62回CBC賞(GIII)",
+  "date": "2026-08-09",
+  "band": "芝〜1400",
+  "index": -1.7000000000000028,
+  "pace": "high",
+  "leaders": 5,
+  "old_leaders": 7
+ },
+ {
+  "race_id": "202607020807",
+  "name": "第74回中京記念(GIII)",
+  "date": "2026-08-16",
+  "band": "芝1500〜1800",
+  "index": 0.5999999999999943,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202601010811",
+  "name": "第62回札幌記念(GII)",
+  "date": "2026-08-16",
+  "band": "芝1900〜2200",
+  "index": -0.8999999999999986,
+  "pace": "high",
+  "leaders": 1,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202604030207",
+  "name": "第46回新潟2歳S(GIII)",
+  "date": "2026-08-23",
+  "band": "芝1500〜1800",
+  "index": 2.5,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202601020211",
+  "name": "第21回キーンランドC(GIII)",
+  "date": "2026-08-23",
+  "band": "芝〜1400",
+  "index": 0.29999999999999716,
+  "pace": "slow",
+  "leaders": 3,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202604030408",
+  "name": "第62回新潟記念(GIII)",
+  "date": "2026-08-30",
+  "band": "芝1900〜2200",
+  "index": 2.0999999999999943,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 0
+ },
+ {
+  "race_id": "202607030407",
+  "name": "第2回中京2歳S(GIII)",
+  "date": "2026-08-30",
+  "band": "芝〜1400",
+  "index": 0.4000000000000057,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202606040111",
+  "name": "第71回京成杯オータムH(GIII)",
+  "date": "2026-09-05",
+  "band": "芝1500〜1800",
+  "index": -0.20000000000000284,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202601020511",
+  "name": "第61回札幌2歳S(GIII)",
+  "date": "2026-09-05",
+  "band": "芝1500〜1800",
+  "index": 1.0,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 1
+ },
+ {
+  "race_id": "202606040211",
+  "name": "第11回紫苑S(GII)",
+  "date": "2026-09-06",
+  "band": "芝1900〜2200",
+  "index": 0.0,
+  "pace": "middle",
+  "leaders": 3,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202609040211",
+  "name": "第40回産経賞セントウルS(GII)",
+  "date": "2026-09-06",
+  "band": "芝〜1400",
+  "index": -1.3000000000000043,
+  "pace": "high",
+  "leaders": 2,
+  "old_leaders": 6
+ },
+ {
+  "race_id": "202609040311",
+  "name": "第77回チャレンジC(GIII)",
+  "date": "2026-09-12",
+  "band": "芝1900〜2200",
+  "index": 0.30000000000000426,
+  "pace": "middle",
+  "leaders": 2,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202606040411",
+  "name": "第80回朝日セントライト記念(GII)",
+  "date": "2026-09-13",
+  "band": "芝1900〜2200",
+  "index": 1.7999999999999972,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 5
+ },
+ {
+  "race_id": "202609040411",
+  "name": "第44回関西TVローズS(GII)",
+  "date": "2026-09-13",
+  "band": "芝1500〜1800",
+  "index": 1.1999999999999957,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202606040611",
+  "name": "第72回産経賞オールカマー(GII)",
+  "date": "2026-09-20",
+  "band": "芝1900〜2200",
+  "index": 0.5,
+  "pace": "middle",
+  "leaders": 1,
+  "old_leaders": 4
+ },
+ {
+  "race_id": "202609040711",
+  "name": "第74回神戸新聞杯(GII)",
+  "date": "2026-09-21",
+  "band": "芝2300〜",
+  "index": 3.299999999999997,
+  "pace": "slow",
+  "leaders": 1,
+  "old_leaders": 3
+ },
+ {
+  "race_id": "202609040811",
+  "name": "第30回シリウスS(GIII)",
+  "date": "2026-09-26",
+  "band": "ダ1900〜2200",
+  "index": -1.0,
+  "pace": "slow",
+  "leaders": 0,
+  "old_leaders": 2
+ },
+ {
+  "race_id": "202606040911",
+  "name": "第60回スプリンターズS(GI)",
+  "date": "2026-09-27",
+  "band": "芝〜1400",
+  "index": -2.0,
+  "pace": "high",
+  "leaders": 6,
+  "old_leaders": 9
+ }
+]
