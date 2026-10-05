@@ -29,6 +29,10 @@ PACES = ('slow', 'middle', 'high')
 PACE_JA = {'slow': 'スロー', 'middle': 'ミドル', 'high': 'ハイ'}
 STYLES = ('逃げ', '先行', '差し', '追込')
 TEST_FROM = '2025-01-01'
+# 取消・除外は出走していないので除く。競走中止・失格は出走した馬なので残す（勝ち・3着以内には数えない）
+NOT_STARTED = ('取', '除')
+# 学習期間のレースがこれ未満の距離帯は、検証期間を境界の推定に使わないよう集計から外す
+MIN_TRAIN_BAND = 6
 
 
 def distance_band(distance):
@@ -76,7 +80,7 @@ def build(races):
     rows = []
     for r in races:
         pace = race_pace(r['race_id'])
-        runners = [h for h in r['horses'] if h['rank'].isdigit() and h['horse_id']]
+        runners = [h for h in r['horses'] if h['rank'] not in NOT_STARTED and h['horse_id']]
         if not pace or len(runners) < 5:
             continue
         horses = []
@@ -92,17 +96,22 @@ def build(races):
 
 
 def label_paces(rows):
-    """学習期間の3分位で、距離帯ごとにスロー（前半が遅い＝index大）・ミドル・ハイに分ける。"""
-    cuts = {}
+    """学習期間だけの3分位で、距離帯ごとにスロー（前半が遅い＝index大）・ミドル・ハイに分ける。
+    学習期間のレースが MIN_TRAIN_BAND 未満の距離帯は境界を作れないので、その距離帯のレースを外す（戻り値の dropped）。"""
+    cuts, dropped = {}, {}
     for band in {r['band'] for r in rows}:
         xs = sorted(r['index'] for r in rows if r['band'] == band and r['date'] < TEST_FROM)
-        if len(xs) < 6:
-            xs = sorted(r['index'] for r in rows if r['band'] == band)
+        if len(xs) < MIN_TRAIN_BAND:
+            dropped[band] = sum(1 for r in rows if r['band'] == band)
+            continue
         cuts[band] = (xs[len(xs) // 3], xs[2 * len(xs) // 3])
+    kept = []
     for r in rows:
-        lo, hi = cuts[r['band']]
-        r['pace'] = 'high' if r['index'] < lo else 'slow' if r['index'] >= hi else 'middle'
-    return cuts
+        if r['band'] in cuts:
+            lo, hi = cuts[r['band']]
+            r['pace'] = 'high' if r['index'] < lo else 'slow' if r['index'] >= hi else 'middle'
+            kept.append(r)
+    return cuts, dropped, kept
 
 
 def bucket(n):
@@ -120,6 +129,14 @@ def log_loss(rows, prior, key='leaders'):
     return sum(-math.log(prior[bucket(r[key])][r['pace']]) for r in rows) / len(rows)
 
 
+def paired(rows, a, b, key_a='leaders', key_b='leaders'):
+    """レースごとの損失差（a − b）の平均と標準誤差。"""
+    d = [math.log(b[bucket(r[key_b])][r['pace']]) - math.log(a[bucket(r[key_a])][r['pace']]) for r in rows]
+    m = sum(d) / len(d)
+    se = (sum((x - m) ** 2 for x in d) / (len(d) - 1) / len(d)) ** 0.5
+    return m, se
+
+
 def style_effect(rows):
     """{(脚質, ペース): [頭数, 3着以内, 市場の期待3着以内]}。"""
     acc = defaultdict(lambda: [0, 0, 0.0])
@@ -133,12 +150,12 @@ def style_effect(rows):
                 continue
             a = acc[(h['style'], r['pace'])]
             a[0] += 1
-            a[1] += int(h['rank']) <= 3
+            a[1] += h['rank'].isdigit() and int(h['rank']) <= 3
             a[2] += place[h['num']]
     return acc
 
 
-def report(rows, cuts):
+def report(rows, cuts, dropped):
     train = [r for r in rows if r['date'] < TEST_FROM]
     test = [r for r in rows if r['date'] >= TEST_FROM]
     fitted, counts = fit_prior(train)
@@ -147,7 +164,11 @@ def report(rows, cuts):
     full, counts_all = fit_prior(rows)
     out = ['# ペース確率と位置取り適性の検証（過去の重賞）', '',
            f'対象 {len(rows)} レース（学習 {len(train)}: 〜2024年、検証 {len(test)}: 2025年〜）。'
-           '実際のペースは前半3F − 上がり3F を芝/ダート×距離帯ごとに学習期間の3分位で3つに分けたもの。', '',
+           '実際のペースは前半3F − 上がり3F を芝/ダート×距離帯ごとに学習期間だけの3分位で3つに分けたもの。'
+           '取消・除外は除き、競走中止・失格は出走馬として残した。'
+           + (f"学習期間のレースが{MIN_TRAIN_BAND}未満の距離帯（{'、'.join(f'{b} {n}レース' for b, n in sorted(dropped.items()))}）は"
+              '検証期間を境界に使わないよう外した。' if dropped else ''), '',
+           '前半3F − 上がり3F は中盤の緩みや長い仕掛けを1つの値に縮めた代理指標で、10/4 京都大賞典のような展開を十分には表さない。', '',
            '## 距離帯ごとの境界（前半3F − 上がり3F、秒）', '', '| 距離帯 | レース数 | ハイ（これ未満） | スロー（これ以上） |', '|---|---:|---:|---:|']
     for band in sorted(cuts):
         out.append(f"| {band} | {sum(1 for r in rows if r['band'] == band)} | {cuts[band][0]:+.1f} | {cuts[band][1]:+.1f} |")
@@ -169,9 +190,14 @@ def report(rows, cuts):
     out += ['', '## 検証期間の対数損失（小さいほど良い。一様は log 3 = 1.099）', '',
             '| 確率の出どころ | 対数損失 |', '|---|---:|',
             f'| 一様（各1/3） | {log_loss(test, uniform):.3f} |',
-            f'| 現在の PACE_PRIOR（仮の値） | {log_loss(test, engine.PACE_PRIOR):.3f} |',
+            f'| 現在の PACE_PRIOR（全期間で推定。検証期間を含むので参考） | {log_loss(test, engine.PACE_PRIOR):.3f} |',
             f'| 学習期間で推定（ハナ候補） | {log_loss(test, fitted):.3f} |',
             f"| 学習期間で推定（旧基準） | {log_loss(test, fitted_old, 'old_leaders'):.3f} |",
+            '', 'レースごとの損失差（平均 ± 標準誤差、負なら左が良い）:', '',
+            '| 比較 | 差 |', '|---|---:|',
+            '| 学習期間で推定 − 一様 | {:+.3f} ± {:.3f} |'.format(*paired(test, fitted, uniform)),
+            "| 学習期間で推定 − 旧基準で推定 | {:+.3f} ± {:.3f} |".format(*paired(test, fitted, fitted_old, 'leaders', 'old_leaders')),
+            '', '本番の PACE_PRIOR は、この検証の後に全期間で推定し直した値（下の全期間の表）。全期間の値そのものは未使用期間で検証していない。',
             '', '学習期間で推定した確率（ハナ候補、各セルに1件ずつ足して平滑化）:', '',
             '| ハナ候補 | 学習レース数 | スロー | ミドル | ハイ |', '|---|---:|---:|---:|---:|']
     for k in range(4):
@@ -179,7 +205,9 @@ def report(rows, cuts):
                    + ' | '.join(f'{fitted[k][p]:.0%}' for p in PACES) + ' |')
     acc = style_effect(rows)
     out += ['', '## 脚質 × 実際のペース: 3着以内の数 ÷ 市場の期待（全期間）', '',
-            '1.00 より大きければ市場の見積もりより3着以内に来た。脚質はレース前の直近5走の通過順から機械的に決めたもの。', '',
+            '1.00 より大きければ市場の見積もりより3着以内に来た。脚質はレース前の直近5走の通過順から機械的に決めたもの。'
+            '市場は確定単勝オッズの Harville 式（発走10分前のオッズではない）。実際のペースを事後に知って分けた集計で、'
+            '比は勝率の補正倍率でも脚質の因果効果でもない。', '',
             '| 脚質 | ' + ' | '.join(PACE_JA[p] for p in PACES) + ' | 全体 |', '|---|---:|---:|---:|---:|']
     for s in STYLES:
         cells = []
@@ -196,8 +224,8 @@ def report(rows, cuts):
 def main(src, dst):
     races = [r for r in json.loads(Path(src).read_text(encoding='utf-8')) if r['surface'] in ('芝', 'ダ')]
     rows = build(races)
-    cuts = label_paces(rows)
-    text = report(rows, cuts)
+    cuts, dropped, rows = label_paces(rows)
+    text = report(rows, cuts, dropped)
     Path(dst).write_text(text, encoding='utf-8')
     Path(dst).with_suffix('.json').write_text(json.dumps(
         [{k: r[k] for k in ('race_id', 'name', 'date', 'band', 'index', 'pace', 'leaders', 'old_leaders')} for r in rows],

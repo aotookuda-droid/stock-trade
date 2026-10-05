@@ -88,7 +88,8 @@ def features(runs, race_date):
 def build(races):
     out = []
     for r in races:
-        hs = [h for h in r['horses'] if h['rank'].isdigit() and h['horse_id'] and h['odds']]
+        # 取消・除外は除き、競走中止・失格は出走馬として残す（勝ちには数えない）
+        hs = [h for h in r['horses'] if h['rank'] not in ('取', '除') and h['horse_id'] and h['odds']]
         if len(hs) < 5 or not any(h['rank'] == '1' for h in hs):
             continue
         rows = []
@@ -167,6 +168,20 @@ def market_logloss(races):
     return loss / len(races)
 
 
+def per_race(params, races, a=None, b=None):
+    """レースごとの損失（a, b を渡せば市場との組み合わせ、None なら市場だけ）。"""
+    out = []
+    for r in races:
+        out.append(combined(params, [r], a, b) if a is not None else market_logloss([r]))
+    return out
+
+
+def paired(x, y):
+    d = [a - b for a, b in zip(x, y)]
+    m = sum(d) / len(d)
+    return m, (sum((v - m) ** 2 for v in d) / (len(d) - 1) / len(d)) ** 0.5
+
+
 def combined(params, races, a, b):
     """勝率 ∝ 市場^a × exp(b × 客観能力 / 温度)。"""
     loss = 0.0
@@ -204,7 +219,9 @@ def main(src, dst):
     temps = [(t, sum(race_logloss(params, r, t) for r in test) / len(test)) for t in (4, 6, 8, 10, 12, 16)]
     out = ['# 能力値の物差しの校正（過去の重賞）', '',
            f'対象 {len(data)} レース（学習 {len(train)}: 〜2024年、検証 {len(test)}: 2025年〜）。'
-           '近走のクラスと勝ち馬とのタイム差だけで作った客観能力を、温度8のソフトマックスで勝率にして推定した。', '',
+           '近走のクラスと勝ち馬とのタイム差だけで作った客観能力を、温度8のソフトマックスで勝率にして推定した。'
+           '取消・除外は除き、競走中止・失格は出走馬として残した。市場は確定単勝オッズ（発走10分前のオッズではない）。'
+           '単勝（1着）だけの検証で、組み合わせ馬券の着順分布は検証していない。', '',
            '## 温度8のエンジンと整合する点数の付け方（学習期間で推定）', '', '| 項目 | 値 |', '|---|---:|',
            '| G1の基準点 | 0（基準） |']
     shown = list(class_base(params)[1:]) + list(params[8:])
@@ -212,7 +229,13 @@ def main(src, dst):
     out += ['', f'学習期間の対数損失 {train_loss:.3f}。', '',
             '## 検証期間（2025年〜）の対数損失（勝ち馬に付けた勝率の −log、小さいほど良い）', '',
             '| 勝率の出どころ | 対数損失 |', '|---|---:|'] + [f'| {n} | {v:.3f} |' for n, v in rows]
-    out += ['', '## 温度を変えた場合（客観能力の点数はそのまま、検証期間）', '', '| 温度 | 対数損失 |', '|---:|---:|']
+    out += ['', 'レースごとの損失差（市場と客観能力の組み合わせ − 市場だけ、平均 ± 標準誤差）: {:+.3f} ± {:.3f}'.format(
+        *paired(per_race(params, test, a, b), per_race(params, test))),
+            '', '研究の式は 勝率 ∝ 市場^a × exp(b×客観能力/温度) で a・b を別々に推定したもの。本番の混合'
+            '（モデル^w × 市場^(1−w)、指数の合計が1）とは式が違い、この a・b から w は決まらない。']
+    out += ['', '## 温度を変えた場合（客観能力の点数はそのまま、検証期間）', '',
+            '検証期間を見て選んだ比較なので、ここで最良の温度を採用するなら別の未使用期間での評価が要る（本番の温度8は変えていない）。', '',
+            '| 温度 | 対数損失 |', '|---:|---:|']
     out += [f'| {t} | {v:.3f} |' for t, v in temps]
     Path(dst).write_text('\n'.join(out) + '\n', encoding='utf-8')
     Path(dst).with_suffix('.json').write_text(json.dumps(

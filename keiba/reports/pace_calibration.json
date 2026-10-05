@@ -480,16 +480,6 @@
   "old_leaders": 0
  },
  {
-  "race_id": "202205010711",
-  "name": "第72回ダイヤモンドS(GIII)",
-  "date": "2022-02-19",
-  "band": "ダ2300〜",
-  "index": 1.6000000000000014,
-  "pace": "middle",
-  "leaders": 0,
-  "old_leaders": 2
- },
- {
   "race_id": "202209010311",
   "name": "第57回京都牝馬S(GIII)",
   "date": "2022-02-19",
@@ -1730,16 +1720,6 @@
   "old_leaders": 3
  },
  {
-  "race_id": "202305010711",
-  "name": "第73回ダイヤモンドS(GIII)",
-  "date": "2023-02-18",
-  "band": "ダ2300〜",
-  "index": 1.5999999999999943,
-  "pace": "high",
-  "leaders": 1,
-  "old_leaders": 3
- },
- {
   "race_id": "202309010311",
   "name": "第58回京都牝馬S(GIII)",
   "date": "2023-02-18",
@@ -2056,8 +2036,8 @@
   "band": "芝2300〜",
   "index": -0.29999999999999716,
   "pace": "middle",
-  "leaders": 1,
-  "old_leaders": 3
+  "leaders": 3,
+  "old_leaders": 5
  },
  {
   "race_id": "202308010511",
@@ -2147,7 +2127,7 @@
   "index": 0.0,
   "pace": "middle",
   "leaders": 2,
-  "old_leaders": 7
+  "old_leaders": 8
  },
  {
   "race_id": "202305021212",
@@ -2966,8 +2946,8 @@
   "band": "芝1500〜1800",
   "index": 1.2000000000000028,
   "pace": "slow",
-  "leaders": 0,
-  "old_leaders": 0
+  "leaders": 1,
+  "old_leaders": 1
  },
  {
   "race_id": "202405010511",
@@ -2998,16 +2978,6 @@
   "pace": "high",
   "leaders": 1,
   "old_leaders": 3
- },
- {
-  "race_id": "202405010711",
-  "name": "第74回ダイヤモンドS(GIII)",
-  "date": "2024-02-17",
-  "band": "ダ2300〜",
-  "index": 1.6000000000000014,
-  "pace": "middle",
-  "leaders": 1,
-  "old_leaders": 2
  },
  {
   "race_id": "202408020711",
@@ -3286,8 +3256,8 @@
   "band": "芝1500〜1800",
   "index": 0.29999999999999716,
   "pace": "middle",
-  "leaders": 1,
-  "old_leaders": 6
+  "leaders": 2,
+  "old_leaders": 7
  },
  {
   "race_id": "202405020211",
@@ -4280,16 +4250,6 @@
   "old_leaders": 3
  },
  {
-  "race_id": "202505010711",
-  "name": "第75回ダイヤモンドS(GIII)",
-  "date": "2025-02-22",
-  "band": "ダ2300〜",
-  "index": 2.8999999999999986,
-  "pace": "slow",
-  "leaders": 2,
-  "old_leaders": 3
- },
- {
   "race_id": "202508010711",
   "name": "第69回阪急杯(GIII)",
   "date": "2025-02-22",
@@ -4566,8 +4526,8 @@
   "band": "芝1500〜1800",
   "index": 0.0,
   "pace": "middle",
-  "leaders": 5,
-  "old_leaders": 9
+  "leaders": 6,
+  "old_leaders": 10
  },
  {
   "race_id": "202505020111",
@@ -4747,7 +4707,7 @@
   "index": -1.6000000000000014,
   "pace": "high",
   "leaders": 3,
-  "old_leaders": 9
+  "old_leaders": 10
  },
  {
   "race_id": "202509030411",
@@ -4996,8 +4956,8 @@
   "band": "芝1900〜2200",
   "index": 0.7000000000000028,
   "pace": "middle",
-  "leaders": 1,
-  "old_leaders": 5
+  "leaders": 2,
+  "old_leaders": 6
  },
  {
   "race_id": "202509040211",
@@ -5217,7 +5177,7 @@
   "index": -1.1000000000000014,
   "pace": "middle",
   "leaders": 4,
-  "old_leaders": 6
+  "old_leaders": 7
  },
  {
   "race_id": "202505050311",
@@ -5306,8 +5266,8 @@
   "band": "芝〜1400",
   "index": -2.0,
   "pace": "high",
-  "leaders": 3,
-  "old_leaders": 6
+  "leaders": 4,
+  "old_leaders": 7
  },
  {
   "race_id": "202509050111",
@@ -5548,16 +5508,6 @@
   "pace": "slow",
   "leaders": 2,
   "old_leaders": 3
- },
- {
-  "race_id": "202605010711",
-  "name": "第76回ダイヤモンドS(GIII)",
-  "date": "2026-02-21",
-  "band": "ダ2300〜",
-  "index": 2.200000000000003,
-  "pace": "slow",
-  "leaders": 0,
-  "old_leaders": 2
  },
  {
   "race_id": "202609010111",
@@ -6287,7 +6237,7 @@
   "index": 0.30000000000000426,
   "pace": "middle",
   "leaders": 2,
-  "old_leaders": 4
+  "old_leaders": 5
  },
  {
   "race_id": "202606040411",
