@@ -69,9 +69,18 @@ class RacedayTest(unittest.TestCase):
         self.assertEqual((kyoto['status'], kyoto['stake']), ('decided', rec['result']['total_stake']))
         # 答え合わせ用に出どころ別の勝率を判断時点で記録する（買い目には使わない）
         probs = rec['probabilities']
-        self.assertLessEqual({'claude_model', 'market_win', 'final'}, set(probs))
+        self.assertLessEqual({'claude_model', 'ability_only', 'market_win', 'final'}, set(probs))
         for p in probs.values():
             self.assertAlmostEqual(sum(p.values()), 1, places=3)
+        # 同じ入力・オッズで混合率を変えた参考試算と設定の版を残す（台帳には入れない）
+        self.assertEqual(rec['reference']['model_weight_0.5']['model_weight'], 0.5)
+        self.assertEqual(rec['reference']['market_only']['model_weight'], 0.0)
+        self.assertEqual(rec['engine_config']['model_weight'], engine.MODEL_WEIGHT)
+        self.assertEqual(rec['result']['model_weight'], engine.MODEL_WEIGHT)
+        # Codex の記録（10/4 は作成元が Claude、勝率の完成状態なし）は勝率を保存せず、理由を残す
+        self.assertNotIn('codex', probs)
+        self.assertFalse(rec['codex_meta']['independent'])
+        self.assertTrue(rec['codex_meta']['reason'])
 
     def test_late_start_is_skip(self):
         self.assertEqual(raceday.run(self.rec, self.led, now=at('15:21:00'), fetch=self.fetch()), 'missed')

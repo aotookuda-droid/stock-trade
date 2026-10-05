@@ -25,8 +25,14 @@ LONGSHOT_ODDS = 100
 EV_THRESHOLD = 1.2
 SOFTMAX_TEMP = 8.0
 # 着順分布でのモデルの重み。モデル（Harville）と市場（三連単オッズ）の上位3頭の着順確率を
-# 対数空間でこの比率で混ぜ、1つの分布にする。1.0 でモデルのみ。未検証
-MODEL_WEIGHT = 0.5
+# 対数空間でこの比率で混ぜ、1つの分布にする。1.0 でモデルのみ。
+# 2026/10/5 に 0.5 → 0.25（暫定）。近走のクラスと着差だけの客観能力は単勝市場に情報を足さなかった
+# （keiba/reports/ability_calibration.md）ため、未検証のモデルへの依存を下げる運用上の仮値で、検証で求めた最適値ではない。
+# 判断時に 0.5 と市場のみ（0.0）の参考試算も同じ入力・オッズで保存し（台帳には入れない）、記録がたまってから見直す
+MODEL_WEIGHT = 0.25
+REFERENCE_MODEL_WEIGHTS = {'model_weight_0.5': 0.5, 'market_only': 0.0}
+# 判断記録に残す設定の版。PACE_FIT・PACE_PRIOR・加減点などを変えたら日付を更新する（期間の途中で頻繁に変えない）
+CONFIG_VERSION = '2026-10-05'
 TAKEOUT_WIN = 0.20
 BIAS_FLAT = 0.08
 # 資金配分の基準資金（期待対数成長の計算用）。Codex版 config.json と同じ値で、未検証
@@ -719,15 +725,26 @@ def commit(race, path, ledger, ledger_path, stake, note=None):
 
 def decision_probabilities(race, res, extra=None):
     """判断時の勝率を出どころ別に残す（事後に精算で答え合わせし、混合率・温度を決めるため）。
-    claude_model は市場を混ぜる前、market_win は単勝オッズの逆数の正規化、final は買い目の計算に使った分布の勝率。"""
+    claude_model は市場を混ぜる前（ability・展開・バイアス・加減点）、ability_only は ability だけ（近走以外の情報の価値を
+    同じレースで比べるため）、market_win は単勝オッズの逆数の正規化、final は買い目の計算に使った分布の勝率。"""
     win_odds = {int(k): _low(v) for k, v in race['odds']['win'].items()}
+    horses = [h for h in race['horses'] if h['num'] in res['scores']]
     probs = {'claude_model': model_probabilities(res['scores']),
+             'ability_only': model_probabilities({h['num']: h['ability'] for h in horses}),
              'market_win': _normalize({k: 1 / win_odds[k] for k in res['scores']}),
              'final': res['win_prob']}
     for name, p in (extra or {}).items():
         probs[name] = p
     # 丸めずに保存する（丸めで小さな確率が0になると、答え合わせの損失が変わる）
     return {name: {str(k): v for k, v in p.items()} for name, p in probs.items()}
+
+
+def engine_config():
+    """判断時の設定（版・混合率・温度・位置取り点数・ペース確率など）。答え合わせで設定ごとに分けるため記録に残す。"""
+    return {'version': CONFIG_VERSION, 'model_weight': MODEL_WEIGHT, 'softmax_temp': SOFTMAX_TEMP,
+            'market': 'sanrentan（揃わなければ単勝の Harville）', 'ev_threshold': EV_THRESHOLD,
+            'pace_fit': PACE_FIT, 'pace_prior': PACE_PRIOR, 'minus': MINUS_WEIGHTS, 'plus': PLUS_WEIGHTS,
+            'reference_model_weights': REFERENCE_MODEL_WEIGHTS}
 
 
 def finalize(race, path, ledger=None, ledger_path=None, extra_probs=None):
@@ -740,9 +757,14 @@ def finalize(race, path, ledger=None, ledger_path=None, extra_probs=None):
     res['warning_review'] = race.get('warning_review')
     race['probabilities'] = decision_probabilities(race, res, extra_probs)
     # 検証用の参考試算（市場側を単勝の Harville だけにした旧方式相当）。台帳には入れず、後で公式払戻と照合する
+    keep = ('bets', 'total_stake', 'growth', 'skip_reason')
     ref = analyze(race, cap, market='win')
     race['result'] = res
-    race['reference'] = {'win_market_only': {k: ref[k] for k in ('bets', 'total_stake', 'growth', 'skip_reason')}}
+    race['reference'] = {'win_market_only': {k: ref[k] for k in keep}}
+    for name, w in REFERENCE_MODEL_WEIGHTS.items():
+        r = analyze(race, cap, model_weight=w)
+        race['reference'][name] = {'model_weight': w, **{k: r[k] for k in keep}}
+    race['engine_config'] = engine_config()
     commit(race, path, ledger, ledger_path, res['total_stake'])
     return res
 

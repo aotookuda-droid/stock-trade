@@ -33,7 +33,10 @@ RECORD_DIR = Path(__file__).with_name('records')
 ROWS = {'Tansho': ('単勝', None), 'Fukusho': ('複勝', None), 'Wakuren': ('枠連', '-'), 'Umaren': ('馬連', '-'),
         'Wide': ('ワイド', '-'), 'Umatan': ('馬単', '>'), 'Fuku3': ('三連複', '-'), 'Tan3': ('三連単', '>')}
 PLANS = {'本番': lambda r: r['result']['bets'],
-         '参考（単勝市場のみ）': lambda r: r['reference']['win_market_only']['bets']}
+         '参考（単勝市場のみ）': lambda r: r['reference']['win_market_only']['bets'],
+         # 2026/10/5〜の記録だけにある参考試算（混合率を本番と変えたもの）。無い記録では飛ばす
+         '参考（混合率0.5）': lambda r: r['reference']['model_weight_0.5']['bets'],
+         '参考（市場のみ）': lambda r: r['reference']['market_only']['bets']}
 
 
 # 着順以外の出走状態。取消・除外は返還、競走中止・失格は不的中（返還しない）
@@ -298,7 +301,7 @@ def report(directory=SETTLEMENT_DIR):
     return '\n'.join(lines)
 
 
-PROB_SOURCES = (('claude_model', 'Claude（市場前）'), ('codex', 'Codex（独立）'),
+PROB_SOURCES = (('claude_model', 'Claude（市場前）'), ('ability_only', 'abilityのみ'), ('codex', 'Codex（独立）'),
                 ('codex_reference', 'Codex形式の参考'), ('market_win', '市場（単勝）'), ('final', '最終（買い目に使用）'))
 CORE_SOURCES = ('claude_model', 'market_win', 'final')
 PROB_BANDS = (0.0, 0.02, 0.05, 0.10, 0.20, 0.35, 1.01)
@@ -356,6 +359,8 @@ def probability_check(items):
                 f'| 平均Brier（{label}{len(common)}レース） | ' + ' | '.join(br) + ' |']
     names = [n for _, n in PROB_SOURCES]
     out_rows = avg_rows(CORE_SOURCES, 'Claude・市場・最終が記録あり')
+    if any(g['ability_only'] is not None for g, _ in recorded):
+        out_rows += avg_rows(CORE_SOURCES + ('ability_only',), 'abilityのみも記録あり')
     if any(g['codex'] is not None for g, _ in recorded):
         out_rows += avg_rows(CORE_SOURCES + ('codex',), '独立Codexも記録あり')
     if any(g['codex_reference'] is not None for g, _ in recorded):
