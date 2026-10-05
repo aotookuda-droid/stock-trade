@@ -33,6 +33,7 @@ header p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
 .panel h2{font-size:.75rem;letter-spacing:.12em;color:var(--muted);margin:0 0 6px;font-weight:700}
 .race-title{font-size:1.15rem;font-weight:900;margin:0}
 .pace{display:inline-flex;align-items:center;gap:8px;margin:8px 0}
+.warn{font-size:.8rem;color:var(--front);background:var(--front-bg);padding:6px 10px;border-radius:6px;margin:4px 0 8px}
 .pill{font-weight:700;font-size:.8rem;padding:2px 10px;border-radius:999px;background:var(--front-bg);color:var(--front)}
 .note{color:var(--muted);font-size:.85rem;margin:0}
 .bets{display:flex;flex-direction:column;gap:6px;font-family:var(--f-num);font-size:.85rem}
@@ -98,6 +99,7 @@ tr.scr td{opacity:.45}
       <h2>レース</h2>
       <p class="race-title" id="rtitle"></p>
       <div class="pace"><span class="pill" id="pace"></span><span class="sub" id="nfront"></span></div>
+      <div class="warn" id="warn" hidden></div>
       <p class="note" id="pnote"></p>
       <p class="src" id="links"></p>
     </div>
@@ -132,7 +134,7 @@ tr.scr td{opacity:.45}
 
 <script>
 const D = /*DATA*/null;
-const LABEL = {front_runner_bad_pace:'逃げ好走→展開不向き',long_layoff:'半年以上休み明け',wins_special_ground:'特殊馬場専',turf_to_outer:'外枠替わり',dirt_to_inner:'ダ内枠替わり',fillies_to_open:'牝馬限定→混合',slow_start:'出遅れ癖',hates_kickback:'砂被り嫌う',stable_concern:'厩舎コメ不安',weight_change_15:'馬体重±15',weight_increase:'斤量増',lucky_last_race:'前走展開利',lucky_trip:'前走ロスなし',first_long_trip:'初長距離輸送',bad_direction:'苦手回り',old_no_record:'高齢・実績なし',jockey_downgrade:'上位騎手から乗り替わり',
+const LABEL = {front_runner_bad_pace:'逃げ好走→展開不向き',long_layoff:'半年以上休み明け',wins_special_ground:'特殊馬場専',turf_to_outer:'外枠替わり',dirt_to_inner:'ダ内枠替わり',fillies_to_open:'牝馬限定→混合',slow_start:'出遅れ癖',hates_kickback:'砂被り嫌う',stable_concern:'厩舎コメ不安',weight_change_15:'馬体重±15',weight_increase:'斤量増',lucky_last_race:'前走展開利',lucky_trip:'前走ロスなし',first_long_trip:'初長距離輸送',bad_direction:'苦手回り',old_no_record:'高齢・実績なし',jockey_downgrade:'上位騎手から乗り替わり',temperament:'気性難',
 first_after_gelding:'去勢明け',first_after_transfer:'転厩初戦',weight_drop:'斤量減',top_jockey_switch:'トップ騎手へ',jockey_switch:'乗り替わり',first_surface:'初芝/初ダ',big_distance_change:'距離変更(実績・狙い)',distance_change_try:'距離変更(一変期待)',first_blinker:'初ブリンカー',breaking_out:'本格化',hill_23:'坂路23秒台',hill_23_extra:'坂路終い/併せ',short_interval_unfulfilled:'間隔詰め・不完全燃焼',final_work_strong:'最終追い切り◎',course_repeater:'リピーター',second_start:'叩き2戦目',fastest_last_unrewarded:'上がり最速届かず',good_in_higher_class:'格上で好内容',turf_to_inner:'内枠替わり',dirt_to_outer:'ダ外枠替わり',bloodline_ground:'馬場血統',outside_farm:'外厩帰り'};
 const PACE = {slow:'スロー',middle:'ミドル',high:'ハイ'};
 const BIAS = {inner:'内有利',outer:'外有利',front:'前有利',closer:'差し有利',flat:'フラット',unknown:'不明'};
@@ -159,9 +161,13 @@ function render() {
   [...tabs.children].forEach((b, i) => b.setAttribute('aria-selected', i === cur));
   ['num','score','ability','edge','codex'].forEach(k => document.getElementById('s-' + k).setAttribute('aria-pressed', k === sortKey));
   document.getElementById('rtitle').textContent = r.race;
-  document.getElementById('pace').textContent = 'ペース予想：' + PACE[r.pace];
-  document.getElementById('nfront').textContent = '逃げ候補 ' + r.horses.filter(h => h.front).length + '頭 / ' + r.horses.length + '頭立て';
+  const pp = r.pace_probs || {[r.pace]: 1};
+  document.getElementById('pace').textContent = 'ペース予想：' + Object.keys(PACE).filter(k => pp[k] > 0).map(k => PACE[k] + Math.round(pp[k] * 100) + '%').join('・');
+  document.getElementById('nfront').textContent = 'ハナ候補 ' + r.horses.filter(h => h.front).length + '頭 / ' + r.horses.length + '頭立て';
   document.getElementById('pnote').textContent = r.pace_note;
+  const warn = document.getElementById('warn');
+  warn.hidden = !(r.warnings && r.warnings.length);
+  warn.innerHTML = (r.warnings || []).map(w => `<div>${esc(w)}</div>`).join('');
   const bets = document.getElementById('bets');
   document.getElementById('bets-h').textContent = '買い目試算（' + D.odds_label + (r.market ? '・' + r.market : '') + '）';
   const sepOf = t => (t === '馬単' || t === '三連単') ? '>' : '-';
@@ -188,7 +194,7 @@ function render() {
     return `<tr class="h${h.scratched ? ' scr' : ''}" tabindex="0" data-n="${h.num}" aria-expanded="${open.has(h.num)}">
       <td><span class="waku w${h.gate}">${h.gate}</span></td>
       <td class="num">${h.num}</td>
-      <td><div class="name">${esc(h.name)}${h.front ? '<span class="front">逃げ候補</span>' : ''}</div><div class="sub">${esc(h.jockey)}</div></td>
+      <td><div class="name">${esc(h.name)}${h.front ? '<span class="front">ハナ候補</span>' : ''}</div><div class="sub">${esc(h.jockey)}</div></td>
       <td><div>${esc(h.style)}</div><div class="sub">展開 ${pf > 0 ? '+' : ''}${pf}</div></td>
       <td><span class="zone">${esc(h.zone)}</span></td>
       <td><div class="ab"><span class="num" style="min-width:22px">${h.ability}</span><span class="track"><span class="fill" style="width:${Math.max(0, (h.ability - 50) / 35 * 100)}%"></span></span></div></td>

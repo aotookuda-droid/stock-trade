@@ -26,9 +26,52 @@ class EngineTest(unittest.TestCase):
         self.assertEqual(engine.track_bias([]), ('flat', 'flat'))
 
     def test_pace(self):
-        hs = [horse(i, 60, early_positions=[1, 2, 5]) for i in range(1, 4)]
-        self.assertEqual(engine.predict_pace(hs), 'high')
-        self.assertEqual(engine.predict_pace(hs[:1]), 'slow')
+        leaders = [horse(i, 60, early_positions=[1, 1, 5]) for i in range(1, 4)]
+        self.assertEqual(engine.predict_pace(leaders), engine.PACE_PRIOR[3])
+        self.assertEqual(engine.predict_pace(leaders[:1]), engine.PACE_PRIOR[1])
+        # 番手（2番手）が多いだけの先行馬はハナ候補に数えない
+        pressers = [horse(i, 60, early_positions=[2, 2, 1]) for i in range(1, 6)]
+        self.assertEqual(engine.predict_pace(pressers), engine.PACE_PRIOR[0])
+        for prior in engine.PACE_PRIOR.values():
+            self.assertAlmostEqual(sum(prior.values()), 1.0)
+
+    def test_pace_fit_mixes_probabilities(self):
+        self.assertEqual(engine.pace_fit('逃げ', 'slow'), engine.PACE_FIT['slow']['逃げ'])
+        mixed = engine.pace_fit('逃げ', {'slow': 0.5, 'high': 0.5})
+        self.assertAlmostEqual(mixed, (engine.PACE_FIT['slow']['逃げ'] + engine.PACE_FIT['high']['逃げ']) / 2)
+        self.assertEqual(engine.pace_label({'slow': 0.2, 'middle': 0.5, 'high': 0.3}), 'middle')
+        with self.assertRaises(ValueError):
+            engine.pace_probs({'slow': 0.5, 'high': 0.4})
+
+    def test_analyze_accepts_pace_probabilities(self):
+        hs = [horse(i, 80 - i, '逃げ' if i == 4 else '差し') for i in range(1, 5)]
+        race = {'race': 'test', 'horses': hs, 'odds': {'win': {str(i): 4.0 for i in range(1, 5)}}}
+        slow = engine.analyze(dict(race, pace={'slow': 1.0}))
+        mixed = engine.analyze(dict(race, pace={'slow': 0.5, 'middle': 0.5}))
+        self.assertEqual(mixed['pace'], 'slow')
+        self.assertEqual(mixed['pace_probs'], {'slow': 0.5, 'middle': 0.5})
+        self.assertGreater(slow['scores'][4], mixed['scores'][4])
+
+    def test_temperament_is_a_minus_factor(self):
+        h = horse(1, 70)
+        base = engine.total_score(h, 'middle', 'flat', 'flat')
+        h['minus'] = ['temperament']
+        self.assertEqual(engine.total_score(h, 'middle', 'flat', 'flat'), base - 3)
+
+    def test_divergence_warnings(self):
+        model = {1: 0.25, 2: 0.15, 3: 0.60}
+        market = {1: 0.10, 2: 0.30, 3: 0.60}
+        bets = [{'type': 'ワイド', 'horses': [1, 3], 'ev': 2.3, 'stake': 300},
+                {'type': '馬連', 'horses': [2, 3], 'ev': 1.4, 'stake': 100}]
+        w = engine.divergence_warnings(model, market, bets, {'codex': {1: 0.12, 2: 0.2, 3: 0.68}})
+        self.assertEqual([h['num'] for h in w['horses']], [1])
+        self.assertAlmostEqual(w['horses'][0]['stake_share'], 0.75)
+        self.assertEqual([b['horses'] for b in w['tickets']], [[1, 3]])
+        # 他の出どころのどれか1つでも近ければ印を付けない
+        w = engine.divergence_warnings(model, market, bets, {'codex': {1: 0.2, 2: 0.2, 3: 0.6}})
+        self.assertEqual(w['horses'], [])
+        # 買い目に入っていない馬には付けない
+        self.assertEqual(engine.divergence_warnings(model, market, [], None)['horses'], [])
 
     def test_bias_fit_signs(self):
         self.assertGreater(engine.bias_fit(horse(1, 0, '逃げ', '内'), 'inner', 'front'), 0)

@@ -54,6 +54,7 @@ MINUS_WEIGHTS = {
     'bad_direction': -3,
     'old_no_record': -3,
     'jockey_downgrade': -4,
+    'temperament': -3,
 }
 
 PLUS_WEIGHTS = {
@@ -86,6 +87,19 @@ PACE_FIT = {
     'middle': {'逃げ': 1, '先行': 1, '差し': 0, '追込': -1},
     'high': {'逃げ': -3, '先行': -1, '差し': 2, '追込': 3},
 }
+# ハナ候補の頭数ごとのペース確率（2026/10/5〜）。1つのペースに決め打ちせず、位置取り適性をこの確率で平均する。
+# 10/4 の毎日王冠・京都大賞典で「逃げ候補3頭以上→ハイ」が2レースとも外れた（実際はスローと平均ペース）ための変更。
+# 値は仮の設定で未検証。過去の重賞の通過順・ラップで校正する
+PACE_PRIOR = {
+    0: {'slow': 0.50, 'middle': 0.40, 'high': 0.10},
+    1: {'slow': 0.45, 'middle': 0.40, 'high': 0.15},
+    2: {'slow': 0.25, 'middle': 0.50, 'high': 0.25},
+    3: {'slow': 0.15, 'middle': 0.40, 'high': 0.45},
+}
+# 乖離チェック（2026/10/5〜、表示だけで買い目は変えない）: 市場前のモデル勝率が、単勝市場と他の出どころ（Codex版など）
+# の全てのこの倍率以上なら印を付ける。期待値がこの値を超える買い目も見直し対象として表示する
+DIVERGENCE_RATIO = 1.5
+EV_SUSPICIOUS = 2.0
 FRONTNESS = {'逃げ': 1.0, '先行': 0.5, '差し': -0.5, '追込': -1.0}
 ZONE = {'内': -1, '中': 0, '外': 1}
 
@@ -121,17 +135,37 @@ def track_bias(results):
 
 
 def is_front_candidate(early_positions):
-    """過去5走の1角通過順で1〜2番手が2回以上なら逃げ候補。"""
-    return sum(1 for p in early_positions[-5:] if p <= 2) >= 2
+    """過去5走の1角通過順で1番手（ハナ）が2回以上ならハナ候補。
+
+    以前は「1〜2番手が2回以上」だったが、番手でも運べる先行馬まで数えてペースを速く見積もりすぎた（10/4の2重賞）。
+    """
+    return sum(1 for p in early_positions[-5:] if p == 1) >= 2
 
 
 def predict_pace(horses):
+    """ペースの確率 {'slow','middle','high'}。ハナ候補の頭数から PACE_PRIOR で決める。"""
     n = sum(1 for h in horses if is_front_candidate(h.get('early_positions', [])))
-    if n <= 1:
-        return 'slow'
-    if n == 2:
-        return 'middle'
-    return 'high'
+    return dict(PACE_PRIOR[min(n, 3)])
+
+
+def pace_probs(pace):
+    """レコードの pace（'slow' などの文字列、または確率の dict）を確率の dict にそろえる。"""
+    if isinstance(pace, str):
+        return {pace: 1.0}
+    if set(pace) - set(PACE_FIT) or any(v < 0 for v in pace.values()) or abs(sum(pace.values()) - 1) > 1e-6:
+        raise ValueError(f"pace の確率が不正: {pace}")
+    return dict(pace)
+
+
+def pace_label(pace):
+    """表示用に最も確率の高いペース。"""
+    p = pace_probs(pace)
+    return max(PACE_FIT, key=lambda k: p.get(k, 0))
+
+
+def pace_fit(style, pace):
+    """位置取り適性。ペースの確率で PACE_FIT を平均する。"""
+    return sum(w * PACE_FIT[k][style] for k, w in pace_probs(pace).items())
 
 
 def bias_fit(horse, inner_outer, front_back):
@@ -148,7 +182,7 @@ def total_score(horse, pace, inner_outer, front_back):
         if key not in PLUS_WEIGHTS:
             raise ValueError(f"unknown plus factor: {key}")
     return (horse['ability']
-            + PACE_FIT[pace][horse['style']]
+            + pace_fit(horse['style'], pace)
             + bias_fit(horse, inner_outer, front_back)
             + sum(MINUS_WEIGHTS[k] for k in horse.get('minus', []))
             + sum(PLUS_WEIGHTS[k] for k in horse.get('plus', [])))
@@ -422,8 +456,30 @@ def involves_longshot(bet, win_odds, horses):
     return any(n in longshot for n in bet['horses'])
 
 
-def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto'):
-    """race['scratched'] の馬番は出走取消として除く。複勝の範囲は発売開始時の頭数で決める。"""
+def divergence_warnings(model, market, bets, others=None):
+    """モデルと市場・他の出どころとの大きなずれ（表示用）。
+
+    model・market・others の各値は {馬番: 勝率}。買い目に含まれる馬のうち、モデル勝率が市場と others の全ての
+    DIVERGENCE_RATIO 倍以上の馬（その馬を含む買い目の金額の割合つき、割合の大きい順）と、期待値が EV_SUSPICIOUS を
+    超える買い目を返す。期待値が極端に高いときは市場の見落としよりモデル側の誤りを先に疑う。
+    """
+    sources = {'市場': market, **(others or {})}
+    total = sum(b.get('stake', 0) for b in bets)
+    horses = []
+    for n in {h for b in bets for h in b['horses']}:
+        p = model.get(n, 0)
+        ratios = {name: p / q[n] for name, q in sources.items() if q.get(n, 0) > 0}
+        if len(ratios) == len(sources) and min(ratios.values()) >= DIVERGENCE_RATIO:
+            share = sum(b.get('stake', 0) for b in bets if n in b['horses']) / total if total else 0.0
+            horses.append({'num': n, 'model': p, 'ratios': ratios, 'stake_share': share})
+    horses.sort(key=lambda h: (-h['stake_share'], -h['model']))
+    tickets = [{'type': b['type'], 'horses': b['horses'], 'ev': b['ev']} for b in bets if b['ev'] > EV_SUSPICIOUS]
+    return {'horses': horses, 'tickets': tickets}
+
+
+def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others=None):
+    """race['scratched'] の馬番は出走取消として除く。複勝の範囲は発売開始時の頭数で決める。
+    others（{出どころ: {馬番: 勝率}}、Codex版など）は乖離チェックの表示だけに使い、買い目には使わない。"""
     scratched = set(race.get('scratched', []))
     horses = [h for h in race['horses'] if h['num'] not in scratched]
     sales_start = race.get('field_size_at_sales_start') or len(race['horses'])
@@ -447,10 +503,12 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto'):
              if not involves_longshot(b, win_odds, horses)]
     bets, skip, growth = allocate(cands, orders, cap, gates, places)
     win = ticket_probabilities(orders, places)['win']
+    market_win = _normalize({k: 1 / _low(win_odds[k]) for k in scores})
     return {
         'race': race['race'],
         'bias': {'inner_outer': inner_outer, 'front_back': front_back},
-        'pace': pace,
+        'pace': pace_label(pace),
+        'pace_probs': pace_probs(pace),
         'place_slots': places,
         'cap': cap,
         'model_weight': model_weight,
@@ -463,12 +521,28 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto'):
         'total_stake': sum(b['stake'] for b in bets),
         'growth': growth,
         'skip_reason': skip,
+        'warnings': divergence_warnings(model_probabilities(scores), market_win, bets, others),
     }
 
 
+def format_warnings(res):
+    w = res.get('warnings') or {}
+    lines = []
+    for h in w.get('horses', []):
+        ratios = '・'.join(f"{name}の{r:.1f}倍" for name, r in h['ratios'].items())
+        lines.append(f"⚠ 乖離 {h['num']}番 モデル勝率{h['model']:.1%}（{ratios}）、買い目の{h['stake_share']:.0%}がこの馬絡み。"
+                     "評価の根拠を見直す")
+    for b in w.get('tickets', []):
+        lines.append(f"⚠ 期待値{b['ev']:.2f} {b['type']} {'-'.join(map(str, b['horses']))}。市場よりモデルの誤りを先に疑う")
+    return lines
+
+
 def format_result(res):
-    lines = [f"■ {res['race']}  ペース:{res['pace']}  バイアス:{res['bias']['inner_outer']}/{res['bias']['front_back']}"
+    probs = res.get('pace_probs') or {res['pace']: 1.0}
+    pace = '/'.join(f"{k}{v:.0%}" for k, v in probs.items() if v > 0)
+    lines = [f"■ {res['race']}  ペース:{pace}  バイアス:{res['bias']['inner_outer']}/{res['bias']['front_back']}"
              f"  上限:{res.get('cap', RACE_CAP)}円  {market_label(res)}"]
+    lines += format_warnings(res)
     if not res['bets']:
         lines.append(f"見送り（{SKIP_REASONS.get(res.get('skip_reason'), '期待値1.2以上の馬券なし')}）")
         return '\n'.join(lines)
@@ -620,7 +694,8 @@ def finalize(race, path, ledger=None, ledger_path=None, extra_probs=None):
     extra_probs（{出どころ: {馬番: 勝率}}、Codex版など）は答え合わせ用に一緒に記録するだけで、買い目には使わない。"""
     validate_final(race)
     cap = weekend_cap(ledger, race['race_id']) if ledger is not None else RACE_CAP
-    res = analyze(race, cap)
+    others = {name: {int(k): v for k, v in p.items()} for name, p in (extra_probs or {}).items()}
+    res = analyze(race, cap, others=others)
     race['probabilities'] = decision_probabilities(race, res, extra_probs)
     # 検証用の参考試算（市場側を単勝の Harville だけにした旧方式相当）。台帳には入れず、後で公式払戻と照合する
     ref = analyze(race, cap, market='win')

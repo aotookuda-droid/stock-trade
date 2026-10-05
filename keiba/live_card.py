@@ -146,9 +146,10 @@ def build_race(path, key):
         odds, asof = {'win': {str(h['num']): h[pred_key] for h in rec['horses'] if h['num'] not in scratched}}, None
     win = {int(k): v for k, v in odds['win'].items()}
     running = [h for h in rec['horses'] if h['num'] not in scratched]
-    res = engine.analyze(dict(rec, odds=odds, scratched=sorted(scratched)))
-    mkt = engine._normalize({h['num']: 1 / win[h['num']] for h in running})
     codex = load_codex(rec['race_id']) if rec.get('race_id') else None
+    others = {'Codex': engine._normalize({n: p for n, p in codex['win'].items() if n not in scratched})} if codex else None
+    res = engine.analyze(dict(rec, odds=odds, scratched=sorted(scratched)), others=others)
+    mkt = engine._normalize({h['num']: 1 / win[h['num']] for h in running})
     name_m = re.search(r'\d+R (.+?)\(', rec['race'])
     trend_meta, trends = load_trends(name_m.group(1) if name_m else '', win)
     horses = []
@@ -169,13 +170,13 @@ def build_race(path, key):
             'codex_note': codex['notes'].get(n, '') if codex else '',
             'trend': trends.get(n),
             'front': engine.is_front_candidate(h.get('early_positions', [])), 'early': h.get('early_positions', []),
-            'pacefit': engine.PACE_FIT[res['pace']][h['style']],
+            'pacefit': round(engine.pace_fit(h['style'], res['pace_probs']), 1),
             'score': res['scores'].get(n, 0), 'p': round(res['win_prob'].get(n, 0.0), 4), 'mkt': round(mkt.get(n, 0.0), 4),
         })
     bets = [{k: b[k] for k in ('type', 'horses', 'prob', 'odds', 'ev', 'kelly', 'stake')} for b in res['bets']]
     name = re.search(r'\d+R (.+?)\(', rec['race'])
     return {'key': key, 'short': name.group(1) if name else key, 'race': rec['race'], 'status': rec.get('status', ''),
-            'pace': res['pace'], 'pace_note': rec.get('pace_note', ''), 'horses': horses,
+            'pace': res['pace'], 'pace_probs': res['pace_probs'], 'warnings': engine.format_warnings(res), 'pace_note': rec.get('pace_note', ''), 'horses': horses,
             'bets': bets, 'stake': res['total_stake'], 'live': live, 'asof': asof, 'pred_key': pred_key,
             'missing': missing, 'skip': engine.SKIP_REASONS.get(res['skip_reason'], ''), 'market': engine.market_label(res),
             'codex': {k: v for k, v in codex.items() if k not in ('win', 'notes')} if codex else None,

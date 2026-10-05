@@ -32,7 +32,8 @@ class RacedayTest(unittest.TestCase):
             for key in ('status', 'stake', 'decided_at'):
                 e.pop(key, None)
         self.rec.write_text(json.dumps(rec, ensure_ascii=False), encoding='utf-8')
-        self.led.write_text(json.dumps(led, ensure_ascii=False), encoding='utf-8')
+        self.led_open = json.dumps(led, ensure_ascii=False)
+        self.led.write_text(self.led_open, encoding='utf-8')
         horses = rec['horses']
         self.win = {str(h['num']): h['pred_odds_1002'] for h in horses}
 
@@ -104,7 +105,7 @@ class RacedayTest(unittest.TestCase):
     def test_recovers_ledger_after_interrupted_save(self):
         raceday.run(self.rec, self.led, now=at('15:18:00'), sleep=lambda s: None, fetch=self.fetch())
         stake = json.loads(self.rec.read_text(encoding='utf-8'))['decision']['stake']
-        shutil.copy(LEDGER, self.led)  # 台帳だけ保存前に止まった状態
+        self.led.write_text(self.led_open, encoding='utf-8')  # 台帳だけ保存前に止まった状態（未判断の台帳に戻す）
         rec_before = self.rec.read_text(encoding='utf-8')
         self.assertEqual(raceday.run(self.rec, self.led, now=at('15:18:30'), fetch=self.fetch()), 'already')
         led = json.loads(self.led.read_text(encoding='utf-8'))
