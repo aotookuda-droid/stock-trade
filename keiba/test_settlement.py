@@ -275,6 +275,21 @@ class SettleRecordTest(unittest.TestCase):
         self.assertIn('別の分布だったレース（単勝で代用）は 0 レース', text)
         self.assertIn('## 参考（λ・モデル側）', text)
 
+    def test_win_dead_heat_is_not_scored(self):
+        rec = record([bet('単勝', [5], 300)])
+        rec['probabilities'] = {'claude_model': {'5': 0.2, '4': 0.5}, 'market_win': {'5': 0.1, '4': 0.4},
+                                'final': {'5': 0.15, '4': 0.45}}
+        self.write(rec)
+        # 4番も1着（同着）: 単勝の払戻が2組。着順リストの先頭（5番）だけを勝者にしない
+        dead = dict(OFFICIAL, payouts=dict(OFFICIAL['payouts'], 単勝={'5': 400, '4': 300}))
+        self.assertIsNone(settlement._winner(dead))
+        self.assertEqual(settlement._winner(OFFICIAL), '5')
+        lines = settlement.probability_check([{'race': 'R', 'record': str(self.rec), 'official': dead}])
+        text = '\n'.join(lines)
+        self.assertIn('| R（1着同着） | 同着で対象外', text)
+        self.assertIn('（Claude・市場・最終が記録あり0レース） | — | — | — |', text)
+        self.assertNotIn('頭 ', text)  # 勝率帯ごとの実績にも入らない
+
     def test_order_check_skips_dead_heats_per_metric(self):
         both = {'payouts': {'三連単': {'5>4>1': 100, '5>4>2': 100}, '三連複': {'1-4-5': 50, '2-4-5': 50}}}
         self.assertEqual(settlement._official_order(both), (None, None))

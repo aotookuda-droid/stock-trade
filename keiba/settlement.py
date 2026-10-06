@@ -332,6 +332,13 @@ def _probabilities(record):
     return probs
 
 
+def _winner(official):
+    """勝ち馬の馬番（文字列）。単勝の払戻が1組でない（1着同着など）なら None で、勝率の評価から外す
+    （着順リストの先頭だけを勝者にすると、表示順で評価が変わるため）。"""
+    win = official['payouts'].get('単勝') or {}
+    return next(iter(win)) if len(win) == 1 else None
+
+
 def _brier(p, winner):
     """多クラスの Brier スコア Σ(p − 勝ち=1/負け=0)²。小さいほど良い。"""
     return sum((v - (k == winner)) ** 2 for k, v in p.items()) + (0.0 if winner in p else 1.0)
@@ -357,7 +364,10 @@ def probability_check(items):
         return []
     rows, recorded = [], []
     for s, probs in races:
-        winner = str(s['official']['finish'][0])
+        winner = _winner(s['official'])
+        if winner is None:
+            rows.append(f"| {s['race']}（1着同着） | " + ' | '.join('同着で対象外' for _ in PROB_SOURCES) + ' |')
+            continue
         got = {k: probs[k].get(winner, 0.0) if k in probs else None for k, _ in PROB_SOURCES}
         cells = ['未記録' if p is None else '0（損失∞）' if p == 0 else f'{p * 100:.1f}%' for p in got.values()]
         rows.append(f"| {s['race']}（{winner}番） | " + ' | '.join(cells) + ' |')
@@ -394,7 +404,9 @@ def probability_check(items):
         for s, probs in races:
             if k not in probs:
                 continue
-            winner = str(s['official']['finish'][0])
+            winner = _winner(s['official'])
+            if winner is None:
+                continue
             for h, p in probs[k].items():
                 i = next(i for i, hi in enumerate(PROB_BANDS[1:]) if p < hi)
                 acc[i][0] += 1
@@ -407,7 +419,8 @@ def probability_check(items):
             '勝ち馬に付けていた勝率。「未記録」はその出どころの記録が無いレース、「0（損失∞）」は確率0と予測した馬が勝ったレース。',
             '平均（対数損失 −log p・Brier、どちらも小さいほど良い）は、比較ごとに比べる出どころが全て記録されたレースだけで計算する。',
             '「Codex形式の参考」は作成元が独立したCodexと記録されていない予測（10/4の2レースはClaudeがCodex形式で作成）で、'
-            '独立モデルの比較には入れない。混合率・温度・加減点はレース数が十分たまるまで変えない。', '',
+            '独立モデルの比較には入れない。1着同着のレースは勝率の対数損失・Brier・勝率帯ごとの実績から外す'
+            '（払戻の精算と三連単・三連複の答え合わせは続ける）。混合率・温度・加減点はレース数が十分たまるまで変えない。', '',
             '| レース（勝ち馬） | ' + ' | '.join(names) + ' |', '|---|' + '---:|' * len(names), *rows, *out_rows,
             *bands, '']
 
