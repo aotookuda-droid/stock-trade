@@ -252,6 +252,35 @@ class SettleRecordTest(unittest.TestCase):
         # 参考試算の勝率は確率の答え合わせだけで、馬券の仮想精算は別の表
         self.assertIn('## 参考（混合率0.5）', text)
 
+    def test_lambda_probabilities_and_order_distributions_are_compared(self):
+        winner = str(OFFICIAL['finish'][0])  # 5>4>1
+        rec = record([bet('単勝', [5], 300)])
+        rec['probabilities'] = {'claude_model': {winner: 0.2}, 'market_win': {winner: 0.1}, 'final': {winner: 0.15}}
+        rec['result']['market_source'] = 'sanrentan'
+        rec['reference']['lambda_model'] = {'bets': [bet('単勝', [5], 100)], 'win_prob': {winner: 0.16}}
+        rec['reference']['lambda_both'] = {'bets': [bet('単勝', [5], 100)], 'win_prob': {winner: 0.16}}
+        rec['order_probs'] = {'final': {'5>4>1': 0.02, '4>5>1': 0.01, '1>2>3': 0.97},
+                              'lambda_model': {'5>4>1': 0.03, '1>5>4': 0.02, '1>2>3': 0.95},
+                              'lambda_both': {'same_as': 'lambda_model'}}
+        self.write(rec)
+        settlement.save(settlement.settle(self.rec, PAGE, 'fixture'), self.out)
+        text = settlement.report(self.out)
+        # 勝率の答え合わせに λ の2方式が入る
+        self.assertIn('（λの参考試算も記録あり1レース）', text)
+        self.assertIn('| 16.0% | 16.0% |', text)
+        # 着順分布: 三連単は 5>4>1 の確率、三連複は {1,4,5} の全順序の合計。λ両側は λモデル側を参照
+        self.assertIn('## 着順分布の答え合わせ（三連単・三連複）', text)
+        self.assertIn('| 三連単市場（λ両側＝λモデル側） | 2.000% | 3.000% | 3.000% | 3.000% | 5.000% | 5.000% |', text)
+        self.assertIn('（三連単 1・三連複 1レース） | | 3.912 | 3.507 | 3.507 | 3.507 | 2.996 | 2.996 |', text)
+        self.assertIn('別の分布だったレース（単勝で代用）は 0 レース', text)
+        self.assertIn('## 参考（λ・モデル側）', text)
+
+    def test_order_check_skips_dead_heats_per_metric(self):
+        both = {'payouts': {'三連単': {'5>4>1': 100, '5>4>2': 100}, '三連複': {'1-4-5': 50, '2-4-5': 50}}}
+        self.assertEqual(settlement._official_order(both), (None, None))
+        third_only = {'payouts': {'三連単': {'5>4>1': 100}, '三連複': {'1-4-5': 50}}}
+        self.assertEqual(settlement._official_order(third_only), ((5, 4, 1), frozenset({1, 4, 5})))
+
     def test_brier(self):
         self.assertAlmostEqual(settlement._brier({'1': 0.6, '2': 0.4}, '1'), 0.32)
         self.assertAlmostEqual(settlement._brier({'1': 0.6, '2': 0.4}, '3'), 0.36 + 0.16 + 1.0)

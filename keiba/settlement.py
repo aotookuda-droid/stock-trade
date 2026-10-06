@@ -299,6 +299,7 @@ def report(directory=SETTLEMENT_DIR):
         lines += [row(k, _summary(*w)) for k, w in weeks.items()]
         lines += ['', '### 累計', ''] + header + [row(f'{len(items)}レース', _summary(*total)), '']
     lines += probability_check(items)
+    lines += order_check(items)
     if warnings:
         lines += ['## 警告', ''] + warnings
     return '\n'.join(lines)
@@ -306,9 +307,14 @@ def report(directory=SETTLEMENT_DIR):
 
 PROB_SOURCES = (('claude_model', 'Claude（市場前）'), ('ability_only', 'abilityのみ'), ('codex', 'Codex（独立）'),
                 ('codex_reference', 'Codex形式の参考'), ('market_win', '市場（単勝）'), ('final', '最終（買い目に使用）'),
-                ('ref_model_weight_0.5', '参考 混合率0.5'), ('ref_market_only', '参考 市場のみ'))
-# 判断時に保存した参考試算の勝率（2026/10/5〜の記録だけにある）
-REFERENCE_PROBS = {'ref_model_weight_0.5': 'model_weight_0.5', 'ref_market_only': 'market_only'}
+                ('ref_model_weight_0.5', '参考 混合率0.5'), ('ref_market_only', '参考 市場のみ'),
+                ('ref_lambda_model', '参考 λ・モデル側'), ('ref_lambda_both', '参考 λ・両側'))
+# 判断時に保存した参考試算の勝率（混合率は 2026/10/5〜、λ は 2026/10/6〜の記録だけにある）
+MIX_REFS = {'ref_model_weight_0.5': 'model_weight_0.5', 'ref_market_only': 'market_only'}
+LAMBDA_REFS = {'ref_lambda_model': 'lambda_model', 'ref_lambda_both': 'lambda_both'}
+REFERENCE_PROBS = {**MIX_REFS, **LAMBDA_REFS}
+# 判断時に保存した着順分布（record['order_probs']、2026/10/6〜）。三連単・三連複の的中組の確率を比べる
+ORDER_SOURCES = (('final', '最終（買い目に使用）'), ('lambda_model', '参考 λ・モデル側'), ('lambda_both', '参考 λ・両側'))
 CORE_SOURCES = ('claude_model', 'market_win', 'final')
 PROB_BANDS = (0.0, 0.02, 0.05, 0.10, 0.20, 0.35, 1.01)
 
@@ -369,8 +375,10 @@ def probability_check(items):
                 f'| 平均Brier（{label}{len(common)}レース） | ' + ' | '.join(br) + ' |']
     names = [n for _, n in PROB_SOURCES]
     out_rows = avg_rows(CORE_SOURCES, 'Claude・市場・最終が記録あり')
-    if all(any(g[k] is not None for g, _ in recorded) for k in REFERENCE_PROBS):
-        out_rows += avg_rows(CORE_SOURCES + tuple(REFERENCE_PROBS), '混合率の参考試算も記録あり')
+    if all(any(g[k] is not None for g, _ in recorded) for k in MIX_REFS):
+        out_rows += avg_rows(CORE_SOURCES + tuple(MIX_REFS), '混合率の参考試算も記録あり')
+    if all(any(g[k] is not None for g, _ in recorded) for k in LAMBDA_REFS):
+        out_rows += avg_rows(CORE_SOURCES + tuple(LAMBDA_REFS), 'λの参考試算も記録あり')
     if any(g['ability_only'] is not None for g, _ in recorded):
         out_rows += avg_rows(CORE_SOURCES + ('ability_only',), 'abilityのみも記録あり')
     if any(g['codex'] is not None for g, _ in recorded):
@@ -402,6 +410,92 @@ def probability_check(items):
             '独立モデルの比較には入れない。混合率・温度・加減点はレース数が十分たまるまで変えない。', '',
             '| レース（勝ち馬） | ' + ' | '.join(names) + ' |', '|---|' + '---:|' * len(names), *rows, *out_rows,
             *bands, '']
+
+
+def _order_probs(record):
+    """判断時の着順分布 {出どころ: {'1>2>3': 確率}}。lambda_both が {'same_as': ...} なら参照先の分布を使う。"""
+    saved = record.get('order_probs') or {}
+    out = {}
+    for name, _ in ORDER_SOURCES:
+        d = saved.get(name)
+        if isinstance(d, dict) and 'same_as' in d:
+            d = saved.get(d['same_as'])
+        if d:
+            out[name] = d
+    return out
+
+
+def _official_order(official):
+    """公式の (1着,2着,3着) と3頭の組。三連単・三連複の払戻が1組でなければ（同着など）その指標は None。"""
+    tri = official['payouts'].get('三連単') or {}
+    trio = official['payouts'].get('三連複') or {}
+    order = tuple(int(x) for x in next(iter(tri)).split('>')) if len(tri) == 1 else None
+    triple = frozenset(int(x) for x in next(iter(trio)).split('-')) if len(trio) == 1 else None
+    return order, triple
+
+
+def order_check(items):
+    """判断時に保存した着順分布で、実際の三連単（着順）と三連複（3頭の組）に付けていた確率と対数損失を比べる。
+
+    - 同着などで三連単・三連複の払戻が1組でないレースは、その指標だけ平均から外す。
+    - 平均は、比べる出どころが全て記録されたレースだけで取る（同じレース集合）。
+    - 三連単オッズがそろったレースでは λ・両側 は λ・モデル側 と同じ分布なので、独立した2つの証拠として数えない。
+    """
+    races = []
+    for s in items:
+        try:
+            record = engine._read_json(s['record'])
+        except OSError:
+            continue
+        probs = _order_probs(record)
+        if probs:
+            same = isinstance((record.get('order_probs') or {}).get('lambda_both'), dict) and \
+                'same_as' in record['order_probs']['lambda_both']
+            races.append((s, probs, (record.get('result') or {}).get('market_source'), same))
+    if not races:
+        return []
+    names = [n for _, n in ORDER_SOURCES]
+    rows, rec = [], []
+    for s, probs, source, same in races:
+        order, triple = _official_order(s['official'])
+        tri = {k: (sum(v for o, v in probs[k].items() if tuple(map(int, o.split('>'))) == order) if order else None)
+               for k, _ in ORDER_SOURCES if k in probs}
+        trio = {k: (sum(v for o, v in probs[k].items() if frozenset(map(int, o.split('>'))) == triple) if triple else None)
+                for k, _ in ORDER_SOURCES if k in probs}
+        rec.append((tri, trio))
+
+        def cell(d, k):
+            if k not in d:
+                return '未記録'
+            if d[k] is None:
+                return '同着で対象外'
+            return '0（損失∞）' if d[k] == 0 else f'{d[k] * 100:.3f}%'
+        label = '>'.join(map(str, order)) if order else '同着'
+        note = '三連単市場（λ両側＝λモデル側）' if same else {'win_harville': '単勝で代用'}.get(source, source or '—')
+        rows.append(f"| {s['race']}（{label}） | {note} | " + ' | '.join(cell(tri, k) for k, _ in ORDER_SOURCES) +
+                    ' | ' + ' | '.join(cell(trio, k) for k, _ in ORDER_SOURCES) + ' |')
+
+    def avg(i):
+        keys = [k for k, _ in ORDER_SOURCES]
+        common = [r[i] for r in rec if all(r[i].get(k) is not None for k in keys)]
+        cells = []
+        for k in keys:
+            losses = [math.inf if c[k] == 0 else -math.log(c[k]) for c in common]
+            cells.append('—' if not losses else '∞' if math.inf in losses else f'{sum(losses) / len(losses):.3f}')
+        return len(common), cells
+    n_tri, tri_cells = avg(0)
+    n_trio, trio_cells = avg(1)
+    distinct = sum(1 for *_, same in races if not same)
+    return ['## 着順分布の答え合わせ（三連単・三連複）', '',
+            '判断時に保存した着順分布が、実際の着順（三連単）と3頭の組（三連複）に付けていた確率。'
+            '平均対数損失（−log p、小さいほど良い）は、3つの出どころが全て記録され、その指標が同着で崩れていないレースだけで取る。'
+            f'λ・両側 が λ・モデル側 と別の分布だったレース（単勝で代用）は {distinct} レース。'
+            '仮想収支とは別の、予測の精度の比較。少数レースで採用を決めない。', '',
+            '| レース（着順） | 市場側 | ' + ' | '.join(f'三連単 {n}' for n in names) + ' | '
+            + ' | '.join(f'三連複 {n}' for n in names) + ' |',
+            '|---|---|' + '---:|' * (2 * len(names)), *rows,
+            f'| 平均対数損失（三連単 {n_tri}・三連複 {n_trio}レース） | | ' + ' | '.join(tri_cells) + ' | '
+            + ' | '.join(trio_cells) + ' |', '']
 
 
 def main(argv):

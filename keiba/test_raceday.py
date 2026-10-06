@@ -24,7 +24,7 @@ class RacedayTest(unittest.TestCase):
         self.led = self.dir / 'l.json'
         # 実レコードは10/4に判断済みなので、判断前の状態（decision・result などを外し、台帳を未判断）に戻して使う
         rec = json.loads(RECORD.read_text(encoding='utf-8'))
-        for key in ('decision', 'result', 'reference', 'probabilities', 'odds_meta'):
+        for key in ('decision', 'result', 'reference', 'probabilities', 'odds_meta', 'order_probs'):
             rec.pop(key, None)
         rec['odds'] = {}
         led = json.loads(LEDGER.read_text(encoding='utf-8'))
@@ -84,6 +84,19 @@ class RacedayTest(unittest.TestCase):
             self.assertAlmostEqual(sum(ref['win_prob'].values()), 1, places=3)
             self.assertAlmostEqual(sum(ref['place_prob'].values()), 3, places=3)
             self.assertIn('bets', ref)
+        # 判断時の着順分布（本番・λ）。本番の分布から集計した1着の確率は保存した勝率と一致する
+        orders = rec['order_probs']
+        self.assertAlmostEqual(sum(orders['final'].values()), 1, places=6)
+        self.assertAlmostEqual(sum(orders['lambda_model'].values()), 1, places=6)
+        win = {}
+        for o, q in orders['final'].items():
+            win[o.split('>')[0]] = win.get(o.split('>')[0], 0.0) + q
+        for k, v in rec['result']['win_prob'].items():
+            self.assertAlmostEqual(win[str(k)], v)
+        if rec['result']['market_source'] == 'sanrentan':
+            self.assertEqual(orders['lambda_both'], {'same_as': 'lambda_model'})
+        else:
+            self.assertAlmostEqual(sum(orders['lambda_both'].values()), 1, places=6)
         self.assertEqual(rec['engine_config']['reference_place_discounts'],
                          json.loads(json.dumps(engine.REFERENCE_PLACE_DISCOUNTS)))
         self.assertEqual(kyoto['stake'], rec['result']['total_stake'])

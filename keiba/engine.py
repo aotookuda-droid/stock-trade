@@ -533,9 +533,11 @@ def divergence_warnings(model, market, bets, others=None):
     return {'horses': horses, 'tickets': tickets}
 
 
-def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others=None, place_discount=None):
+def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others=None, place_discount=None,
+            with_orders=False):
     """race['scratched'] の馬番は出走取消として除く。複勝の範囲は発売開始時の頭数で決める。
-    others（{出どころ: {馬番: 勝率}}、Codex版など）は乖離チェックの表示だけに使い、買い目には使わない。"""
+    others（{出どころ: {馬番: 勝率}}、Codex版など）は乖離チェックの表示だけに使い、買い目には使わない。
+    with_orders なら着順分布（{(1着,2着,3着): 確率}）を 'orders' に入れて返す（判断時の保存用。JSON にはそのまま書けない）。"""
     scratched = set(race.get('scratched', []))
     horses = [h for h in race['horses'] if h['num'] not in scratched]
     sales_start = race.get('field_size_at_sales_start') or len(race['horses'])
@@ -561,7 +563,7 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others
     tp = ticket_probabilities(orders, 3)
     win = tp['win']
     market_win = _normalize({k: 1 / _low(win_odds[k]) for k in scores})
-    return {
+    out = {
         'race': race['race'],
         'bias': {'inner_outer': inner_outer, 'front_back': front_back},
         'pace': pace_label(pace),
@@ -583,6 +585,14 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others
         'pace_sensitivity': pace_sensitivity(bets, horses, inner_outer, front_back, odds, model_weight, market,
                                              gates, places, place_discount) if bets else None,
     }
+    if with_orders:
+        out['orders'] = orders
+    return out
+
+
+def orders_json(orders):
+    """着順分布を JSON 用に {'1>2>3': 確率} にする。丸めない（小さな確率が0になると答え合わせの損失が変わる）。"""
+    return {f'{a}>{b}>{c}': q for (a, b, c), q in orders.items()}
 
 
 PACE_JA = {'slow': 'スロー', 'middle': 'ミドル', 'high': 'ハイ'}
@@ -778,7 +788,9 @@ def finalize(race, path, ledger=None, ledger_path=None, extra_probs=None):
     validate_final(race)
     cap = weekend_cap(ledger, race['race_id']) if ledger is not None else RACE_CAP
     others = {name: {int(k): v for k, v in p.items()} for name, p in (extra_probs or {}).items()}
-    res = analyze(race, cap, others=others)
+    res = analyze(race, cap, others=others, with_orders=True)
+    # 判断時の着順分布（三連単・三連複の的中組の確率を事後に比べるため。勝率や3着以内の確率からは復元できない）
+    race['order_probs'] = {'final': orders_json(res.pop('orders'))}
     res['warning_review'] = race.get('warning_review')
     race['probabilities'] = decision_probabilities(race, res, extra_probs)
     # 検証用の参考試算（市場側を単勝の Harville だけにした旧方式相当）。台帳には入れず、後で公式払戻と照合する
@@ -792,8 +804,13 @@ def finalize(race, path, ledger=None, ledger_path=None, extra_probs=None):
         race['reference'][name] = {'model_weight': w, 'win_prob': r['win_prob'], **{k: r[k] for k in keep}}
     # 2・3着の補正 λ を入れた参考試算（混合率・温度・100倍除外は本番と同じ）。勝率は混合後の分布から集計し直したもの。
     # 3着以内の確率（place_prob）も残す。lambda_both は市場側が単勝代用のときだけ lambda_model と違う
+    # 着順分布も残す。三連単オッズがそろって lambda_both が lambda_model と同じ分布になるときは、重複を保存せず
+    # {'same_as': 'lambda_model'} とする（同じ分布を独立した2つの証拠として数えないため）
     for name, pd in REFERENCE_PLACE_DISCOUNTS.items():
-        r = analyze(race, cap, place_discount=pd)
+        r = analyze(race, cap, place_discount=pd, with_orders=True)
+        orders = orders_json(r.pop('orders'))
+        race['order_probs'][name] = {'same_as': 'lambda_model'} if (
+            name == 'lambda_both' and orders == race['order_probs'].get('lambda_model')) else orders
         race['reference'][name] = {'model_weight': MODEL_WEIGHT, 'place_discount': pd, 'market_source': r['market_source'],
                                    'win_prob': r['win_prob'], 'place_prob': r['place_prob'], **{k: r[k] for k in keep}}
     race['engine_config'] = engine_config()
