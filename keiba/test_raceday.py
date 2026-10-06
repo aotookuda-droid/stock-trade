@@ -77,6 +77,16 @@ class RacedayTest(unittest.TestCase):
         self.assertEqual(rec['reference']['market_only']['model_weight'], 0.0)
         for name in ('model_weight_0.5', 'market_only'):
             self.assertAlmostEqual(sum(rec['reference'][name]['win_prob'].values()), 1, places=3)
+        # 2・3着の補正 λ の参考試算（混合率・100倍除外は本番と同じ。台帳には入れない）
+        for name in ('lambda_model', 'lambda_both'):
+            ref = rec['reference'][name]
+            self.assertEqual(ref['model_weight'], engine.MODEL_WEIGHT)
+            self.assertAlmostEqual(sum(ref['win_prob'].values()), 1, places=3)
+            self.assertAlmostEqual(sum(ref['place_prob'].values()), 3, places=3)
+            self.assertIn('bets', ref)
+        self.assertEqual(rec['engine_config']['reference_place_discounts'],
+                         json.loads(json.dumps(engine.REFERENCE_PLACE_DISCOUNTS)))
+        self.assertEqual(kyoto['stake'], rec['result']['total_stake'])
         self.assertEqual(rec['engine_config']['model_weight'], engine.MODEL_WEIGHT)
         self.assertEqual(rec['result']['model_weight'], engine.MODEL_WEIGHT)
         # Codex の記録（10/4 は作成元が Claude、勝率の完成状態なし）は勝率を保存せず、理由を残す

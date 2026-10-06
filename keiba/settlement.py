@@ -36,7 +36,10 @@ PLANS = {'本番': lambda r: r['result']['bets'],
          '参考（単勝市場のみ）': lambda r: r['reference']['win_market_only']['bets'],
          # 2026/10/5〜の記録だけにある参考試算（混合率を本番と変えたもの）。無い記録では飛ばす
          '参考（混合率0.5）': lambda r: r['reference']['model_weight_0.5']['bets'],
-         '参考（市場のみ）': lambda r: r['reference']['market_only']['bets']}
+         '参考（市場のみ）': lambda r: r['reference']['market_only']['bets'],
+         # 2026/10/6〜の記録だけにある参考試算（2・3着の補正 λ。両側は市場側が単勝代用のときだけモデル側と違う）
+         '参考（λ・モデル側）': lambda r: r['reference']['lambda_model']['bets'],
+         '参考（λ・両側）': lambda r: r['reference']['lambda_both']['bets']}
 
 
 # 着順以外の出走状態。取消・除外は返還、競走中止・失格は不的中（返還しない）

@@ -1,5 +1,6 @@
 import math
 import unittest
+from itertools import permutations
 
 from keiba import engine
 
@@ -169,6 +170,61 @@ class EngineTest(unittest.TestCase):
         got = {tuple(b['horses']): b['prob'] for b in cands if b['type'] == '三連単'}
         self.assertAlmostEqual(got[(1, 2, 3)], tri[(1, 2, 3)])
         self.assertGreater(got[(1, 2, 3)], got[(3, 2, 1)])
+
+    # 2・3着の補正 λ（参考試算のみ）。1着の確率は変えず、三連単オッズの市場分布には掛けない
+    def test_benter_reduces_to_harville_and_keeps_win(self):
+        p = engine._normalize({1: 5.0, 2: 3.0, 3: 2.0, 4: 1.0, 5: 0.5})
+        tri = engine.harville(p)['trifecta']
+        got = engine.benter_orders(p, 1.0, 1.0)
+        for k, v in tri.items():
+            self.assertAlmostEqual(got[k], v)
+        disc = engine.benter_orders(p, .8, .7)
+        self.assertAlmostEqual(sum(disc.values()), 1.0)
+        win = engine.ticket_probabilities(disc, 3)['win']
+        for k, v in p.items():
+            self.assertAlmostEqual(win[k], v)
+        # 人気薄の2・3着が Harville より上がる
+        self.assertGreater(engine.ticket_probabilities(disc, 3)['place'][5], engine.harville(p)['place'][5])
+
+    def test_place_discount_paths(self):
+        scores = {1: 80, 2: 70, 3: 65, 4: 60, 5: 52}
+        win = {'1': 3.0, '2': 4.0, '3': 6.0, '4': 9.0, '5': 30.0}
+        tri = {f'{a}>{b}>{c}': 20.0 + 3 * a + b for (a, b, c) in permutations(scores, 3)}
+        both = engine.REFERENCE_PLACE_DISCOUNTS['lambda_both']
+        lm, lq = engine.PLACE_DISCOUNT_MODEL, engine.PLACE_DISCOUNT_WIN_MARKET
+        mw = engine.model_probabilities(scores)
+        # 重み1: モデルの Benter 分布そのもので、1着はモデル勝率のまま
+        got, src, _ = engine.order_distribution(scores, {'win': win}, 1.0, place_discount=both)
+        self.assertEqual(src, 'model_only')
+        self.assertEqual(got, engine.benter_orders(mw, *lm))
+        for k, v in engine.ticket_probabilities(got, 3)['win'].items():
+            self.assertAlmostEqual(v, mw[k])
+        # 重み0・三連単あり: λ は効かず、三連単市場のまま
+        plain, _, _ = engine.order_distribution(scores, {'win': win, 'sanrentan': tri}, 0.0)
+        got, src, _ = engine.order_distribution(scores, {'win': win, 'sanrentan': tri}, 0.0, place_discount=both)
+        self.assertEqual(src, 'sanrentan')
+        self.assertEqual(got, plain)
+        # 重み0・単勝代用: 両側なら市場側も Benter、モデル側だけなら Harville のまま
+        q = engine._normalize({int(k): 1 / v for k, v in win.items()})
+        got, src, _ = engine.order_distribution(scores, {'win': win}, 0.0, place_discount=both)
+        self.assertEqual(src, 'win_harville')
+        for k, v in engine.benter_orders(q, *lq).items():
+            self.assertAlmostEqual(got[k], v)
+        got, _, _ = engine.order_distribution(scores, {'win': win}, 0.0, place_discount={'model': lm})
+        for k, v in engine.harville(q)['trifecta'].items():
+            self.assertAlmostEqual(got[k], v)
+        # 現行の重み・三連単あり: モデル側の Benter と三連単市場の幾何平均。1着は混合後の分布から集計し直す
+        got, _, _ = engine.order_distribution(scores, {'win': win, 'sanrentan': tri}, engine.MODEL_WEIGHT,
+                                              place_discount={'model': lm})
+        m = engine.benter_orders(mw, *lm)
+        mk = engine._normalize({o: 1 / v for o, v in ((engine._ordered(k), v) for k, v in tri.items())})
+        w = engine.MODEL_WEIGHT
+        ref = engine._normalize({o: m[o] ** w * mk[o] ** (1 - w) for o in m})
+        for k, v in ref.items():
+            self.assertAlmostEqual(got[k], v)
+        # λ なしなら従来どおり
+        self.assertEqual(engine.order_distribution(scores, {'win': win, 'sanrentan': tri})[0],
+                         engine.order_distribution(scores, {'win': win, 'sanrentan': tri}, place_discount=None)[0])
 
     # 市場補正は着順分布1つに対して行い、期待値も配分も同じ分布と実オッズで計算する
     def test_order_distribution_pooling(self):

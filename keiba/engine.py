@@ -31,6 +31,14 @@ SOFTMAX_TEMP = 8.0
 # 判断時に 0.5 と市場のみ（0.0）の参考試算も同じ入力・オッズで保存し（台帳には入れない）、記録がたまってから見直す
 MODEL_WEIGHT = 0.25
 REFERENCE_MODEL_WEIGHTS = {'model_weight_0.5': 0.5, 'market_only': 0.0}
+# 参考試算だけに使う（2026/10/6〜、買い目・台帳には使わない）: 2・3着の Benter 型補正 (λ2, λ3)。
+# P(2着=b | 1着=a) ∝ p_b^λ2、3着も λ3 で同じ形（λ=1 で Harville）。2021〜2024年の重賞で推定し、2025年〜で
+# 三連単の着順の対数損失が下がった（keiba/reports/calibration.md）。モデル側は客観能力の勝率で、単勝代用の市場側は
+# 単勝市場で推定した値。三連単オッズの市場分布には掛けない。本番採用・100倍除外の解除・混合率の変更は同時にしない
+PLACE_DISCOUNT_MODEL = (0.797, 0.685)
+PLACE_DISCOUNT_WIN_MARKET = (0.807, 0.692)
+REFERENCE_PLACE_DISCOUNTS = {'lambda_model': {'model': PLACE_DISCOUNT_MODEL},
+                             'lambda_both': {'model': PLACE_DISCOUNT_MODEL, 'win_market': PLACE_DISCOUNT_WIN_MARKET}}
 # 判断記録に残す設定の版。PACE_FIT・PACE_PRIOR・加減点などを変えたら日付を更新する（期間の途中で頻繁に変えない）
 CONFIG_VERSION = '2026-10-05'
 TAKEOUT_WIN = 0.20
@@ -216,7 +224,7 @@ def win_probabilities(scores, win_odds):
     return _normalize(blended)
 
 
-def order_distribution(scores, odds, model_weight=MODEL_WEIGHT, market='auto'):
+def order_distribution(scores, odds, model_weight=MODEL_WEIGHT, market='auto', place_discount=None):
     """上位3頭の着順（1着,2着,3着）ごとの確率。全券種の的中確率と資金配分はこの1つの分布から出す。
 
     モデル側はモデル勝率の Harville 式。市場側は三連単オッズ（出走馬の全組合せが揃っている場合）の
@@ -224,17 +232,22 @@ def order_distribution(scores, odds, model_weight=MODEL_WEIGHT, market='auto'):
     model_weight : 1-model_weight に混ぜて正規化する。0.5 なら着順ごとの幾何平均 √(モデル×市場) を正規化したもので、
     市場がほぼ否定した着順は混ぜた後も小さくなる（算術平均のようにモデル確率の半分が残るわけではない）。
     market='win' なら三連単があっても単勝の Harville を使う（旧方式相当。検証用の参考試算に使う）。
+    place_discount（参考試算用）は {'model': (λ2, λ3), 'win_market': (λ2, λ3)} で、指定した側の Harville を
+    Benter 型（benter_orders）に替える。三連単オッズの市場分布には掛けない。None なら本番と同じ。
     戻り値 ({着順: 確率}, 市場側の出どころ, 三連単オッズが欠けていた着順の数)。
     """
     nums = list(scores)
-    model = harville(model_probabilities(scores))['trifecta']
+    pd = place_discount or {}
+    model = benter_orders(model_probabilities(scores), *pd['model']) if 'model' in pd \
+        else harville(model_probabilities(scores))['trifecta']
     missing = sanrentan_missing(odds, nums)
     if market == 'auto' and not missing:
         tri = {_ordered(k): _low(v) for k, v in odds['sanrentan'].items()}
         market, source = _normalize({o: 1 / tri[o] for o in model}), 'sanrentan'
     else:
         win = _normalize({k: 1 / _low(odds['win'][str(k)]) for k in nums})
-        market, source = harville(win)['trifecta'], 'win_harville'
+        market = benter_orders(win, *pd['win_market']) if 'win_market' in pd else harville(win)['trifecta']
+        source = 'win_harville'
     if model_weight >= 1:
         return model, 'model_only', missing
     pooled = {o: math.exp(model_weight * math.log(model[o]) + (1 - model_weight) * math.log(market[o]))
@@ -313,6 +326,16 @@ def harville(p, places=3):
         umaren[pair] = umaren.get(pair, 0.0) + umatan[(a, b)]
     return {'place': place, 'wide': wide, 'umaren': umaren, 'umatan': umatan,
             'trio': trio, 'trifecta': trifecta}
+
+
+def benter_orders(p, lam2, lam3):
+    """勝率から上位3頭の着順分布（Benter 型）。P(a,b,c) = p_a × p_b^λ2/Σ_{j≠a} p_j^λ2 × p_c^λ3/Σ_{j≠a,b} p_j^λ3。
+    λ2=λ3=1 なら harville() の trifecta と同じ。1着への集約は p のまま変わらない。"""
+    s2 = {k: v ** lam2 for k, v in p.items()}
+    s3 = {k: v ** lam3 for k, v in p.items()}
+    t2, t3 = sum(s2.values()), sum(s3.values())
+    return {(a, b, c): p[a] * s2[b] / (t2 - s2[a]) * s3[c] / (t3 - s3[a] - s3[b])
+            for a, b, c in permutations(p, 3)}
 
 
 def wakuren_probabilities(umaren, gates):
@@ -479,12 +502,12 @@ def bets_outcome(bets, orders, gates=None, places=3):
     return {'return': expected, 'loss': loss}
 
 
-def pace_sensitivity(bets, horses, inner_outer, front_back, odds, model_weight, market, gates, places):
+def pace_sensitivity(bets, horses, inner_outer, front_back, odds, model_weight, market, gates, places, place_discount=None):
     """各ペースに決め打ちした場合の、決めた買い目の回収期待と全損の確率（展開を読み違えたときの損失の目安）。"""
     out = {}
     for pace in PACE_FIT:
         scores = {h['num']: total_score(h, pace, inner_outer, front_back) for h in horses}
-        orders, _, _ = order_distribution(scores, odds, model_weight, market)
+        orders, _, _ = order_distribution(scores, odds, model_weight, market, place_discount)
         out[pace] = bets_outcome(bets, orders, gates, places)
     return out
 
@@ -510,7 +533,7 @@ def divergence_warnings(model, market, bets, others=None):
     return {'horses': horses, 'tickets': tickets}
 
 
-def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others=None):
+def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others=None, place_discount=None):
     """race['scratched'] の馬番は出走取消として除く。複勝の範囲は発売開始時の頭数で決める。
     others（{出どころ: {馬番: 勝率}}、Codex版など）は乖離チェックの表示だけに使い、買い目には使わない。"""
     scratched = set(race.get('scratched', []))
@@ -531,11 +554,12 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others
     odds = {k: {kk: vv for kk, vv in v.items() if all(int(x) not in scratched for x in re.split('[->]', kk))}
             if k != 'wakuren' else v for k, v in race['odds'].items()}
     gates = {h['num']: h['gate'] for h in horses} if all('gate' in h for h in horses) else None
-    orders, market_source, tri_missing = order_distribution(scores, odds, model_weight, market)
+    orders, market_source, tri_missing = order_distribution(scores, odds, model_weight, market, place_discount)
     cands = [b for b in candidate_bets(orders, odds, gates, places)
              if not involves_longshot(b, win_odds, horses)]
     bets, skip, growth = allocate(cands, orders, cap, gates, places)
-    win = ticket_probabilities(orders, places)['win']
+    tp = ticket_probabilities(orders, 3)
+    win = tp['win']
     market_win = _normalize({k: 1 / _low(win_odds[k]) for k in scores})
     return {
         'race': race['race'],
@@ -550,13 +574,14 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others
         'sanrentan_total': len(scores) * (len(scores) - 1) * (len(scores) - 2),
         'scores': scores,
         'win_prob': {k: win.get(k, 0.0) for k in scores},
+        'place_prob': {k: tp['place'].get(k, 0.0) for k in scores},
         'bets': bets,
         'total_stake': sum(b['stake'] for b in bets),
         'growth': growth,
         'skip_reason': skip,
         'warnings': divergence_warnings(model_probabilities(scores), market_win, bets, others),
         'pace_sensitivity': pace_sensitivity(bets, horses, inner_outer, front_back, odds, model_weight, market,
-                                             gates, places) if bets else None,
+                                             gates, places, place_discount) if bets else None,
     }
 
 
@@ -744,7 +769,7 @@ def engine_config():
     return {'version': CONFIG_VERSION, 'model_weight': MODEL_WEIGHT, 'softmax_temp': SOFTMAX_TEMP,
             'market': 'sanrentan（揃わなければ単勝の Harville）', 'ev_threshold': EV_THRESHOLD,
             'pace_fit': PACE_FIT, 'pace_prior': PACE_PRIOR, 'minus': MINUS_WEIGHTS, 'plus': PLUS_WEIGHTS,
-            'reference_model_weights': REFERENCE_MODEL_WEIGHTS}
+            'reference_model_weights': REFERENCE_MODEL_WEIGHTS, 'reference_place_discounts': REFERENCE_PLACE_DISCOUNTS}
 
 
 def finalize(race, path, ledger=None, ledger_path=None, extra_probs=None):
@@ -765,6 +790,12 @@ def finalize(race, path, ledger=None, ledger_path=None, extra_probs=None):
         r = analyze(race, cap, model_weight=w)
         # 勝率も判断時の値をそのまま残す（後日の再計算に頼らず、本番との確率の精度を比べるため）
         race['reference'][name] = {'model_weight': w, 'win_prob': r['win_prob'], **{k: r[k] for k in keep}}
+    # 2・3着の補正 λ を入れた参考試算（混合率・温度・100倍除外は本番と同じ）。勝率は混合後の分布から集計し直したもの。
+    # 3着以内の確率（place_prob）も残す。lambda_both は市場側が単勝代用のときだけ lambda_model と違う
+    for name, pd in REFERENCE_PLACE_DISCOUNTS.items():
+        r = analyze(race, cap, place_discount=pd)
+        race['reference'][name] = {'model_weight': MODEL_WEIGHT, 'place_discount': pd, 'market_source': r['market_source'],
+                                   'win_prob': r['win_prob'], 'place_prob': r['place_prob'], **{k: r[k] for k in keep}}
     race['engine_config'] = engine_config()
     commit(race, path, ledger, ledger_path, res['total_stake'])
     return res
