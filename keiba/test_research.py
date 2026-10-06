@@ -65,12 +65,33 @@ class CalibrationTest(unittest.TestCase):
         self.assertIsNotNone(l1)
         self.assertEqual((l2, l3), (None, None))
 
+    def test_demoted_horse_keeps_its_official_place(self):
+        r = card([('1', 2.0), ('2', 4.0), ('3(降)', 8.0), ('4', 9.0), ('5', 20.0)])
+        self.assertEqual(C.finish(r, 3), 3)
+        self.assertIsNotNone(C.per_race(r)[2])
+
     def test_kappa_only_discounts_longshots(self):
         r = card([('1', 2.0), ('2', 4.0), ('3', 8.0), ('4', 150.0), ('5', 300.0)])
         q, p = C.market_win(r), C.win_probs(r, kappa=.5)
         self.assertLess(p[4] / q[4], 1)
         self.assertAlmostEqual(p[4] / p[5], q[4] / q[5])
         self.assertAlmostEqual(p[1] / p[2], q[1] / q[2])
+
+
+    def test_pooled_matches_engine_mixing(self):
+        from keiba.research import calibration_model as CM
+        r = card([('1', 2.0), ('2', 4.0), ('3', 8.0), ('中', 15.0), ('4', 30.0)])
+        r['obj'] = {1: 0.0, 2: -3.0, 3: -5.0, 4: -8.0, 5: -10.0}
+        one = (1.0, 1.0)
+        market = C.benter_orders(C.market_win(r))
+        for k, v in CM.pooled(r, 0.0, one, one).items():
+            self.assertAlmostEqual(v, market[k])
+        scores = r['obj']
+        odds = {'win': {str(h['num']): h['odds'] for h in r['horses']}}
+        ref, _, _ = engine.order_distribution(scores, odds, model_weight=.25, market='win')
+        got = CM.pooled(r, .25, one, one)
+        for k, v in ref.items():
+            self.assertAlmostEqual(got[k], v)
 
 
 if __name__ == '__main__':

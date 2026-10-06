@@ -2,12 +2,13 @@
 
 使い方: python3 -m keiba.research.calibration keiba/data/graded_2021_2026.json keiba/reports/calibration_results.md
 （推定値は同名の .json にも保存。考察と判断材料は keiba/reports/calibration.md）
+3つ目以降の引数に別のデータファイルを渡すと合わせて使う（例: 2016〜2021年の重賞を足して推定を増やす）
 
 - 市場の勝率 q: 確定単勝オッズの逆数を、発売対象馬（取消・除外以外。競走中止・失格を含む）で正規化したもの
 - 単勝補正: p ∝ q^β × κ^[単勝 LONGSHOT_ODDS 倍以上]。β<1 なら人気薄を持ち上げ、β>1 なら人気薄を割り引く（対数オッズへの単調な補正）。
   κ は100倍以上だけの追加の割引（engine.LONGSHOT_ODDS の除外を確率の補正で置き換えられるかを見るため）
 - 2・3着補正（Benter 型）: P(2着=b | 1着=a) = p_b^λ2 / Σ_{j≠a} p_j^λ2、3着も λ3 で同様。λ=1 で Harville 式
-- 推定は TRAIN_YEARS、評価は残りの年。指標は勝ち馬・2着・3着それぞれの条件付き対数損失（同着の着順は評価しない）と、
+- 推定は TEST_FROM より前、評価は以降。指標は勝ち馬・2着・3着それぞれの条件付き対数損失（同着の着順は評価しない）と、
   馬連・ワイド・三連複の的中組に付けた確率（単勝由来 vs その券種の払戻から逆算した市場確率）
 
 過去データは確定オッズで、運用で使う発走10分前のオッズではない。
@@ -15,13 +16,14 @@
 import json
 import math
 import random
+import re
 import sys
 from collections import Counter
 from pathlib import Path
 
 from keiba import engine
 
-TRAIN_YEARS = ('2021', '2022', '2023', '2024')
+TEST_FROM = '2025-01-01'  # これより前で推定し、以降で評価する
 PAYOUT = {'馬連': 0.775, 'ワイド': 0.775, '三連複': 0.75}
 HITS = {'馬連': 1, 'ワイド': 3, '三連複': 1}
 BANDS = [(1, 3), (3, 5), (5, 10), (10, 20), (20, 50), (50, 100), (100, 200), (200, 10000)]
@@ -34,9 +36,15 @@ def sold(r):
     return [h for h in r['horses'] if h['odds'] and h['rank'] not in NOT_SOLD]
 
 
+def place_of(h):
+    """確定着順（降着の「3(降)」は3着）。中止・失格・取消・除外は None。"""
+    m = re.match(r'(\d+)', h['rank'])
+    return int(m.group(1)) if m else None
+
+
 def finish(r, pos):
     """pos 着の馬番。同着（または該当なし）なら None。"""
-    xs = [h['num'] for h in sold(r) if h['rank'].isdigit() and int(h['rank']) == pos]
+    xs = [h['num'] for h in sold(r) if place_of(h) == pos]
     return xs[0] if len(xs) == 1 else None
 
 
@@ -226,18 +234,18 @@ def longshot_counts(races, kw):
                 ew += p[h['num']]
                 et += place[h['num']]
                 w += h['rank'] == '1'
-                t += h['rank'].isdigit() and int(h['rank']) <= 3
+                t += (place_of(h) or 99) <= 3
     return n, ew, w, et, t
 
 
 def split(races):
-    train = [r for r in races if r['date'][:4] in TRAIN_YEARS]
-    test = [r for r in races if r['date'][:4] not in TRAIN_YEARS]
+    train = [r for r in races if r['date'] < TEST_FROM]
+    test = [r for r in races if r['date'] >= TEST_FROM]
     return train, test
 
 
 def counts(races):
-    c = Counter(h['rank'] for r in races for h in r['horses'] if not h['rank'].isdigit())
+    c = Counter(h['rank'] for r in races for h in r['horses'] if place_of(h) is None)
     return c
 
 
@@ -249,7 +257,7 @@ def report(races):
     c = counts(races)
     L = ['# 単勝の市場確率の補正と Harville 式の2・3着補正（年分割の検証）', '',
          f'対象: JRA 平地重賞 {len(races)} レース（{min(r["date"] for r in races)}〜{max(r["date"] for r in races)}）。'
-         f'推定（学習）: {TRAIN_YEARS[0]}〜{TRAIN_YEARS[-1]}年 {len(train)} レース、評価: {min(r["date"] for r in test)[:4]}年〜 {len(test)} レース。',
+         f'推定（学習）: {min(r["date"] for r in train)[:4]}〜{int(TEST_FROM[:4]) - 1}年 {len(train)} レース、評価: {min(r["date"] for r in test)[:4]}年〜 {len(test)} レース。',
          '確定単勝オッズ・着順・払戻のみ使用（モデルの点数は使わない）。', '',
          f'分母: 発売対象馬（確定オッズあり）。競走中止 {c.get("中", 0)} 頭・失格 {c.get("失", 0)} 頭は分母に残して着外、'
          f'取消 {c.get("取", 0)} 頭・除外 {c.get("除", 0)} 頭は返還なので外す（market_check.py も同じ扱いに直した）。'
@@ -323,8 +331,17 @@ def report(races):
     return '\n'.join(L), est
 
 
-def main(data, out=None):
-    races = [r for r in json.loads(Path(data).read_text(encoding='utf-8')) if usable(r)]
+def load(*paths):
+    """複数のデータファイルを race_id で重複を除いて合わせる。"""
+    races = {}
+    for path in paths:
+        for r in json.loads(Path(path).read_text(encoding='utf-8')):
+            races.setdefault(r['race_id'], r)
+    return sorted((r for r in races.values() if usable(r)), key=lambda r: r['date'])
+
+
+def main(data, out=None, *extra):
+    races = load(data, *extra)
     text, est = report(races)
     if out:
         Path(out).write_text(text + '\n', encoding='utf-8')

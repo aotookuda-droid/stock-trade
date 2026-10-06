@@ -12,6 +12,7 @@
 """
 import json
 import math
+import re
 import sys
 from itertools import permutations
 from pathlib import Path
@@ -64,7 +65,7 @@ def place_calibration(races):
         p = market_win(r)
         tri = engine.harville(p)['trifecta']
         place = engine.ticket_probabilities(tri, 3)['place']
-        top3 = {h['num'] for h in r['horses'] if h['rank'].isdigit() and int(h['rank']) <= 3}
+        top3 = {h['num'] for h in r['horses'] if re.match(r'[123](?!\d)', h['rank'])}  # 降着の「3(降)」も3着
         for n, q in place.items():
             for b in bins:
                 if b[0] <= q < b[1]:
