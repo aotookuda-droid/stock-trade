@@ -6,5 +6,37 @@
  "lam_model_test": [
   0.6540500451681708,
   0.5204309851385842
- ]
+ ],
+ "lam_market": [
+  0.8072619185652596,
+  0.6920385935656574
+ ],
+ "lam_market_kappa": [
+  0.7784257865805471,
+  0.6570556809705568
+ ],
+ "kappa": 0.579005848291885,
+ "counts": {
+  "train": 395,
+  "test": 215,
+  "test_top3": 212
+ },
+ "meta": {
+  "inputs": {
+   "keiba/data/graded_2021_2026.json": "38591141b4a964e5b5f2072717a290ea4b411de5e90fdcb4b8e9752c4c6d1b06",
+   "/Users/aotookuda/Downloads/keiba/stock-trade/keiba/reports/ability_calibration.json": "280d4d74f54c9c6d43db6cd565894c45dcca45f59d077d0cb2966bcb98033b13",
+   "/Users/aotookuda/Downloads/keiba/stock-trade/keiba/reports/calibration_results.json": "c0023afa42e3e7d7554e4bbd474f7aed03407914cb89c3aa809349c320198cd6"
+  },
+  "test_from": "2025-01-01",
+  "softmax_temp": 8.0,
+  "weights": [
+   0.25,
+   0.5,
+   0.0
+  ],
+  "bootstrap": {
+   "n": 2000,
+   "seed": 0
+  }
+ }
 }

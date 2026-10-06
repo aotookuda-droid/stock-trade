@@ -13,6 +13,7 @@
 
 過去データは確定オッズで、運用で使う発走10分前のオッズではない。
 """
+import hashlib
 import json
 import math
 import random
@@ -136,6 +137,18 @@ def variants(est):
     }
 
 
+def trifecta_losses(races, **kw):
+    """レースごとの三連単の着順の対数損失（1〜3着の条件付き損失の和）。"""
+    return [sum(per_race(r, **kw)) for r in races]
+
+
+def boot(d, n_boot=2000, seed=0):
+    """平均と、レース単位のブートストラップ 95% 区間。"""
+    rng = random.Random(seed)
+    means = sorted(sum(rng.choice(d) for _ in d) / len(d) for _ in range(n_boot))
+    return sum(d) / len(d), means[int(.025 * n_boot)], means[int(.975 * n_boot)]
+
+
 def paired_ci(races, i, kw, base=None, n_boot=2000, seed=0):
     """補正あり − 補正なし の対数損失の差の平均と、レース単位のブートストラップ 95% 区間。"""
     diffs = []
@@ -143,9 +156,7 @@ def paired_ci(races, i, kw, base=None, n_boot=2000, seed=0):
         x, y = per_race(r, **kw)[i], per_race(r, **(base or {}))[i]
         if x is not None and y is not None:
             diffs.append(x - y)
-    rng = random.Random(seed)
-    means = sorted(sum(rng.choice(diffs) for _ in diffs) / len(diffs) for _ in range(n_boot))
-    return sum(diffs) / len(diffs), means[int(.025 * n_boot)], means[int(.975 * n_boot)], len(diffs)
+    return (*boot(diffs, n_boot, seed), len(diffs))
 
 
 def benter_orders(p, lam2=1.0, lam3=1.0):
@@ -238,6 +249,14 @@ def longshot_counts(races, kw):
     return n, ew, w, et, t
 
 
+def zero_longshot_wins(races, kw):
+    out = 1.0
+    for r in races:
+        p = win_probs(r, kw.get('beta', 1.0), kw.get('kappa', 1.0))
+        out *= 1 - sum(p[h['num']] for h in sold(r) if h['odds'] >= engine.LONGSHOT_ODDS)
+    return out
+
+
 def split(races):
     train = [r for r in races if r['date'] < TEST_FROM]
     test = [r for r in races if r['date'] >= TEST_FROM]
@@ -281,12 +300,37 @@ def report(races):
             L.append(f'| {label} | {n} | {w} | {wr * 100:.2f}% | {imp * 100:.2f}% | {cal * 100:.2f}% | {wr / imp:.2f} | {roi * 100:.0f}% |')
         L.append('')
     L += ['## 3. 評価年の対数損失（小さいほど良い）', '',
-          '各着順の条件付き対数損失（2着は1着を、3着は1・2着を既知として）。合計は三連単の着順の対数損失に等しい。', '',
-          '| 方式 | 勝ち馬 | 2着 | 3着 | 合計 |', '|---|---:|---:|---:|---:|']
+          '### 着順ごと', '',
+          '各着順の条件付き対数損失（2着は1着を、3着は1・2着を既知として）。着順ごとに評価できるレースが違う'
+          '（同着を除くため）ので、この3列は足さない。', '']
+    ns = [sum(1 for r in test if per_race(r)[i] is not None) for i in range(3)]
+    L += [f'| 方式 | 勝ち馬（{ns[0]}） | 2着（{ns[1]}） | 3着（{ns[2]}） |', '|---|---:|---:|---:|']
     for name, kw in vs.items():
         ls = [mean_loss(test, i, **kw) for i in range(3)]
-        L.append(f'| {name} | {ls[0]:.4f} | {ls[1]:.4f} | {ls[2]:.4f} | {sum(ls):.4f} |')
-    L += ['', '補正なしとの差（補正あり − 補正なし、負なら改善）と、レース単位のブートストラップ 95% 区間:', '',
+        L.append(f'| {name} | {ls[0]:.4f} | {ls[1]:.4f} | {ls[2]:.4f} |')
+    common = [r for r in test if None not in per_race(r)]
+    L += ['', '### 三連単の着順（上位3頭が一意に決まる共通のレース）', '',
+          f'1〜3着がすべて一意の {len(common)} レースで、レースごとに3つの損失を足してから平均した'
+          '（三連単の着順の対数損失）。差は補正なしとの差（負なら改善）で、区間はレース単位のブートストラップ 95%。', '',
+          '| 方式 | 三連単の着順 | 差 | 95% 区間 |', '|---|---:|---:|---|']
+    base = trifecta_losses(common)
+    years = sorted({r['date'][:4] for r in common})
+    by_year = {}
+    for name, kw in vs.items():
+        cur = trifecta_losses(common, **kw)
+        if name == list(vs)[0]:
+            L.append(f'| {name} | {sum(cur) / len(cur):.4f} | — | |')
+            continue
+        d = [x - y for x, y in zip(cur, base)]
+        m, lo, hi = boot(d)
+        L.append(f'| {name} | {sum(cur) / len(cur):.4f} | {m:+.4f} | [{lo:+.4f}, {hi:+.4f}] |')
+        by_year[name] = [(y, [x for x, r in zip(d, common) if r['date'][:4] == y]) for y in years]
+    L += ['', '年ごとの差（三連単の着順、補正なしとの差。区切りごとに向きがそろうかを見る）:', '',
+          '| 方式 | ' + ' | '.join(f'{y}年（{sum(1 for r in common if r["date"][:4] == y)}）' for y in years) + ' |',
+          '|---|' + '---:|' * len(years)]
+    for name, rows in by_year.items():
+        L.append(f'| {name} | ' + ' | '.join(f'{sum(d) / len(d):+.4f}' for _, d in rows) + ' |')
+    L += ['', '着順ごとの差と区間:', '',
           '| 方式 | 着順 | 差 | 95% 区間 | レース数 |', '|---|---|---:|---|---:|']
     for name, kw in list(vs.items())[1:]:
         for i, pos in enumerate(('勝ち馬', '2着', '3着')):
@@ -296,7 +340,9 @@ def report(races):
             if abs(m) < 1e-12 and lo == hi:
                 continue
             L.append(f'| {name} | {pos} | {m:+.4f} | [{lo:+.4f}, {hi:+.4f}] | {n} |')
-    L += ['', '学習年での同じ差（推定に使ったデータなので、改善するのは当然。評価年と大きくずれないかを見る）:', '',
+    L += ['', '勝ち馬の κ の区間は、評価年に100倍以上の勝ちが0件のため狭く出る。再抽出しても大穴が勝ったときの損失が一度も入らず、'
+          '学習で決めた κ の推定誤差も含まないので、将来の改善の証拠にはならない（§5 の0勝となる確率も参照）。', '']
+    L += ['学習年での同じ差（推定に使ったデータなので、改善するのは当然。評価年と大きくずれないかを見る）:', '',
           '| 方式 | 勝ち馬 | 2着 | 3着 |', '|---|---:|---:|---:|']
     for name, kw in list(vs.items())[1:]:
         d = [mean_loss(train, i, **kw) - mean_loss(train, i) for i in range(3)]
@@ -328,6 +374,11 @@ def report(races):
         for name, kw in q100.items():
             L.append('| {} | {} | {:.1f} | {} | {:.1f} | {} |'.format(name, *longshot_counts(rs, kw)))
         L.append('')
+    L += ['評価年に100倍以上が1頭も勝たない確率（レースごとに「100倍以上の馬の勝率の合計」で勝つとし、レース間は独立と置いた）:', '',
+          '| 方式 | 0勝の確率 |', '|---|---:|']
+    for name, kw in q100.items():
+        L.append(f'| {name} | {zero_longshot_wins(test, kw) * 100:.1f}% |')
+    L += ['', '0勝は市場の見積もりどおりでも起こり得る。勝ち数の区間（calibration.md）は学習期間も含む参考の集計で、外部検証ではない。']
     return '\n'.join(L), est
 
 
@@ -340,12 +391,25 @@ def load(*paths):
     return sorted((r for r in races.values() if usable(r)), key=lambda r: r['date'])
 
 
+def sha256(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def meta(races, paths):
+    """別の期間・環境で同じ推定を再現するための記録（入力データのハッシュ・期間・件数・分割）。"""
+    train, test = split(races)
+    return {'inputs': {str(p): sha256(p) for p in paths}, 'test_from': TEST_FROM,
+            'train': [train[0]['date'], train[-1]['date'], len(train)], 'test': [test[0]['date'], test[-1]['date'], len(test)],
+            'longshot_odds': engine.LONGSHOT_ODDS, 'kappa_grid': [KAPPAS[0], KAPPAS[-1]], 'bootstrap': {'n': 2000, 'seed': 0}}
+
+
 def main(data, out=None, *extra):
     races = load(data, *extra)
     text, est = report(races)
     if out:
         Path(out).write_text(text + '\n', encoding='utf-8')
-        Path(out).with_suffix('.json').write_text(json.dumps(est, ensure_ascii=False, indent=1) + '\n', encoding='utf-8')
+        Path(out).with_suffix('.json').write_text(json.dumps({**est, 'meta': meta(races, (data, *extra))},
+                                                             ensure_ascii=False, indent=1) + '\n', encoding='utf-8')
     print(text)
 
 
