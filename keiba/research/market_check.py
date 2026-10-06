@@ -22,14 +22,19 @@ PAYOUT = {'単勝': 0.80, '複勝': 0.80, '馬連': 0.775, 'ワイド': 0.775, '
 BANDS = [(1, 3), (3, 5), (5, 10), (10, 20), (20, 50), (50, 100), (100, 10000)]
 
 
+NOT_SOLD = ('取', '除')  # 取消・除外は返還（発売対象外）。競走中止・失格は発売対象なので分母に残し、着外として扱う
+
+
+def sold(r):
+    return [h for h in r['horses'] if h['odds'] and h['rank'] not in NOT_SOLD]
+
+
 def usable(r):
-    hs = [h for h in r['horses'] if h['odds'] and h['rank'].isdigit()]
-    return len(hs) >= 5 and r['payouts'].get('単勝') and r['payouts'].get('三連単')
+    return len(sold(r)) >= 5 and r['payouts'].get('単勝') and r['payouts'].get('三連単')
 
 
 def market_win(r):
-    hs = [h for h in r['horses'] if h['odds'] and h['rank'].isdigit()]
-    return engine._normalize({h['num']: 1 / h['odds'] for h in hs})
+    return engine._normalize({h['num']: 1 / h['odds'] for h in sold(r)})
 
 
 def win_bands(races):
@@ -40,8 +45,8 @@ def win_bands(races):
         imp = 0.0
         for r in races:
             p = market_win(r)
-            for h in r['horses']:
-                if h['odds'] and h['rank'].isdigit() and lo <= h['odds'] < hi:
+            for h in sold(r):
+                if lo <= h['odds'] < hi:
                     n += 1
                     imp += p[h['num']]
                     if h['rank'] == '1':
