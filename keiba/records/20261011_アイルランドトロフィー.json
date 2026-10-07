@@ -1,0 +1,380 @@
+{
+  "race": "2026/10/11 東京11R アイルランドトロフィー(G2) 芝1800 15:45発走",
+  "race_id": "202605040411",
+  "surface": "芝",
+  "status": "draft_1007（特別登録段階。枠順・馬番・gate_zone・枠替わり加減点・調教/厩舎コメントは枠順確定後に確定）",
+  "bias": {
+    "results": []
+  },
+  "odds": {},
+  "payout": null,
+  "pace_note": "ハナ候補（過去5走で1角1番手2回以上）1頭: テリオスララ（大阪城S・初音S）→ PACE_PRIOR 1頭（スロー35.5%・ミドル29%・ハイ35.5%）。前走府中牝馬Sを逃げ切ったセキトバイーストも主張しうるが、5走中のハナは1回で番手でも運べる。テリオスララは府中牝馬Sで2番手から16着(5.4差)、鞍上未定。東京芝1800は2角までが短く隊列が決まりやすい。過去10年（府中牝馬S時代含む）は逃げ2-2/10・先行1-8/41・差し4-11/47・追込3-9/39で脚質の偏り小。ハイがスローを上回る根拠は弱く、前走逃げ好走馬（セキトバイースト・ワタシマツワ）にfront_runner_bad_paceは付けない。初期値の上書きは枠順・騎手確定後に判断。18頭登録（フルゲート18）",
+  "rule_check_note": "10/7 RULES.md §5 の全項目を netkeiba 特別登録馬柱（shutuba_past）・各前走の結果ページ・全戦績で照合。騎手はnetkeibaリーディング(10/7時点・全国・勝利数順)で照合。jockey_downgrade=前走騎手20位以内→今回21位以下。top_jockey_switch=今回20位以内かつ前走より10位以上上。鞍上未定（○○）の馬は枠順確定後に判定。weight_increase=前走比+1kg以上、weight_drop=前走比−2kg以上。距離変更は前走との差400m以上（実績=今回距離±100mで3勝以上3着内）。second_start=前走が3ヵ月以上の休養明けで今回が叩き2戦目。long_layoff=半年以上。fillies_to_open=前走牝馬限定→混合。course_repeater=同レース（旧名含む）で3着以内。front_runner_bad_pace=前走逃げ好走かつハイ≥スロー見込み。未判定: turf_to_outer/turf_to_inner/lucky_trip（枠順待ち）、stable_concern/temperament/hill_23/final_work_strong/first_blinker/outside_farm（調教・厩舎コメント・馬具は枠順確定後）、first_after_transfer/first_after_gelding（未確認）、weight_change_15（当日）、bloodline_ground（当日馬場）。",
+  "horses": [
+    {
+      "num": null,
+      "gate": null,
+      "name": "カムニャック",
+      "ability": 80,
+      "style": "差し",
+      "gate_zone": null,
+      "early_positions": [
+        7,
+        4,
+        3,
+        6,
+        11
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "VM2着0.2差(2人)・阪神牝馬S2着0.0差(上がり最速)。オークス・ローズS(阪神外1800)勝ち、1800は守備範囲。秋華賞16着(1人・1.9差)は先行して失速、敗因不明のため割引は控えめ。5ヵ月休養明け（半年未満）。56kg据え置き、川田継続。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 2.0
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "クイーンズウォーク",
+      "ability": 76,
+      "style": "差し",
+      "gate_zone": null,
+      "early_positions": [
+        8,
+        5,
+        7,
+        13
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "VM3着0.5差・金鯱賞3着0.1差(1人)・天皇賞秋9着0.4差。昨年VM2着・金鯱賞勝ちのGⅠ級。5ヵ月休養明け（半年未満）。56→55kg(−1kgで対象外)。西村淳継続。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 5.1
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ジョスラン",
+      "ability": 74,
+      "style": "差し",
+      "gate_zone": null,
+      "early_positions": [
+        8,
+        7,
+        6,
+        5,
+        7
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "小倉牝馬S(GⅢ)勝ち・紫苑S2着0.0差・秋華賞4着0.5差(6-9-11-13と後退から差し返し)。VM8着0.7差。5ヵ月休養明け。前走VM(1月から3.7ヵ月ぶり)で叩いたが今回も中20週のためsecond_startは付けない。戸崎(10位)→ルメール(1位)は差9でtop_jockey_switch対象外。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 7.8
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ラヴァンダ",
+      "ability": 72,
+      "style": "差し",
+      "gate_zone": null,
+      "early_positions": [
+        4,
+        8,
+        4,
+        9,
+        4
+      ],
+      "minus": [],
+      "plus": [
+        "course_repeater",
+        "second_start"
+      ],
+      "notes": "昨年アイルランドT勝ち(4人)→course_repeater。中京記念(GⅢ)勝ち0.1差・東京新聞杯2着0.1差。VM7着0.7・阪神牝馬S8着0.7。前走中京記念はVMから3ヵ月ぶり→叩き2戦目second_start。岩田望(2位)→横山和(9位)はともに20位以内で減点なし。56kg据え置き。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 10.1
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "セキトバイースト",
+      "ability": 72,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        1,
+        3,
+        3,
+        4,
+        3
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "府中牝馬S(GⅢ・東京1800稍重)を逃げて0.5差完勝、2着は13番手からの差しで前残り馬場ではない→lucky_last_race付けず。エリ女6着0.6差。昨年アイルランドT10着(3人)。前走逃げ好走だが、ハナ候補は1頭でハイがスローを上回るとは見込まないためfront_runner_bad_paceは付けない（枠順確定後に再判定）。56→55kg。浜中継続。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 10.5
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ニシノティアモ",
+      "ability": 70,
+      "style": "差し",
+      "gate_zone": null,
+      "early_positions": [
+        7,
+        2,
+        10,
+        2,
+        9
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "福島記念(GⅢ)勝ち。VM6着0.6差(2-2番手から)。中山牝馬S5着0.2差(上がり最速)。府中牝馬S10着1.5差(2人)は稍重で敗因不明。津村継続。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 21.5
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "チェルビアット",
+      "ability": 67,
+      "style": "差し",
+      "gate_zone": null,
+      "early_positions": [
+        4,
+        7,
+        8,
+        3,
+        16
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "都大路S(L)2着0.3・愛知杯(GⅢ・1400)5着0.2・洛陽S2着0.2・中京記念7着0.5。NHKマイル3着(2025)。1800はL2着の実績。吉村継続。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 28.3
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "カネラフィーナ",
+      "ability": 66,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        4,
+        3,
+        6,
+        8,
+        4
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "ジューンS(OP・東京1800)勝ち・新潟牝馬S(L)勝ち・中山金杯4着0.3。中京記念8着0.5は+14kg。石川継続。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 30.1
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ルージュソリテール",
+      "ability": 66,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        3,
+        7,
+        2,
+        4,
+        2
+      ],
+      "minus": [],
+      "plus": [
+        "top_jockey_switch"
+      ],
+      "notes": "阪神牝馬S3着0.2差。府中牝馬S12着1.7(7-2-2と途中で動いて失速)・クイーンS6着0.6。初音S(東京1800)2着。西塚(33位)→横山武(5位)、20位以内かつ28位上→top_jockey_switch。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 30.5
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ウイントワイライト",
+      "ability": 65,
+      "style": "追込",
+      "gate_zone": null,
+      "early_positions": [
+        13,
+        18,
+        15,
+        9,
+        14
+      ],
+      "minus": [
+        "weight_increase"
+      ],
+      "plus": [
+        "fastest_last_unrewarded"
+      ],
+      "notes": "府中牝馬S2着0.5差は13番手から上がり最速33.9、勝ち馬の逃げ切りで届かず→fastest_last_unrewarded（abilityはこの敗戦を割り引かず、愛知杯7着0.3・節分S勝ちから評価）。京王杯SC16着も最後方から上がり最速。前走53kg→55kg(+2)→weight_increase。横山典継続。3ヵ月半休養明け。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 24.5
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "クランフォード",
+      "ability": 64,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        2,
+        1,
+        4,
+        3,
+        2
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "阪神牝馬S4着0.2・六甲S(L)2着0.1・関屋記念2着(不良・逃げ)0.9。京成杯AH7着0.6。主戦1400〜1600で1800は近走になし(距離変更200mで対象外)。菊沢継続。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 83.6
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ミアネーロ",
+      "ability": 62,
+      "style": "差し",
+      "gate_zone": null,
+      "early_positions": [
+        3,
+        5,
+        13,
+        11,
+        8
+      ],
+      "minus": [],
+      "plus": [],
+      "notes": "府中牝馬S3着0.5(14人)・関越S(OP)3着0.2。総武S(ダ)15着は度外視。鞍上未定(前走大野41位)→乗り替わりは保留。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 35.1
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ハワイアンティアレ",
+      "ability": 59,
+      "style": "差し",
+      "gate_zone": null,
+      "early_positions": [
+        1,
+        10,
+        9,
+        2,
+        9
+      ],
+      "minus": [
+        "weight_increase",
+        "jockey_downgrade"
+      ],
+      "plus": [],
+      "notes": "豊橋S(3勝)を逃げ切り(7人・53kg)。前4走はダート/3勝で凡走、1勝だけで本格化とは判断せずbreaking_out付けず。53→55kg(+2)→weight_increase。前走吉村誠之助(20位・42勝、21・22位と同勝利数)→Mデムーロ(58位)→jockey_downgrade（境界の同勝利数、枠順確定時に順位を再確認）。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 69.4
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ミラビリスマジック",
+      "ability": 59,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        7,
+        5,
+        6,
+        3,
+        5
+      ],
+      "minus": [
+        "weight_increase"
+      ],
+      "plus": [],
+      "notes": "阿武隈S(3勝)勝ち(2人)。13→9→5→1着と徐々に上昇でbreaking_outは付けない。初の重賞。53→55kg→weight_increase。鞍上未定(前走戸崎10位)→確定後に乗り替わり判定。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 76.6
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "テリオスララ",
+      "ability": 58,
+      "style": "逃げ",
+      "gate_zone": null,
+      "early_positions": [
+        2,
+        1,
+        1,
+        5,
+        4
+      ],
+      "minus": [
+        "weight_increase"
+      ],
+      "plus": [],
+      "notes": "初音S(3勝・東京1800)逃げ切り。大阪城S(L)逃げ10着1.4・府中牝馬S2番手から16着5.4差（敗因不明、大敗のため控えめ）。ハナ候補(1角1番手2回)。54→55kg→weight_increase。鞍上未定(前走ゴンサルベス=短期免許のため比較保留)。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 73.8
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ヴォンフレ",
+      "ability": 56,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        4,
+        12,
+        1,
+        5,
+        12
+      ],
+      "minus": [
+        "weight_increase"
+      ],
+      "plus": [],
+      "notes": "関越S(OP)5着0.3は50kgの軽量。阿武隈S6着0.4。3勝クラス馬の格上挑戦。50→55kg(+5)→weight_increase。鞍上未定(前走江田88位)。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 65.5
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ワタシマツワ",
+      "ability": 56,
+      "style": "先行",
+      "gate_zone": null,
+      "early_positions": [
+        1,
+        2,
+        2,
+        4,
+        4
+      ],
+      "minus": [],
+      "plus": [
+        "breaking_out"
+      ],
+      "notes": "2勝で14着・14着から羊ヶ丘特別・日高S(3勝)と札幌1500を連勝（日高Sは逃げ切り9人）→breaking_out。初の重賞・1800は未経験(1500→1800は300mで距離フラグ対象外)。前走逃げ好走だがハイがスローを上回るとは見込まずfront_runner_bad_paceは付けない。スワンSにもダブル登録、どちらに出るかは確定後。56→55kg。小林美継続。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 121.2
+    },
+    {
+      "num": null,
+      "gate": null,
+      "name": "ムイ",
+      "ability": 49,
+      "style": "追込",
+      "gate_zone": null,
+      "early_positions": [
+        9,
+        14,
+        15,
+        13,
+        15
+      ],
+      "minus": [
+        "weight_increase"
+      ],
+      "plus": [
+        "second_start"
+      ],
+      "notes": "OP/Lで二桁着順が続く1200〜1400の追込。前走エニフS(ダ1400)12着は度外視。ダ1400→芝1800(+400m)だがキャリアは1400以下のみで延長が好転する根拠なし→distance_change_try付けず。前走は3ヵ月ぶり→second_start。52→55kg→weight_increase。鞍上未定。（10/7 特別登録・netkeiba馬柱で確認、調教・厩舎コメントは枠順確定後）",
+      "pred_odds_1007": 376.4
+    }
+  ]
+}
