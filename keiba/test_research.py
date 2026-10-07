@@ -3,6 +3,7 @@ import unittest
 
 from keiba import engine
 from keiba.research import calibration as C
+from keiba.research import form_check as FC
 from keiba.research import market_check as M
 from keiba.research import pacefit_check as F
 
@@ -96,3 +97,24 @@ class CalibrationTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class FormCheckTest(unittest.TestCase):
+    def run_(self, passage, field=16, course='芝1800', date='2026-01-01'):
+        return {'date': date, 'race_id': None, 'name': '', 'venue': '', 'field': field, 'rank': '1',
+                'course': course, 'passage': passage, 'margin': '0.0'}
+
+    def test_corner4_uses_last_corner_and_skips_jumps(self):
+        self.assertAlmostEqual(FC.corner4(self.run_('12-10-4')), 4 / 16)
+        self.assertIsNone(FC.corner4(self.run_('')))
+        self.assertIsNone(FC.corner4(self.run_('3-3', course='障3000')))
+
+    def test_recent_c4_ignores_runs_on_or_after_the_race_day(self):
+        hist = (self.run_('1-1', date='2026-02-01'), self.run_('8-8', date='2026-01-01'))
+        self.assertEqual([v for _, v in FC.recent_c4(hist, '2026-02-01')], [0.5])
+
+    def test_labels(self):
+        self.assertEqual([FC.c4_label(v) for v in (0.25, 0.26, 0.75, 0.9)], ['前', '中前', '中後', '後'])
+        self.assertEqual([FC.level_label(n) for n in (0, 3, 8, 9)], list(FC.LEVEL_LABELS))
+        self.assertEqual(FC.after_label(2, 2), 'その後の出走3未満')
+        self.assertEqual([FC.after_label(10, k) for k in (1, 2, 4)], ['2割未満', '2〜4割', '4割以上'])
