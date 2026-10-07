@@ -1,6 +1,10 @@
 """同名重賞の過去10年の傾向（区分ごとの出走数・勝利・3着以内・複勝率）と、今年の出走馬の当てはまり。
 
-使い方: python3 -m keiba.research.trends 毎日王冠 2016 2025 keiba/records/20261004_毎日王冠.json
+使い方: python3 -m keiba.research.trends 毎日王冠 2016 2025 keiba/records/20261004_毎日王冠.json keiba/reports/trends_毎日王冠.md
+
+検索語は netkeiba のレース名検索に渡す（スワンSは「スワンS」）。改称したレースは LINEAGE に系譜を書く。
+出力先（5番目）を省くと画面に出すだけ。馬柱（live_card.load_trends）は trends_<レコードのレース名>.json を読むので、
+出力ファイル名はレコードの race のレース名に合わせる。今年の馬の区分は馬番と start_at が入った（枠順確定後の）レコードで作る。
 
 複勝率 = 3着以内の頭数 ÷ 出走頭数。サンプルが少ない区分（出走20頭未満）は参考程度。
 人気・オッズの情報は市場が既に織り込んでいるので、傾向に合う馬に点数を足すかは別途判断する（ここでは表示だけ）。
@@ -65,9 +69,27 @@ def buckets(h, field, race_date, hist):
     return out
 
 
+# 改称したレースの系譜（検索語, その語で拾った race_id のうち同じレースとして使う条件）。
+# アイルランドトロフィーは2016年まで府中牝馬S（10月の4回東京）、2017〜2024年はアイルランドトロフィー府中牝馬S、
+# 2025年からアイルランドT。2016年の「アイルランドT」は別の OP（芝2000）、2025年からの府中牝馬Sは6月の GⅢ なので除く
+LINEAGE = {
+    'アイルランドトロフィー': [('アイルランドトロフィー', lambda rid: rid[4:8] == '0504' and rid[:4] >= '2017'),
+                       ('府中牝馬', lambda rid: rid[4:8] == '0504' and rid[:4] <= '2016')],
+}
+
+
+def race_ids(word):
+    if word not in LINEAGE:
+        return history.past_race_ids(word)
+    out = []
+    for w, keep in LINEAGE[word]:
+        out += [rid for rid in history.past_race_ids(w) if keep(rid) and rid not in out]
+    return sorted(out, reverse=True)
+
+
 def collect(word, first_year, last_year):
     races = []
-    for rid in history.past_race_ids(word):
+    for rid in race_ids(word):
         year = int(rid[:4])
         if first_year <= year <= last_year:
             r = history.parse_race(history.race_page(rid), rid)

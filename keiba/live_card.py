@@ -21,8 +21,9 @@ CODEX_RECORDS = Path(__file__).resolve().parents[2] / 'codex-keiba' / 'records'
 TRENDS = Path(__file__).with_name('reports')
 TREND_MIN_N = 10  # ▲▼に数える区分の最低出走数
 LINKS = [('出馬表', 'shutuba'), ('調教', 'oikiri'), ('厩舎コメント', 'comment'), ('オッズ', 'odds/index')]
-TRAINING_TAG = '（10/3 netkeiba調教[デイリー]・厩舎コメント確認）'
-RULE_TAG = '。（10/3 ルール照合で追加）'
+# notes に追記された調教・ルール照合の区切り（日付はレースごとに違う。例「（10/3 netkeiba調教[デイリー]・厩舎コメント確認）」）
+TRAINING_TAG = re.compile(r'（(\d{1,2}/\d{1,2}) netkeiba調教\[デイリー\]・厩舎コメント確認）')
+RULE_TAG = re.compile(r'。（(\d{1,2}/\d{1,2}) ルール照合で追加）')
 # API の type → (engine のキー, 組の区切り, 下限だけでなく上限も持つか)
 TYPES = {1: ('win', None, False), 2: ('place', None, True), 3: ('wakuren', '-', False), 4: ('umaren', '-', False),
          5: ('wide', '-', True), 6: ('umatan', '>', False), 7: ('sanrenpuku', '-', False), 8: ('sanrentan', '>', False)}
@@ -247,6 +248,14 @@ def _jockey(notes):
     return m[-1] if m else ''
 
 
+def _split(text, tag, seen):
+    """tag の前後に分け、tag の日付（無ければ seen のまま）も返す。"""
+    m = tag.search(text)
+    if not m:
+        return text, seen, ''
+    return text[:m.start()], m.group(1), text[m.end():]
+
+
 def build_race(path, key):
     rec = json.loads(Path(path).read_text(encoding='utf-8'))
     pred_key = sorted(k for k in rec['horses'][0] if k.startswith('pred_odds_'))[-1]
@@ -271,11 +280,12 @@ def build_race(path, key):
     name_m = re.search(r'\d+R (.+?)\(', rec['race'])
     trend_meta, trends = load_trends(name_m.group(1) if name_m else '', win)
     horses = []
+    train_date = rule_date = None
     for h in rec['horses']:
         n = h['num']
         is_scratched = n in scratched
-        notes, _, train = h['notes'].partition(TRAINING_TAG)
-        train, _, rule = train.partition(RULE_TAG)
+        notes, train_date, train = _split(h['notes'], TRAINING_TAG, train_date)
+        train, rule_date, rule = _split(train, RULE_TAG, rule_date)
         grade = re.search(r'評価([A-D])|\(([A-D])', train)
         horses.append({
             'num': n, 'gate': h['gate'], 'name': h['name'], 'jockey': _jockey(notes),
@@ -300,6 +310,7 @@ def build_race(path, key):
             'missing': missing, 'skip': engine.SKIP_REASONS.get(res['skip_reason'], ''), 'market': engine.market_label(res),
             'codex': {k: v for k, v in codex.items() if k not in ('win', 'notes')} if codex else None,
             'trend_meta': trend_meta,
+            'train_date': train_date, 'rule_date': rule_date,
             'start_at': start,
             'links': [{'label': label, 'url': f'https://race.netkeiba.com/{"" if page.startswith("odds") else "race/"}'
                        f'{page}.html?race_id={rec["race_id"]}'} for label, page in LINKS] if rec.get('race_id') else []}
@@ -314,8 +325,10 @@ def main(out, *paths):
         label = f"前日予想オッズ（{races[0]['pred_key']}）"
     stale = [r['short'] + ('（単勝オッズ欠損: ' + ','.join(map(str, r['missing'])) + '番）' if r['missing'] else '')
              for r in races if not r['live']]
+    trained = [f"{r['short']}は{r['train_date']}" for r in races if r['train_date']]
     header = (f"{label}で計算（{datetime.now():%m/%d %H:%M} 更新）。トラックバイアスは未確定（フラット扱い）。"
-              "調教・厩舎コメントは10/3反映済み（★付きが10/3追加フラグ）。"
+              + (f"調教・厩舎コメントは{'・'.join(trained)}反映済み（★付きがその日の追加フラグ）。" if trained
+                 else '調教・厩舎コメントは未反映（枠順確定段階）。')
               + (f"{'・'.join(stale)}はオッズ未取得のため予想オッズで参考計算。" if stale and (asofs or any(r['missing'] for r in races)) else '')
               + '買い目は参考試算。最終提案は発走10分前に実取得オッズで keiba.raceday が出す。')
     starts = sorted(r['start_at'] for r in races if r['start_at'])

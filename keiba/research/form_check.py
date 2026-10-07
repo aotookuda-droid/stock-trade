@@ -2,7 +2,7 @@
 
 使い方:
   python3 -m keiba.research.form_check keiba/records/20261011_アイルランドトロフィー.json keiba/reports/form_アイルランドトロフィー.md \
-      202505040411,202405040411,...（同レースの過去 race_id をカンマ区切り）
+      [202505040411,202405040411,...]（同レースの過去 race_id をカンマ区切り。省くと trends.race_ids(レース名) の過去10年）
 
 - 4角位置: 各走の最後の通過順 ÷ 頭数（0 に近いほど前）。判断日より前の直近5走（障害・通過順なしを除く）の平均を
   「近走4角」とし、前（〜0.25）・中前（〜0.5）・中後（〜0.75）・後（0.75〜）に分ける
@@ -251,6 +251,10 @@ def main(record_path, out, past_ids=''):
     near = turf_graded(g, (place,) if place != '京都' else ('京都', '阪神'), (dist - 200, dist + 200))
     s_all = tally(all_turf, g)
     s_near = tally(near, g)
+    if not past_ids:
+        from keiba.research import trends
+        year = int(race_date[:4])
+        past_ids = ','.join(rid for rid in trends.race_ids(name) if year - 10 <= int(rid[:4]) < year)
     past = [g.races.get(rid) or history.parse_race(history.race_page(rid), rid) for rid in past_ids.split(',') if rid]
     s_past = tally(past, g, cached_only=False)
 
