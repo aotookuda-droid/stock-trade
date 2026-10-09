@@ -1,5 +1,8 @@
+import json
+import tempfile
 import unittest
 from datetime import datetime
+from pathlib import Path
 
 from keiba import apply_edits as A
 
@@ -47,6 +50,14 @@ class ApplyEditsTest(unittest.TestCase):
         edits = A.load_edits({'docs': [{'id': 'R1-13', 'data': edit(flag_adjust={})}]})
         A.apply(edits, rec)
         self.assertNotIn('flag_adjust', rec['horses'][0])
+
+    def test_reads_out_dir_listing(self):
+        with tempfile.TemporaryDirectory() as d:
+            sub = Path(d) / 'edits'
+            sub.mkdir()
+            (sub / 'R1-13.json').write_text(json.dumps(edit(), ensure_ascii=False), encoding='utf-8')
+            self.assertEqual([e['num'] for e in A.read_edits(d)], [13])
+            self.assertEqual(A.read_edits(Path(d) / 'none'), [])
 
 
 if __name__ == '__main__':

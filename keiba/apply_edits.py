@@ -1,8 +1,9 @@
 """馬柱ページ（ブラウザ）で編集した加減点を、レース記録（records/*.json）に反映する。
 
-使い方: python3 -m keiba.apply_edits 編集.json keiba/records/20261011_アイルランドトロフィー.json [...]
+使い方: python3 -m keiba.apply_edits 編集 keiba/records/20261011_アイルランドトロフィー.json [...]
 
-編集.json は馬柱ページの db（コレクション edits）を ArtifactData で list した結果を保存したもの。
+編集 は馬柱ページの db（コレクション edits）を ArtifactData で list した結果。out_dir を付けて保存したフォルダ
+（中の *.json をすべて読む）か、結果を1つの JSON ファイルに保存したもの。
 1件は {race_id, num, name, plus, minus, flag_adjust, note, base, saved_at}。base は編集を始めたときの記録の
 加減点で、記録がその後に変わっていれば（別の更新と競合）反映せずに報告する。
 フラグ名・割り引きの範囲は engine.flag_points と同じ検査を通ったものだけ反映し、notes に変更内容と理由を追記する。
@@ -92,8 +93,16 @@ def apply(edits, rec, today=None):
     return applied, report
 
 
+def read_edits(path):
+    path = Path(path)
+    if not path.exists():
+        return []
+    files = sorted(path.rglob('*.json')) if path.is_dir() else [path]
+    return load_edits([json.loads(f.read_text(encoding='utf-8')) for f in files])
+
+
 def main(edits_path, *record_paths):
-    edits = load_edits(json.loads(Path(edits_path).read_text(encoding='utf-8')))
+    edits = read_edits(edits_path)
     for path in record_paths:
         rec = json.loads(Path(path).read_text(encoding='utf-8'))
         if rec.get('decision'):
