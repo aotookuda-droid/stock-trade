@@ -191,7 +191,9 @@ function render() {
   const maxP = Math.max(...hs.map(h => Math.max(h.p, h.mkt)));
   const tb = document.getElementById('tb');
   tb.innerHTML = hs.map(h => {
-    const chips = h.plus.map(k => `<span class="chip p${h.new.includes(k) ? ' new' : ''}">${h.new.includes(k) ? '★' : ''}${LABEL[k] || k} +${D.plus[k]}</span>`).join('') + h.minus.map(k => `<span class="chip m${h.new.includes(k) ? ' new' : ''}">${h.new.includes(k) ? '★' : ''}${LABEL[k] || k} ${D.minus[k]}</span>`).join('');
+    const adj = h.adjust || {};
+    const pts = (k, w) => adj[k] ? `${w + adj[k] > 0 ? '+' : ''}${w + adj[k]}<small>（${w > 0 ? '+' : ''}${w}から調整）</small>` : `${w > 0 ? '+' : ''}${w}`;
+    const chips = h.plus.map(k => `<span class="chip p${h.new.includes(k) ? ' new' : ''}">${h.new.includes(k) ? '★' : ''}${LABEL[k] || k} ${pts(k, D.plus[k])}</span>`).join('') + h.minus.map(k => `<span class="chip m${h.new.includes(k) ? ' new' : ''}">${h.new.includes(k) ? '★' : ''}${LABEL[k] || k} ${pts(k, D.minus[k])}</span>`).join('');
     const edge = h.p - h.mkt;
     const pf = h.pacefit;
     return `<tr class="h${h.scratched ? ' scr' : ''}" tabindex="0" data-n="${h.num}" aria-expanded="${open.has(h.num)}">

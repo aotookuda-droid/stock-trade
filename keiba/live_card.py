@@ -290,7 +290,7 @@ def build_race(path, key):
         horses.append({
             'num': n, 'gate': h['gate'], 'name': h['name'], 'jockey': _jockey(notes),
             'style': h['style'], 'zone': h['gate_zone'], 'ability': h['ability'],
-            'minus': h['minus'], 'plus': h['plus'],
+            'minus': h['minus'], 'plus': h['plus'], 'adjust': h.get('flag_adjust') or {},
             'new': [k for k in h['plus'] + h['minus'] if '→' + k in train + rule], 'rule': rule,
             'notes': notes.rstrip('。'), 'train': train, 'grade': (grade.group(1) or grade.group(2)) if grade else '',
             'odds': win.get(n), 'pred': h.get(pred_key), 'scratched': is_scratched,

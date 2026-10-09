@@ -103,6 +103,18 @@ class EngineTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             engine.total_score(horse(1, 60, minus=['typo']), 'slow', 'flat', 'flat')
 
+    def test_flag_adjust_discounts_one_flag(self):
+        h = {'ability': 56, 'style': '先行', 'gate_zone': '外', 'minus': ['turf_to_outer'], 'plus': ['breaking_out']}
+        base = engine.total_score(h, 'middle', 'flat', 'flat')
+        self.assertEqual(engine.total_score(dict(h, flag_adjust={'breaking_out': -1}), 'middle', 'flat', 'flat'), base - 1)
+        self.assertEqual(engine.total_score(dict(h, flag_adjust={'turf_to_outer': 1}), 'middle', 'flat', 'flat'), base + 1)
+
+    def test_flag_adjust_only_discounts_present_flags(self):
+        h = {'ability': 56, 'style': '先行', 'gate_zone': '外', 'minus': [], 'plus': ['breaking_out']}
+        for adj in ({'breaking_out': 1}, {'breaking_out': -4}, {'breaking_out': -6}, {'second_start': -1}):
+            with self.assertRaises(ValueError):
+                engine.total_score(dict(h, flag_adjust=adj), 'middle', 'flat', 'flat')
+
     def test_allocation_within_cap(self):
         hs = [horse(i, 60) for i in range(1, 9)]
         hs[7]['ability'] = 80

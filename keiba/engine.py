@@ -190,18 +190,35 @@ def bias_fit(horse, inner_outer, front_back):
     return io * ZONE[horse['gate_zone']] * 3 - fb * FRONTNESS[horse['style']] * 3
 
 
-def total_score(horse, pace, inner_outer, front_back):
+def flag_points(horse):
+    """加減点の合計。flag_adjust（{フラグ: 調整値}）でフラグごとの値を一部だけ割り引ける（2026/10/9〜）。
+    割り引きは同じ向きのまま絶対値を小さくする場合だけ認める（+4 → +3 は可、+4 → +5 や 0・符号反転は不可。
+    効かせたくないならフラグ自体を外す）。理由は notes に書く。"""
+    weights = {}
     for key in horse.get('minus', []):
         if key not in MINUS_WEIGHTS:
             raise ValueError(f"unknown minus factor: {key}")
+        weights[key] = MINUS_WEIGHTS[key]
     for key in horse.get('plus', []):
         if key not in PLUS_WEIGHTS:
             raise ValueError(f"unknown plus factor: {key}")
+        weights[key] = PLUS_WEIGHTS[key]
+    total = sum(MINUS_WEIGHTS[k] for k in horse.get('minus', [])) + sum(PLUS_WEIGHTS[k] for k in horse.get('plus', []))
+    for key, adj in (horse.get('flag_adjust') or {}).items():
+        if key not in weights:
+            raise ValueError(f"flag_adjust のフラグが plus/minus にない: {key}")
+        base, value = weights[key], weights[key] + adj
+        if not (0 < value / base < 1):
+            raise ValueError(f"flag_adjust は割り引きだけ（{key}: {base} → {value}）")
+        total += adj
+    return total
+
+
+def total_score(horse, pace, inner_outer, front_back):
     return (horse['ability']
             + pace_fit(horse['style'], pace)
             + bias_fit(horse, inner_outer, front_back)
-            + sum(MINUS_WEIGHTS[k] for k in horse.get('minus', []))
-            + sum(PLUS_WEIGHTS[k] for k in horse.get('plus', [])))
+            + flag_points(horse))
 
 
 def _normalize(d):
