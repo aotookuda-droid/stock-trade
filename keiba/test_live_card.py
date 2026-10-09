@@ -2,6 +2,7 @@ import json
 import re
 import tempfile
 import unittest
+from datetime import datetime
 from pathlib import Path
 from unittest import mock
 
@@ -21,6 +22,18 @@ class LiveCardTest(unittest.TestCase):
             out = Path(d) / 'card.html'
             live_card.main(str(out), str(RECORD))
             return _data(out.read_text(encoding='utf-8'))
+
+    def test_title_follows_race_date(self):
+        got = {'odds': None, 'asof': None, 'fetched_at': {}, 'scratched': []}
+        with mock.patch.object(live_card, 'fetch_odds', return_value=got), tempfile.TemporaryDirectory() as d:
+            out = Path(d) / 'card.html'
+            live_card.main(str(out), str(RECORD))
+            html = out.read_text(encoding='utf-8')
+        self.assertIn('<title>10/4 重賞 ', html)
+        self.assertNotIn('__TITLE__', html)
+        races = [{'race': '2026/10/11 東京11R'}, {'race': '2026/10/12 京都11R'}]
+        self.assertEqual(live_card.page_title(races, datetime(2026, 10, 9)), '10/11・10/12 重賞 前日馬柱')
+        self.assertEqual(live_card.page_title(races, datetime(2026, 10, 11, 15)), '10/11・10/12 重賞 馬柱')
 
     def test_falls_back_to_predicted_odds(self):
         d = self.build(None)

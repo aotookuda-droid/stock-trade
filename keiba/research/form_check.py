@@ -260,7 +260,7 @@ def main(record_path, out, past_ids=''):
 
     # 今年の出走馬
     shutuba = history._get(f'https://race.netkeiba.com/race/shutuba_past.html?race_id={rec["race_id"]}',
-                           f'shutuba_past_{rec["race_id"]}.html', 'utf-8')
+                           f'shutuba_past_{rec["race_id"]}.html', 'utf-8', fresh=True)
     ids = {}
     for hid, nm in re.findall(r'class="Horse02">\s*<a href="[^"]*/horse/(\w+)"[^>]*>\s*(?:<span[^>]*></span>)?([^<]+)</a>',
                               shutuba):

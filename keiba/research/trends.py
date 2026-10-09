@@ -19,6 +19,7 @@ from pathlib import Path
 from keiba.research import history
 
 MIN_N = 20
+RAN = ('中', '失')  # 着順欄が数字でなくても出走した馬
 
 
 def _ordinal(d):
@@ -103,9 +104,10 @@ def table(races):
     stats = defaultdict(lambda: defaultdict(lambda: [0, 0, 0]))
     for r in races:
         for h in r['horses']:
-            if not h['rank'].isdigit():
+            # 競走中止・失格は出走馬（3着外）として数え、取消・除外だけ除く
+            if not h['rank'].isdigit() and h['rank'] not in RAN:
                 continue
-            rank = int(h['rank'])
+            rank = int(h['rank']) if h['rank'].isdigit() else 99
             for k, v in buckets(h, r['field'], r['date'], h['hist']).items():
                 if v is None:
                     continue
@@ -119,7 +121,7 @@ def table(races):
 def entries(race_id):
     """今年の出馬表（馬柱ページ）から {馬番: (horse_id, 性齢)}。"""
     html = history._get(f'https://race.netkeiba.com/race/shutuba_past.html?race_id={race_id}',
-                        f'shutuba_past_{race_id}.html', 'utf-8')
+                        f'shutuba_past_{race_id}.html', 'utf-8', fresh=True)
     out = {}
     for row in re.findall(r'<tr class="HorseList[^"]*"[^>]*>(.*?)</tr>', html, re.S):
         num = re.search(r'<td class="Waku\d*"[^>]*>.*?</td>\s*<td[^>]*>\s*(\d+)\s*</td>', row, re.S)

@@ -316,6 +316,14 @@ def build_race(path, key):
                        f'{page}.html?race_id={rec["race_id"]}'} for label, page in LINKS] if rec.get('race_id') else []}
 
 
+def page_title(races, today=None):
+    """ページの見出し（例「10/11 重賞 前日馬柱」）。日付はレース名の先頭から取り、レース当日以降に作ったときは「前日」を外す。"""
+    dates = sorted({m.group(1) for r in races if (m := re.match(r'(\d{4}/\d{2}/\d{2})', r['race']))})
+    label = '・'.join(re.sub(r'(^|/)0', r'\1', d[5:]) for d in dates)
+    today = (today or datetime.now()).strftime('%Y/%m/%d')
+    return f"{label} 重賞 {'前日馬柱' if dates and today < dates[0] else '馬柱'}".strip()
+
+
 def main(out, *paths):
     races = [build_race(p, f'r{i}') for i, p in enumerate(paths)]
     asofs = sorted(r['asof'] for r in races if r['asof'])
@@ -336,7 +344,8 @@ def main(out, *paths):
             'header': header, 'odds_label': label,
             'asof_iso': asofs[-1].replace(' ', 'T') + '+09:00' if asofs else None,
             'end_iso': starts[-1] if starts else None}
-    html = TEMPLATE.read_text(encoding='utf-8').replace('/*DATA*/null', json.dumps(data, ensure_ascii=False))
+    html = (TEMPLATE.read_text(encoding='utf-8').replace('__TITLE__', page_title(races))
+            .replace('/*DATA*/null', json.dumps(data, ensure_ascii=False)))
     Path(out).write_text(html, encoding='utf-8')
     print(header)
     for r in races:

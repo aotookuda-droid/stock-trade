@@ -20,9 +20,10 @@ PAUSE = 0.6
 UA = {'User-Agent': 'Mozilla/5.0'}
 
 
-def _get(url, name, encoding):
+def _get(url, name, encoding, fresh=False):
+    """fresh=True は取り直してキャッシュを上書きする（出馬表のように、特別登録→枠順確定で中身が変わるページ用）。"""
     path = CACHE / name
-    if path.exists():
+    if path.exists() and not fresh:
         return path.read_text(encoding='utf-8')
     CACHE.mkdir(parents=True, exist_ok=True)
     with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:

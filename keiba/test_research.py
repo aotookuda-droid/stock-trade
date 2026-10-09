@@ -6,6 +6,7 @@ from keiba.research import calibration as C
 from keiba.research import form_check as FC
 from keiba.research import market_check as M
 from keiba.research import pacefit_check as F
+from keiba.research import trends as T
 
 
 def race(ranks):
@@ -97,6 +98,13 @@ class CalibrationTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TrendsTest(unittest.TestCase):
+    def test_stopped_horse_counts_as_runner_but_scratch_does_not(self):
+        horses = [{'rank': r, 'waku': 1, 'pop': 1, 'sexage': '牝4', 'passage': '1-1'} for r in ('1', '中', '取')]
+        stats = T.table([{'field': 3, 'date': '2023-10-14', 'horses': [dict(h, hist=None) for h in horses]}])
+        self.assertEqual(stats['年齢']['4歳'], [2, 1, 1])
 
 
 class FormCheckTest(unittest.TestCase):
