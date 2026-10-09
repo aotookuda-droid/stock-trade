@@ -81,6 +81,17 @@ tr.nt td{background:var(--bg);font-size:.82rem;color:var(--muted);padding:8px 12
 .robust{color:var(--plus);font-weight:600}.fragile{color:var(--muted)}
 tr.scr td{opacity:.45}
 .src{font-size:.75rem;color:var(--muted);margin:6px 0 0}.src a{color:var(--turf)}
+.ed{margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--fg)}
+.ed h3{font-size:.8rem;margin:0 0 6px;font-weight:700}
+.ed .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 12px;margin-bottom:8px}
+.ed label{display:flex;align-items:center;gap:6px;font-size:.78rem}
+.ed select,.ed input[type=text]{font:inherit;font-size:.78rem;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg);padding:2px 4px}
+.ed input[type=text]{width:100%;max-width:520px}
+.ed .acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.ed button{font:inherit;font-size:.8rem;border:1px solid var(--turf);background:var(--turf);color:var(--surface);padding:3px 12px;border-radius:4px;cursor:pointer}
+.ed button.sec{background:none;color:var(--turf)}
+.ed button:disabled{opacity:.5;cursor:default}
+.chip.pend{background:var(--front-bg);color:var(--front);font-weight:700}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.75rem;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:5px}
 .legend i{display:inline-block;width:14px;height:5px;border-radius:2px}
@@ -194,6 +205,9 @@ function render() {
     const adj = h.adjust || {};
     const pts = (k, w) => adj[k] ? `${w + adj[k] > 0 ? '+' : ''}${w + adj[k]}<small>（${w > 0 ? '+' : ''}${w}から調整）</small>` : `${w > 0 ? '+' : ''}${w}`;
     const chips = h.plus.map(k => `<span class="chip p${h.new.includes(k) ? ' new' : ''}">${h.new.includes(k) ? '★' : ''}${LABEL[k] || k} ${pts(k, D.plus[k])}</span>`).join('') + h.minus.map(k => `<span class="chip m${h.new.includes(k) ? ' new' : ''}">${h.new.includes(k) ? '★' : ''}${LABEL[k] || k} ${pts(k, D.minus[k])}</span>`).join('');
+    const ed = EDITS[editKey(r, h)];
+    const pending = ed && !sameState(ed, recState(h));
+    const pendChip = pending ? `<span class="chip pend" title="ブラウザで編集済み。Claude がレコードに反映すると確率・買い目に入る">編集済み・未反映 → 総合点 ${editedScore(h, ed)}</span>` : '';
     const edge = h.p - h.mkt;
     const pf = h.pacefit;
     return `<tr class="h${h.scratched ? ' scr' : ''}" tabindex="0" data-n="${h.num}" aria-expanded="${open.has(h.num)}">
@@ -204,7 +218,7 @@ function render() {
       <td><span class="zone">${esc(h.zone)}</span></td>
       <td><div class="ab"><span class="num" style="min-width:22px">${h.ability}</span><span class="track"><span class="fill" style="width:${Math.max(0, (h.ability - 50) / 35 * 100)}%"></span></span></div>${h.ref ? `<div class="sub" title="ability だけの順位 / 近走成績ベースの参照値の順位（レース内）">順位 ${h.ref.ab_rank} / 参照 ${h.ref.ref_rank}</div>` : ''}</td>
       <td><span class="grade g${h.grade}" title="デイリー最終追切評価">${h.grade || '—'}</span></td>
-      <td><div class="chips">${chips || '<span class="sub">—</span>'}</div></td>
+      <td><div class="chips">${chips || (pending ? '' : '<span class="sub">—</span>')}${pendChip}</div></td>
       <td class="score">${h.score}</td>
       <td><div class="prob">
         <div class="row mdl"><i style="width:${h.p / maxP * 70}px"></i>${(h.p * 100).toFixed(1)}%</div>
@@ -213,7 +227,7 @@ function render() {
       <td class="num">${h.codex == null ? '—' : (h.codex * 100).toFixed(1) + '%'}${h.codex == null ? '' : `<div class="sub ${h.codex - h.p >= 0.02 ? 'edge-up' : h.codex - h.p <= -0.02 ? 'edge-dn' : ''}">${h.codex - h.p >= 0 ? '+' : ''}${((h.codex - h.p) * 100).toFixed(1)}</div>`}</td>
       <td>${h.trend ? `<span class="edge-up">${'▲'.repeat(h.trend.up)}</span><span class="edge-dn">${'▼'.repeat(h.trend.down)}</span>` || '<span class="sub">—</span>' : '<span class="sub">—</span>'}</td>
       <td class="num">${h.scratched ? '取消' : h.odds.toFixed(1)}</td>
-    </tr>` + (open.has(h.num) ? `<tr class="nt"><td colspan="13">${esc(h.notes)}${h.train ? `<span class="tr10">${esc(r.train_date || '')} 調教・厩舎：${esc(h.train)}</span>` : ''}${h.rule ? `<span class="tr10">${esc(r.rule_date || '')} ルール照合：${esc(h.rule)}</span>` : ''}<br>過去の1角通過順（古→新）：${h.early.join(' → ')}${h.pred ? ` ／ 前日予想オッズ ${h.pred}` : ''}${h.ref ? `<span class="tr10">近走成績ベースの能力参照値（クラスと着差だけ。不利・適性は未補正）：勝率 ${(h.ref.ref_p * 100).toFixed(1)}%（レース内${h.ref.ref_rank}位） ／ ability だけ：勝率 ${(h.ref.ab_p * 100).toFixed(1)}%（${h.ref.ab_rank}位）</span>` : ''}${h.codex_note ? `<span class="tr10">Codex評価：${esc(h.codex_note)}</span>` : ''}${h.trend && r.trend_meta ? `<span class="tr10">過去${r.trend_meta.n_races}年の同レース（${esc(r.trend_meta.years)}）の3着以内率：${h.trend.items.map(t => `${esc(t.value)} ${Math.round(t.rate * 100)}%（${t.top3}/${t.n}）`).join('・')}</span>` : ''}</td></tr>` : '');
+    </tr>` + (open.has(h.num) ? `<tr class="nt"><td colspan="13">${esc(h.notes)}${h.train ? `<span class="tr10">${esc(r.train_date || '')} 調教・厩舎：${esc(h.train)}</span>` : ''}${h.rule ? `<span class="tr10">${esc(r.rule_date || '')} ルール照合：${esc(h.rule)}</span>` : ''}<br>過去の1角通過順（古→新）：${h.early.join(' → ')}${h.pred ? ` ／ 前日予想オッズ ${h.pred}` : ''}${h.ref ? `<span class="tr10">近走成績ベースの能力参照値（クラスと着差だけ。不利・適性は未補正）：勝率 ${(h.ref.ref_p * 100).toFixed(1)}%（レース内${h.ref.ref_rank}位） ／ ability だけ：勝率 ${(h.ref.ab_p * 100).toFixed(1)}%（${h.ref.ab_rank}位）</span>` : ''}${h.codex_note ? `<span class="tr10">Codex評価：${esc(h.codex_note)}</span>` : ''}${h.trend && r.trend_meta ? `<span class="tr10">過去${r.trend_meta.n_races}年の同レース（${esc(r.trend_meta.years)}）の3着以内率：${h.trend.items.map(t => `${esc(t.value)} ${Math.round(t.rate * 100)}%（${t.top3}/${t.n}）`).join('・')}</span>` : ''}${editor(r, h)}</td></tr>` : '');
   }).join('');
 }
 document.getElementById('tb').addEventListener('click', e => {
@@ -223,6 +237,90 @@ document.getElementById('tb').addEventListener('click', e => {
 document.getElementById('tb').addEventListener('keydown', e => {
   if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('tr.h')) { e.preventDefault(); e.target.click(); }
 });
+// ---- ブラウザでの加減点の編集（db の edits/<race_id>-<馬番> に保存。レコードへの反映は Claude が keiba.apply_edits で行う）----
+let EDITS = {}, DRAFT = {}, DB = null, CAN_EDIT = false, ED_MSG = {};
+const editKey = (r, h) => `${r.race_id}-${h.num}`;
+const recState = h => ({plus: [...h.plus].sort(), minus: [...h.minus].sort(), flag_adjust: {...(h.adjust || {})}});
+const normAdj = a => Object.fromEntries(Object.entries(a || {}).filter(([, v]) => v).sort());
+const sameState = (a, b) => JSON.stringify([[...a.plus].sort(), [...a.minus].sort(), normAdj(a.flag_adjust)])
+  === JSON.stringify([[...b.plus].sort(), [...b.minus].sort(), normAdj(b.flag_adjust)]);
+const weightOf = k => k in D.plus ? D.plus[k] : D.minus[k];
+const flagPoints = s => [...s.plus, ...s.minus].reduce((a, k) => a + weightOf(k) + ((s.flag_adjust || {})[k] || 0), 0);
+const editedScore = (h, s) => Math.round((h.score - flagPoints(recState(h)) + flagPoints(s)) * 100) / 100;
+function editor(r, h) {
+  if (!DB || !CAN_EDIT || !r.race_id) return '';
+  const key = editKey(r, h);
+  const s = DRAFT[key] || EDITS[key] || recState(h);
+  const row = (k, side) => {
+    const w = weightOf(k), on = s[side].includes(k), cur = w + ((s.flag_adjust || {})[k] || 0);
+    const vals = []; for (let v = w; w > 0 ? v >= 1 : v <= -1; v += w > 0 ? -1 : 1) vals.push(v);
+    return `<label><input type="checkbox" data-ed="flag" data-k="${key}" data-flag="${k}" data-side="${side}"${on ? ' checked' : ''}>${esc(LABEL[k] || k)}
+      ${on && vals.length > 1 ? `<select data-ed="adj" data-k="${key}" data-flag="${k}" aria-label="${esc(LABEL[k] || k)}の点数">${vals.map(v => `<option value="${v}"${v === cur ? ' selected' : ''}>${v > 0 ? '+' : ''}${v}</option>`).join('')}</select>` : `<span class="sub">${w > 0 ? '+' : ''}${w}</span>`}</label>`;
+  };
+  const dirty = DRAFT[key] && !sameState(DRAFT[key], EDITS[key] || recState(h));
+  const note = DRAFT[key]?.note ?? EDITS[key]?.note ?? '';
+  const status = ED_MSG[key] || (EDITS[key] ? (sameState(EDITS[key], recState(h)) ? 'レコードに反映済み' : `保存済み・未反映（${esc((EDITS[key].saved_at || '').slice(5, 16).replace('T', ' '))}）`) : '');
+  return `<div class="ed" data-k="${key}"><h3>加減点を編集（総合点 ${h.score} → ${editedScore(h, s)}）</h3>
+    <div class="sub">加点</div><div class="grid">${Object.keys(D.plus).map(k => row(k, 'plus')).join('')}</div>
+    <div class="sub">減点</div><div class="grid">${Object.keys(D.minus).map(k => row(k, 'minus')).join('')}</div>
+    <label>理由 <input type="text" data-ed="note" data-k="${key}" value="${esc(note)}" placeholder="例：好走が札幌・函館に偏る"></label>
+    <div class="acts"><button type="button" data-ed="save" data-k="${key}" data-n="${h.num}"${dirty ? '' : ' disabled'}>保存</button>
+      <button type="button" class="sec" data-ed="reset" data-k="${key}" data-n="${h.num}"${EDITS[key] || DRAFT[key] ? '' : ' disabled'}>編集を取り消す</button>
+      <span class="sub">${status}</span></div>
+    <div class="sub">保存しただけでは確率・買い目は変わりません。Claude がレコードに反映し、馬柱を作り直したときに入ります。点数は割り引き（同じ向きで小さく）だけ選べます。</div></div>`;
+}
+function draftOf(key, h) {
+  if (!DRAFT[key]) { const b = EDITS[key] || recState(h); DRAFT[key] = {plus: [...b.plus], minus: [...b.minus], flag_adjust: {...(b.flag_adjust || {})}, note: b.note || ''}; }
+  return DRAFT[key];
+}
+const horseOf = key => { const r = D.races[cur]; return [r, r.horses.find(h => editKey(r, h) === key)]; };
+document.getElementById('tb').addEventListener('change', e => {
+  const t = e.target.closest('[data-ed]'); if (!t) return;
+  const [, h] = horseOf(t.dataset.k); if (!h) return;
+  const d = draftOf(t.dataset.k, h); delete ED_MSG[t.dataset.k];
+  if (t.dataset.ed === 'flag') {
+    const list = d[t.dataset.side], k = t.dataset.flag;
+    if (t.checked && !list.includes(k)) list.push(k);
+    if (!t.checked) { d[t.dataset.side] = list.filter(x => x !== k); delete d.flag_adjust[k]; }
+  } else if (t.dataset.ed === 'adj') {
+    const k = t.dataset.flag, adj = +t.value - weightOf(k);
+    if (adj) d.flag_adjust[k] = adj; else delete d.flag_adjust[k];
+  } else if (t.dataset.ed === 'note') d.note = t.value;
+  render();
+});
+document.getElementById('tb').addEventListener('click', async e => {
+  const b = e.target.closest('button[data-ed]'); if (!b || !DB) return;
+  const key = b.dataset.k, [r, h] = horseOf(key); if (!h) return;
+  b.disabled = true;
+  try {
+    if (b.dataset.ed === 'save') {
+      const d = DRAFT[key];
+      await DB.collection('edits').doc(key).set({race_id: r.race_id, num: h.num, name: h.name,
+        plus: [...d.plus].sort(), minus: [...d.minus].sort(), flag_adjust: normAdj(d.flag_adjust), note: d.note || '',
+        base: recState(h), saved_at: new Date().toISOString()});
+      ED_MSG[key] = '保存しました（未反映）';
+    } else {
+      if (EDITS[key]) await DB.collection('edits').doc(key).delete();
+      ED_MSG[key] = '編集を取り消しました';
+    }
+    delete DRAFT[key];
+  } catch (err) {
+    ED_MSG[key] = err && err.code === 'invalid_argument' ? '保存できません（編集権限がありません）' : '保存できませんでした。時間をおいてもう一度';
+  }
+  render();
+});
+(async () => {
+  if (!window.claude || !window.claude.use) return;
+  const [db, user] = await Promise.all([claude.use('db'), claude.use('user')]);
+  if (!db) return;
+  CAN_EDIT = user ? (await user.canEdit()) : false;
+  if (!CAN_EDIT) return;
+  DB = db;
+  db.collection('edits').onSnapshot(snap => {
+    EDITS = Object.fromEntries(snap.docs.filter(d => d.exists).map(d => [d.id, d.data()]));
+    render();
+  }, () => { DB = null; render(); });
+  render();
+})();
 render();
 </script>
-

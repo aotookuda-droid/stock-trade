@@ -304,7 +304,8 @@ def build_race(path, key):
         })
     bets = [{k: b[k] for k in ('type', 'horses', 'prob', 'odds', 'ev', 'kelly', 'stake')} for b in res['bets']]
     name = re.search(r'\d+R (.+?)\(', rec['race'])
-    return {'key': key, 'short': name.group(1) if name else key, 'race': rec['race'], 'status': rec.get('status', ''),
+    return {'key': key, 'short': name.group(1) if name else key, 'race': rec['race'], 'race_id': rec.get('race_id', ''),
+            'status': rec.get('status', ''),
             'pace': res['pace'], 'pace_probs': res['pace_probs'], 'warnings': engine.format_warnings(res), 'pace_note': rec.get('pace_note', ''), 'horses': horses,
             'bets': bets, 'stake': res['total_stake'], 'live': live, 'asof': asof, 'pred_key': pred_key,
             'missing': missing, 'skip': engine.SKIP_REASONS.get(res['skip_reason'], ''), 'market': engine.market_label(res),
