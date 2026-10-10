@@ -38,6 +38,14 @@ class ApplyEditsTest(unittest.TestCase):
         self.assertEqual(applied, [])
         self.assertIn('記録の加減点が変わっている', report[0])
 
+    def test_overruled_edit_is_skipped_but_newer_edit_applies(self):
+        rec = record()
+        rec['horses'][0]['edits_overruled'] = ['2026-10-09T13:23:32.317Z']
+        applied, report = A.apply([edit(saved_at='2026-10-09T13:23:32.317Z')], rec)
+        self.assertEqual(applied, [])
+        self.assertIn('見直し済み', report[0])
+        self.assertEqual(A.apply([edit(saved_at='2026-10-10T20:00:00.000Z')], rec)[0], [13])
+
     def test_invalid_discount_is_rejected(self):
         rec = record()
         applied, report = A.apply([edit(flag_adjust={'breaking_out': 2})], rec)

@@ -6,6 +6,7 @@
 （中の *.json をすべて読む）か、結果を1つの JSON ファイルに保存したもの。
 1件は {race_id, num, name, plus, minus, flag_adjust, note, base, saved_at}。base は編集を始めたときの記録の
 加減点で、記録がその後に変わっていれば（別の更新と競合）反映せずに報告する。
+ルール照合で見直した編集は、馬の edits_overruled に saved_at を書いておくと次からも反映しない（同じ馬の新しい編集は反映する）。
 フラグ名・割り引きの範囲は engine.flag_points と同じ検査を通ったものだけ反映し、notes に変更内容と理由を追記する。
 """
 import json
@@ -67,6 +68,9 @@ def apply(edits, rec, today=None):
         h = by_num.get(int(e['num']))
         if h is None or h['name'] != e.get('name'):
             report.append(f"{e['num']}番 {e.get('name')}: 記録の馬と一致しないため反映しない")
+            continue
+        if e.get('saved_at') and e['saved_at'] in h.get('edits_overruled', []):
+            report.append(f"{h['num']}番 {h['name']}: ルール照合で見直し済みの編集のため反映しない（notes 参照）")
             continue
         after = state(e)
         cur = state(h)
