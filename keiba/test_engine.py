@@ -263,6 +263,56 @@ class EngineTest(unittest.TestCase):
         pooled, _, _ = engine.order_distribution(scores, {'win': win, 'sanrentan': tri})
         self.assertLess(pooled[(1, 2, 3)], 0.1 * model[(1, 2, 3)])
 
+    # 表示上限と同じ値（999999.9 など）は市場分布にも買い目候補にも使わない
+    def test_invalid_odds_reason(self):
+        self.assertEqual(engine.invalid_odds_reason(999999.9), 'display_cap')
+        self.assertEqual(engine.invalid_odds_reason(99999.9), 'display_cap')
+        self.assertEqual(engine.invalid_odds_reason([9999.9, 12000.0]), 'display_cap')
+        self.assertEqual(engine.invalid_odds_reason(1.0), 'not_above_one')
+        self.assertEqual(engine.invalid_odds_reason(float('nan')), 'not_number')
+        self.assertEqual(engine.invalid_odds_reason('---'), 'not_number')
+        for ok in (1.1, 999.9, 99999.8, 158465.3, 1e6):
+            self.assertIsNone(engine.invalid_odds_reason(ok))
+
+    def test_display_cap_odds_excluded_from_market_and_candidates(self):
+        hs = [horse(i, 60 + 2 * i) for i in range(1, 6)]
+        win = {str(i): o for i, o in zip(range(1, 6), (12.0, 8.0, 5.0, 4.0, 3.0))}
+        tri = {f'{a}>{b}>{c}': 50.0 for a, b, c in permutations(range(1, 6), 3)}
+        tri['1>2>3'] = 999999.9
+        race = {'race': 'test', 'horses': hs, 'pace': 'middle',
+                'odds': {'win': win, 'sanrentan': tri, 'sanrenpuku': {'1-2-3': 99999.9, '3-4-5': 20.0}}}
+        res = engine.analyze(race)
+        self.assertEqual(res['market_source'], 'win_harville')
+        self.assertEqual(res['sanrentan_missing'], 1)
+        self.assertEqual(res['odds_excluded']['sanrentan'], {'count': 1, 'reasons': {'display_cap': 1},
+                                                             'items': {'1>2>3': 999999.9}})
+        self.assertEqual(res['odds_excluded']['sanrenpuku']['items'], {'1-2-3': 99999.9})
+        self.assertIn('除外オッズ 三連単1組・三連複1組（表示上限と同じ値', engine.market_label(res))
+        self.assertEqual(race['odds']['sanrentan']['1>2>3'], 999999.9)  # 元のオッズは残す
+        # 候補を直接作る場合も払戻倍率として使わない
+        orders = engine.harville(engine._normalize({1: 0.3, 2: 0.3, 3: 0.2, 4: 0.1, 5: 0.1}))['trifecta']
+        cands = engine.candidate_bets(orders, {'sanrentan': {'1>2>3': 999999.9}, 'sanrenpuku': {'1-2-3': 99999.9}})
+        self.assertEqual(cands, [])
+
+    # 市場のみの試算（同じオッズ・予算・制約）と本番との重なり。モデルとの比較は計算用市場で行う
+    def test_market_only_check_and_calc_market(self):
+        hs = [horse(i, 60 + i) for i in range(1, 6)]
+        win = {str(i): o for i, o in zip(range(1, 6), (12.0, 8.0, 5.0, 4.0, 3.0))}
+        race = {'race': 'test', 'horses': hs, 'pace': 'middle',
+                'odds': {'win': win, 'place': {'5': [4.0, 5.0], '1': [1.2, 1.5]}}}
+        res = engine.analyze(race)
+        m = res['market_only']
+        self.assertIn(('複勝', [5]), [(b['type'], b['horses']) for b in m['bets']])
+        self.assertIn({'type': '複勝', 'horses': [5]}, m['shared'])
+        self.assertAlmostEqual(m['shared_share'], m['shared_stake'] / res['total_stake'])
+        self.assertTrue(any(w.startswith('⚠ 市場のみの試算でも買い目あり') for w in engine.format_warnings(res)))
+        # 単勝で代用したときの計算用市場の1着確率は単勝市場と同じ
+        for k, v in res['win_market_prob'].items():
+            self.assertAlmostEqual(res['calc_market_win_prob'][k], v)
+        self.assertAlmostEqual(sum(res['model_win_prob'].values()), 1.0)
+        # 市場のみの試算そのものには入れ子の試算を付けない
+        self.assertIsNone(engine.analyze(race, model_weight=0)['market_only'])
+
     def test_market_label_in_result(self):
         hs = [horse(i, 60 + i) for i in range(1, 5)]
         race = {'race': 'test', 'horses': hs, 'pace': 'middle', 'odds': {'win': {str(i): 4.0 for i in range(1, 5)}}}

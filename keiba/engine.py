@@ -40,7 +40,7 @@ PLACE_DISCOUNT_WIN_MARKET = (0.807, 0.692)
 REFERENCE_PLACE_DISCOUNTS = {'lambda_model': {'model': PLACE_DISCOUNT_MODEL},
                              'lambda_both': {'model': PLACE_DISCOUNT_MODEL, 'win_market': PLACE_DISCOUNT_WIN_MARKET}}
 # 判断記録に残す設定の版。PACE_FIT・PACE_PRIOR・加減点などを変えたら日付を更新する（期間の途中で頻繁に変えない）
-CONFIG_VERSION = '2026-10-05'
+CONFIG_VERSION = '2026-10-11'
 TAKEOUT_WIN = 0.20
 BIAS_FLAT = 0.08
 # 資金配分の基準資金（期待対数成長の計算用）。Codex版 config.json と同じ値で、未検証
@@ -272,6 +272,47 @@ def order_distribution(scores, odds, model_weight=MODEL_WEIGHT, market='auto', p
     return _normalize(pooled), source, missing
 
 
+# netkeiba の前売りで、三連単 999999.9・三連複 99999.9 が複数の組に同じ値で並ぶ（人気順だけが違う）。
+# 票がない組か、表示上限を超えた組かを区別できないので、確認できるまでは価格として使わない
+DISPLAY_CAP = re.compile(r'9{4,}\.9')
+ODDS_EXCLUDE_REASONS = {'not_number': '数値でない', 'not_above_one': '1.0倍以下',
+                        'display_cap': '表示上限と同じ値（票なしか上限超えか区別できない）'}
+
+
+TICKET_JA = {'win': '単勝', 'place': '複勝', 'wakuren': '枠連', 'umaren': '馬連', 'wide': 'ワイド', 'umatan': '馬単',
+             'sanrenpuku': '三連複', 'sanrentan': '三連単'}
+
+
+def invalid_odds_reason(o):
+    """払戻倍率として使えないオッズなら除外理由のキー、使えるなら None。"""
+    o = _low(o)
+    if isinstance(o, bool) or not isinstance(o, (int, float)) or not math.isfinite(o):
+        return 'not_number'
+    if o <= 1:
+        return 'not_above_one'
+    if DISPLAY_CAP.fullmatch(f'{o:.1f}'):
+        return 'display_cap'
+    return None
+
+
+def clean_odds(odds):
+    """全券種から使えないオッズを除く。戻り値 (除いた後のオッズ, {券種: {'count', 'reasons': {理由: 件数}, 'items': {組: 元の値}}})。
+    元のオッズ（odds）は書き換えない。単勝・複勝も同じ基準で除く。"""
+    clean, excluded = {}, {}
+    for kind, table in odds.items():
+        clean[kind] = {}
+        for k, v in table.items():
+            reason = invalid_odds_reason(v)
+            if reason is None:
+                clean[kind][k] = v
+                continue
+            e = excluded.setdefault(kind, {'count': 0, 'reasons': {}, 'items': {}})
+            e['count'] += 1
+            e['reasons'][reason] = e['reasons'].get(reason, 0) + 1
+            e['items'][k] = v
+    return clean, excluded
+
+
 def sanrentan_missing(odds, nums):
     """出走馬（nums）の三連単の全組合せのうち、有効なオッズがない組の数。"""
     tri = {_ordered(k): _low(v) for k, v in odds.get('sanrentan', {}).items()}
@@ -280,11 +321,14 @@ def sanrentan_missing(odds, nums):
 
 def market_label(res):
     total = res.get('sanrentan_total', 0)
+    ex = res.get('odds_excluded') or {}
+    note = ('・除外オッズ ' + '・'.join(f"{TICKET_JA.get(k, k)}{e['count']}組" for k, e in ex.items())
+            + '（' + '・'.join(sorted({ODDS_EXCLUDE_REASONS[r] for e in ex.values() for r in e['reasons']})) + '）') if ex else ''
     if res.get('market_source') == 'sanrentan':
-        return '市場: 三連単オッズ使用'
+        return '市場: 三連単オッズ使用' + note
     if res.get('market_source') == 'model_only':
-        return '市場: 混合なし（モデルのみ）'
-    return f"市場: 単勝オッズで代用（三連単 不足 {res.get('sanrentan_missing', 0)}/{total}組）"
+        return '市場: 混合なし（モデルのみ）' + note
+    return f"市場: 単勝オッズで代用（三連単 不足 {res.get('sanrentan_missing', 0)}/{total}組）" + note
 
 
 def ticket_probabilities(orders, places, gates=None):
@@ -401,9 +445,11 @@ def candidate_bets(orders, odds, gates=None, places=3):
         if kind == 'wakuren' and not gates:
             continue
         for k, o in odds.get(kind, {}).items():
+            if invalid_odds_reason(o):
+                continue
             o = _low(o)
             b = _bet(label, parse(k), prob(parse(k)), o)
-            if b['odds'] > 1 and b['ev'] >= EV_THRESHOLD:
+            if b['ev'] >= EV_THRESHOLD:
                 bets.append(b)
     return bets
 
@@ -529,14 +575,33 @@ def pace_sensitivity(bets, horses, inner_outer, front_back, odds, model_weight, 
     return out
 
 
+def _ticket(b):
+    return b['type'], tuple(b['horses'])
+
+
+def market_only_check(bets, market_orders, odds, gates, places, cap, win_odds, horses):
+    """同じオッズ・予算・制約（100倍除外・券種の上限）で、市場の分布だけから買い目を作った試算と、本番との重なり。
+    市場だけで買い目が出るのは券種間のオッズのずれ（発表時刻の差・売上の薄さなど）を拾っている可能性があり、
+    モデル固有の優位の証拠にはならない。ただし、それだけで期待値が偽とも断定しない（再確認の警告に使う）。"""
+    cands = [b for b in candidate_bets(market_orders, odds, gates, places) if not involves_longshot(b, win_odds, horses)]
+    mbets, skip, _ = allocate(cands, market_orders, cap, gates, places)
+    shared = {_ticket(b) for b in mbets} & {_ticket(b) for b in bets}
+    total = sum(b['stake'] for b in bets)
+    shared_stake = sum(b['stake'] for b in bets if _ticket(b) in shared)
+    return {'bets': [{k: b[k] for k in ('type', 'horses', 'prob', 'odds', 'ev', 'stake')} for b in mbets],
+            'total_stake': sum(b['stake'] for b in mbets), 'skip_reason': skip,
+            'shared': [{'type': t, 'horses': list(h)} for t, h in sorted(shared)],
+            'shared_stake': shared_stake, 'shared_share': shared_stake / total if total else 0.0}
+
+
 def divergence_warnings(model, market, bets, others=None):
     """モデルと市場・他の出どころとの大きなずれ（表示用）。
 
-    model・market・others の各値は {馬番: 勝率}。買い目に含まれる馬のうち、モデル勝率が市場と others の全ての
+    model・market・others の各値は {馬番: 勝率}。market は買い目の計算に使った市場（三連単、揃わなければ単勝）の1着確率。買い目に含まれる馬のうち、モデル勝率が市場と others の全ての
     DIVERGENCE_RATIO 倍以上の馬（その馬を含む買い目の金額の割合つき、割合の大きい順）と、期待値が EV_SUSPICIOUS を
     超える買い目を返す。期待値が極端に高いときは市場の見落としよりモデル側の誤りを先に疑う。
     """
-    sources = {'市場': market, **(others or {})}
+    sources = {'計算用市場': market, **(others or {})}
     total = sum(b.get('stake', 0) for b in bets)
     horses = []
     for n in {h for b in bets for h in b['horses']}:
@@ -566,12 +631,14 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others
         inner_outer, front_back = bias.get('inner_outer', 'flat'), bias.get('front_back', 'flat')
     pace = race.get('pace') or predict_pace(horses)
     scores = {h['num']: total_score(h, pace, inner_outer, front_back) for h in horses}
-    win_odds = {int(k): v for k, v in race['odds']['win'].items()}
+    odds = {k: {kk: vv for kk, vv in v.items() if all(int(x) not in scratched for x in re.split('[->]', kk))}
+            if k != 'wakuren' else v for k, v in race['odds'].items()}
+    # 使えないオッズは市場分布と買い目候補の両方から除く（race['odds'] の元の値はそのまま残る）
+    odds, odds_excluded = clean_odds(odds)
+    win_odds = {int(k): v for k, v in odds.get('win', {}).items()}
     missing = [n for n in scores if n not in win_odds]
     if missing:
         raise ValueError(f"単勝オッズがない馬（取消なら scratched に入れる）: {missing}")
-    odds = {k: {kk: vv for kk, vv in v.items() if all(int(x) not in scratched for x in re.split('[->]', kk))}
-            if k != 'wakuren' else v for k, v in race['odds'].items()}
     gates = {h['num']: h['gate'] for h in horses} if all('gate' in h for h in horses) else None
     orders, market_source, tri_missing = order_distribution(scores, odds, model_weight, market, place_discount)
     cands = [b for b in candidate_bets(orders, odds, gates, places)
@@ -580,6 +647,10 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others
     tp = ticket_probabilities(orders, 3)
     win = tp['win']
     market_win = _normalize({k: 1 / _low(win_odds[k]) for k in scores})
+    # 計算に使った市場（三連単、揃わなければ単勝の Harville）だけの分布。モデルとの比較と市場のみの試算に使う
+    market_orders, _, _ = order_distribution(scores, odds, 0.0, market, place_discount)
+    calc_market_win = ticket_probabilities(market_orders, 3)['win']
+    model_win = model_probabilities(scores)
     out = {
         'race': race['race'],
         'bias': {'inner_outer': inner_outer, 'front_back': front_back},
@@ -590,15 +661,21 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others
         'model_weight': model_weight,
         'market_source': market_source,
         'sanrentan_missing': tri_missing,
+        'odds_excluded': odds_excluded,
         'sanrentan_total': len(scores) * (len(scores) - 1) * (len(scores) - 2),
         'scores': scores,
         'win_prob': {k: win.get(k, 0.0) for k in scores},
+        'model_win_prob': model_win,
+        'calc_market_win_prob': {k: calc_market_win.get(k, 0.0) for k in scores},
+        'win_market_prob': market_win,
         'place_prob': {k: tp['place'].get(k, 0.0) for k in scores},
         'bets': bets,
         'total_stake': sum(b['stake'] for b in bets),
         'growth': growth,
         'skip_reason': skip,
-        'warnings': divergence_warnings(model_probabilities(scores), market_win, bets, others),
+        'warnings': divergence_warnings(model_win, calc_market_win, bets, others),
+        'market_only': market_only_check(bets, market_orders, odds, gates, places, cap, win_odds, horses)
+        if model_weight > 0 else None,
         'pace_sensitivity': pace_sensitivity(bets, horses, inner_outer, front_back, odds, model_weight, market,
                                              gates, places, place_discount) if bets else None,
     }
@@ -625,6 +702,11 @@ def format_warnings(res):
                      "評価の根拠を見直す")
     for b in w.get('tickets', []):
         lines.append(f"⚠ 期待値{b['ev']:.2f} {b['type']} {'-'.join(map(str, b['horses']))}。市場よりモデルの誤りを先に疑う")
+    m = res.get('market_only')
+    if m and m['bets']:
+        lines.append(f"⚠ 市場のみの試算でも買い目あり（{len(m['bets'])}点・{m['total_stake']}円。本番と共通 {len(m['shared'])}点、"
+                     f"本番金額のうち{m['shared_stake']}円＝{m['shared_share']:.0%}）。モデル固有の優位の証拠にはならない。"
+                     "券種ごとの発表時刻のずれ・売上の薄さを再確認する")
     return lines
 
 

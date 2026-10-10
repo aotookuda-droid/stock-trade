@@ -42,6 +42,17 @@ class LiveCardTest(unittest.TestCase):
         self.assertIsNone(d['asof_iso'])
         self.assertAlmostEqual(sum(h['p'] for h in race['horses']), 1.0, places=3)
 
+    def test_four_probabilities_are_shown_separately(self):
+        race = self.build(None)['races'][0]
+        for key in ('model', 'calc', 'p', 'mkt'):
+            self.assertAlmostEqual(sum(h[key] for h in race['horses']), 1.0, places=3)
+        # 単勝で代用したので、計算用市場は単勝市場と同じ
+        self.assertEqual(race['market_source'], 'win_harville')
+        for h in race['horses']:
+            self.assertAlmostEqual(h['calc'], h['mkt'], places=3)
+        self.assertIn('単勝オッズで代用', race['market'])
+        self.assertIn('total_stake', race['market_only'])
+
     def test_scratched_horse_is_excluded(self):
         rec = json.loads(RECORD.read_text(encoding='utf-8'))
         win = {str(h['num']): h['pred_odds_1002'] for h in rec['horses'] if h['num'] != 8}

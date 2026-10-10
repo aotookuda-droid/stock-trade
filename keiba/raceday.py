@@ -45,7 +45,8 @@ def _fetch_complete(race, now, decision, sleep, fetch):
             return got, None
         scratched = set(race.get('scratched', [])) | set(got['scratched'])
         nums = [h['num'] for h in race['horses'] if h['num'] not in scratched]
-        missing = engine.sanrentan_missing(got['odds'], nums)
+        # 表示上限値など使えないオッズは欠けた組として数える（analyze も同じ基準で除く）
+        missing = engine.sanrentan_missing(engine.clean_odds(got['odds'])[0], nums)
         if not missing or attempt == TRIFECTA_RETRIES or now() + RETRY_PAUSE >= decision:
             return got, missing
         print(f"三連単オッズが {missing} 組不足。取り直す（{attempt + 1}回目）")
@@ -89,7 +90,8 @@ def _run(race, ledger, record_path, ledger_path, now, sleep, fetch):
     race['scratched'] = scratched
     race['odds'] = got['odds']
     race['odds_meta'] = {'kind': 'observed', 'source': ODDS_PAGE.format(race['race_id']) + '（netkeiba オッズAPI）',
-                         'official_at': got['asof'], 'fetched_at': got['fetched_at'],
+                         'official_at': got['asof'], 'official_at_by_kind': got.get('official_by_kind'),
+                         'fetched_at': got['fetched_at'],
                          'sanrentan_missing': tri_missing}
     res = engine.finalize(race, record_path, ledger, ledger_path, extra_probs=_codex_probs(race, scratched, decision))
     print(engine.format_result(res))

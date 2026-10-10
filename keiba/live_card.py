@@ -38,10 +38,11 @@ def _get(race_id, t):
 def fetch_odds(race_id):
     """全券種のオッズを engine の形式で取得する。
 
-    戻り値 {'odds', 'asof'（JRA発表時刻）, 'fetched_at'（券種ごとの取得時刻）, 'scratched'（取消・除外と明示された馬番）}。
+    戻り値 {'odds', 'asof'（JRA発表時刻）, 'official_by_kind'（券種ごとのJRA発表時刻）, 'fetched_at'（券種ごとの取得時刻）,
+    'scratched'（取消・除外と明示された馬番）}。
     単勝が1頭も取れなければ odds は None。
     """
-    odds, asof, fetched_at, scratched = {}, None, {}, set()
+    odds, asof, fetched_at, official, scratched = {}, None, {}, {}, set()
     for t, (key, sep, has_range) in TYPES.items():
         data = _get(race_id, t).get('data') or {}
         got = datetime.now().astimezone().isoformat(timespec='seconds')
@@ -62,8 +63,9 @@ def fetch_odds(race_id):
         if out:
             odds[key] = out
             fetched_at[key] = got
+            official[key] = data.get('official_datetime')
             asof = asof or data.get('official_datetime')
-    return {'odds': odds if odds.get('win') else None, 'asof': asof, 'fetched_at': fetched_at,
+    return {'odds': odds if odds.get('win') else None, 'asof': asof, 'official_by_kind': official, 'fetched_at': fetched_at,
             'scratched': sorted(scratched)}
 
 
@@ -275,7 +277,6 @@ def build_race(path, key):
     codex = load_codex(rec['race_id'], scratched, decision_at, [h['num'] for h in running]) if rec.get('race_id') else None
     others = {codex['kind']: codex['win']} if codex and codex['win'] else None
     res = engine.analyze(dict(rec, odds=odds, scratched=sorted(scratched)), others=others)
-    mkt = engine._normalize({h['num']: 1 / win[h['num']] for h in running})
     refs = reference_abilities(rec, running) if rec.get('race_id') else None
     name_m = re.search(r'\d+R (.+?)\(', rec['race'])
     trend_meta, trends = load_trends(name_m.group(1) if name_m else '', win)
@@ -300,7 +301,11 @@ def build_race(path, key):
             'ref': refs.get(n) if refs else None,
             'front': engine.is_front_candidate(h.get('early_positions', [])), 'early': h.get('early_positions', []),
             'pacefit': round(engine.pace_fit(h['style'], res['pace_probs']), 1),
-            'score': res['scores'].get(n, 0), 'p': round(res['win_prob'].get(n, 0.0), 4), 'mkt': round(mkt.get(n, 0.0), 4),
+            'score': res['scores'].get(n, 0), 'p': round(res['win_prob'].get(n, 0.0), 4),
+            # Claudeモデル単独・計算に使った市場・混合後（p）・単勝市場（検証用）を区別して並べる
+            'model': round(res['model_win_prob'].get(n, 0.0), 4),
+            'calc': round(res['calc_market_win_prob'].get(n, 0.0), 4),
+            'mkt': round(res['win_market_prob'].get(n, 0.0), 4),
         })
     bets = [{k: b[k] for k in ('type', 'horses', 'prob', 'odds', 'ev', 'kelly', 'stake')} for b in res['bets']]
     name = re.search(r'\d+R (.+?)\(', rec['race'])
@@ -308,7 +313,9 @@ def build_race(path, key):
             'status': rec.get('status', ''),
             'pace': res['pace'], 'pace_probs': res['pace_probs'], 'warnings': engine.format_warnings(res), 'pace_note': rec.get('pace_note', ''), 'horses': horses,
             'bets': bets, 'stake': res['total_stake'], 'live': live, 'asof': asof, 'pred_key': pred_key,
-            'missing': missing, 'skip': engine.SKIP_REASONS.get(res['skip_reason'], ''), 'market': engine.market_label(res),
+            'missing': missing, 'skip': engine.SKIP_REASONS.get(res['skip_reason'], ''), 'market': engine.market_label(res), 'market_source': res['market_source'],
+            'market_only': {k: res['market_only'][k] for k in ('bets', 'total_stake', 'shared', 'shared_stake')}
+            if res.get('market_only') else None,
             'codex': {k: v for k, v in codex.items() if k not in ('win', 'notes')} if codex else None,
             'trend_meta': trend_meta,
             'train_date': train_date, 'rule_date': rule_date,

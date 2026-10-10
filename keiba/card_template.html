@@ -71,7 +71,8 @@ tr.h:hover td{background:var(--turf-soft)}
 .prob{display:flex;flex-direction:column;gap:2px;min-width:110px}
 .prob .row{display:flex;align-items:center;gap:6px;font-family:var(--f-num);font-size:.72rem}
 .prob .row i{display:block;height:5px;border-radius:2px}
-.prob .mdl i{background:var(--turf)}.prob .mkt i{background:var(--muted)}
+.prob .mdl i{background:var(--turf)}.prob .mkt i{background:var(--muted)}.prob .mix i{background:var(--front)}
+.prob .lab{min-width:4.2em;color:var(--muted);font-family:var(--f-body)}.prob .win{color:var(--muted)}
 .edge-up{color:var(--plus);font-weight:600}.edge-dn{color:var(--minus)}
 tr.nt td{background:var(--bg);font-size:.82rem;color:var(--muted);padding:8px 12px 10px 48px}
 .stale{background:var(--minus-bg);color:var(--minus);font-weight:700;padding:6px 10px;border-radius:4px;margin-top:6px}
@@ -129,12 +130,14 @@ tr.scr td{opacity:.45}
     <button type="button" id="s-num" aria-pressed="true">馬番</button>
     <button type="button" id="s-score" aria-pressed="false">総合点</button>
     <button type="button" id="s-ability" aria-pressed="false">ability</button>
-    <button type="button" id="s-edge" aria-pressed="false">モデル−市場</button>
+    <button type="button" id="s-edge" aria-pressed="false">モデル−計算市場</button>
     <button type="button" id="s-codex" aria-pressed="false">Codexとの差</button>
   </div>
   <div class="legend">
-    <span><i style="background:var(--turf)"></i>モデル勝率（市場とブレンド後）</span>
-    <span><i style="background:var(--muted)"></i>市場勝率（単勝オッズ）</span>
+    <span><i style="background:var(--turf)"></i>モデル＝Claudeモデル単独の勝率（市場を混ぜる前）</span>
+    <span><i style="background:var(--muted)"></i>計算市場＝買い目の計算に使った市場の1着確率（三連単。揃わない・除外があると単勝で代用、買い目欄に表示）／右の±はモデル−計算市場</span>
+    <span><i style="background:var(--front)"></i>混合後＝買い目に使う勝率</span>
+    <span>単勝＝単勝オッズの市場勝率（検証用）</span>
     <span>行をクリックで寸評・調教コメントを表示</span><span>★ = 調教・ルール照合で追加したフラグ／調教 = デイリー最終追切評価</span><span>過去10年傾向：同レースで3着以内率がレース平均の1.5倍以上の区分▲・0.5倍以下▼（出走10頭以上の区分のみ。点数には入れていない参考）</span>
   </div>
   <div class="tbl"><table>
@@ -184,6 +187,8 @@ function render() {
   const sepOf = t => (t === '馬単' || t === '三連単') ? '>' : '-';
   bets.innerHTML = r.bets.length ? r.bets.map(b => `<div><span>${esc(b.type)} ${b.type === '枠連' ? '枠' : ''}${b.horses.join(sepOf(b.type))}</span><span>${b.stake}円 · ${b.odds.toFixed(1)}倍 · 期待値${b.ev.toFixed(2)} <span class="${b.ev * 0.9 >= 1.2 ? 'robust' : 'fragile'}">${b.ev * 0.9 >= 1.2 ? '✓' : '—'}</span></span></div>`).join('') + `<div><span>合計</span><span>${r.stake}円</span></div>`
     : `<div><span>見送り</span><span>${esc(r.skip || '期待値1.2以上の馬券なし')}</span></div>`;
+  const mo = r.market_only;
+  if (mo) bets.innerHTML += `<div><span>市場のみの試算（同じオッズ・予算）</span><span>${mo.bets.length ? `${mo.bets.length}点・${mo.total_stake}円（本番と共通 ${mo.shared.length}点・${mo.shared_stake}円）` : '買い目なし'}</span></div>`;
   const wk = D.races.reduce((a, x) => a + x.stake, 0);
   bets.innerHTML += `<div><span>土日合計（全レース）</span><span${wk > 8000 ? ' class="edge-dn"' : ''}>${wk}円 / 8,000円</span></div>`;
   document.getElementById('links').innerHTML = (r.links || []).map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join(' ・ ');
@@ -197,9 +202,9 @@ function render() {
       + (c.scratch_note ? c.scratch_note + '。' : '');
   }
   const hs = [...r.horses];
-  const by = {num: h => h.num, score: h => -h.score, ability: h => -h.ability, edge: h => -(h.p - h.mkt), codex: h => -Math.abs((h.codex ?? h.p) - h.p)};
+  const by = {num: h => h.num, score: h => -h.score, ability: h => -h.ability, edge: h => -(h.model - h.calc), codex: h => -Math.abs((h.codex ?? h.p) - h.p)};
   hs.sort((a, b) => by[sortKey](a) - by[sortKey](b) || a.num - b.num);
-  const maxP = Math.max(...hs.map(h => Math.max(h.p, h.mkt)));
+  const maxP = Math.max(...hs.map(h => Math.max(h.p, h.mkt, h.model, h.calc)));
   const tb = document.getElementById('tb');
   tb.innerHTML = hs.map(h => {
     const adj = h.adjust || {};
@@ -208,7 +213,7 @@ function render() {
     const ed = EDITS[editKey(r, h)];
     const pending = ed && !sameState(ed, recState(h));
     const pendChip = pending ? `<span class="chip pend" title="ブラウザで編集済み。Claude がレコードに反映すると確率・買い目に入る">編集済み・未反映 → 総合点 ${editedScore(h, ed)}</span>` : '';
-    const edge = h.p - h.mkt;
+    const edge = h.model - h.calc;
     const pf = h.pacefit;
     return `<tr class="h${h.scratched ? ' scr' : ''}" tabindex="0" data-n="${h.num}" aria-expanded="${open.has(h.num)}">
       <td><span class="waku w${h.gate}">${h.gate}</span></td>
@@ -221,8 +226,10 @@ function render() {
       <td><div class="chips">${chips || (pending ? '' : '<span class="sub">—</span>')}${pendChip}</div></td>
       <td class="score">${h.score}</td>
       <td><div class="prob">
-        <div class="row mdl"><i style="width:${h.p / maxP * 70}px"></i>${(h.p * 100).toFixed(1)}%</div>
-        <div class="row mkt"><i style="width:${h.mkt / maxP * 70}px"></i>${(h.mkt * 100).toFixed(1)}% <span class="${edge >= 0.005 ? 'edge-up' : edge <= -0.005 ? 'edge-dn' : ''}">${edge >= 0 ? '+' : ''}${(edge * 100).toFixed(1)}</span></div>
+        <div class="row mdl"><span class="lab">モデル</span><i style="width:${h.model / maxP * 60}px"></i>${(h.model * 100).toFixed(1)}%</div>
+        <div class="row mkt"><span class="lab">計算市場</span><i style="width:${h.calc / maxP * 60}px"></i>${(h.calc * 100).toFixed(1)}% <span class="${edge >= 0.005 ? 'edge-up' : edge <= -0.005 ? 'edge-dn' : ''}">${edge >= 0 ? '+' : ''}${(edge * 100).toFixed(1)}</span></div>
+        <div class="row mix"><span class="lab">混合後</span><i style="width:${h.p / maxP * 60}px"></i>${(h.p * 100).toFixed(1)}%</div>
+        <div class="row win"><span class="lab">単勝</span>${(h.mkt * 100).toFixed(1)}%</div>
       </div></td>
       <td class="num">${h.codex == null ? '—' : (h.codex * 100).toFixed(1) + '%'}${h.codex == null ? '' : `<div class="sub ${h.codex - h.p >= 0.02 ? 'edge-up' : h.codex - h.p <= -0.02 ? 'edge-dn' : ''}">${h.codex - h.p >= 0 ? '+' : ''}${((h.codex - h.p) * 100).toFixed(1)}</div>`}</td>
       <td>${h.trend ? `<span class="edge-up">${'▲'.repeat(h.trend.up)}</span><span class="edge-dn">${'▼'.repeat(h.trend.down)}</span>` || '<span class="sub">—</span>' : '<span class="sub">—</span>'}</td>
