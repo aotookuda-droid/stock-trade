@@ -1,0 +1,408 @@
+{
+  "race_id": "202605040411",
+  "race": "2026/10/11 東京11R アイルランドトロフィー(G2) 芝1800 15:45発走",
+  "start_at": "2026-10-11T15:45:00+09:00",
+  "record": "keiba/records/20261011_アイルランドトロフィー.json",
+  "record_hash": "dadeb48a20a54364384d1a8f60d4b21afa54e0636d652726382979d4efa39f60",
+  "source": "https://race.netkeiba.com/race/result.html?race_id=202605040411",
+  "fetched_at": "2026-10-11T16:31:04+09:00",
+  "official": {
+    "race_id": "202605040411",
+    "payouts": {
+      "単勝": {
+        "16": 320
+      },
+      "複勝": {
+        "16": 140,
+        "15": 190,
+        "11": 160
+      },
+      "枠連": {
+        "8-8": 1030
+      },
+      "馬連": {
+        "15-16": 1110
+      },
+      "ワイド": {
+        "15-16": 460,
+        "11-16": 380,
+        "11-15": 630
+      },
+      "馬単": {
+        "16>15": 1860
+      },
+      "三連複": {
+        "11-15-16": 2100
+      },
+      "三連単": {
+        "16>15>11": 7740
+      }
+    },
+    "finish": [
+      16,
+      15,
+      11,
+      5,
+      12,
+      7,
+      1,
+      3,
+      14,
+      6,
+      13,
+      2,
+      8,
+      9,
+      10,
+      4
+    ],
+    "scratched": [],
+    "gates": {
+      "16": 8,
+      "15": 8,
+      "11": 6,
+      "5": 3,
+      "12": 6,
+      "7": 4,
+      "1": 1,
+      "3": 2,
+      "14": 7,
+      "6": 3,
+      "13": 7,
+      "2": 1,
+      "8": 4,
+      "9": 5,
+      "10": 5,
+      "4": 2
+    },
+    "status": {
+      "16": "完走",
+      "15": "完走",
+      "11": "完走",
+      "5": "完走",
+      "12": "完走",
+      "7": "完走",
+      "1": "完走",
+      "3": "完走",
+      "14": "完走",
+      "6": "完走",
+      "13": "完走",
+      "2": "完走",
+      "8": "完走",
+      "9": "完走",
+      "10": "完走",
+      "4": "完走"
+    }
+  },
+  "plans": {
+    "本番": {
+      "stake": 0,
+      "refund": 0,
+      "payout": 0,
+      "profit": 0,
+      "roi": null,
+      "tickets": []
+    },
+    "参考（単勝市場のみ）": {
+      "stake": 4000,
+      "refund": 0,
+      "payout": 0,
+      "profit": -4000,
+      "roi": 0.0,
+      "tickets": [
+        {
+          "type": "ワイド",
+          "horses": [
+            10,
+            16
+          ],
+          "stake": 1700,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "ワイド",
+          "horses": [
+            10,
+            15
+          ],
+          "stake": 800,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "ワイド",
+          "horses": [
+            13,
+            16
+          ],
+          "stake": 600,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "馬連",
+          "horses": [
+            4,
+            15
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "三連複",
+          "horses": [
+            4,
+            11,
+            16
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "馬連",
+          "horses": [
+            4,
+            16
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "三連複",
+          "horses": [
+            4,
+            15,
+            16
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "馬連",
+          "horses": [
+            13,
+            15
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "馬連",
+          "horses": [
+            11,
+            13
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "ワイド",
+          "horses": [
+            13,
+            15
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "馬単",
+          "horses": [
+            8,
+            16
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "三連複",
+          "horses": [
+            7,
+            11,
+            16
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        }
+      ]
+    },
+    "参考（混合率0.5）": {
+      "stake": 4000,
+      "refund": 0,
+      "payout": 0,
+      "profit": -4000,
+      "roi": 0.0,
+      "tickets": [
+        {
+          "type": "ワイド",
+          "horses": [
+            10,
+            15
+          ],
+          "stake": 1600,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "ワイド",
+          "horses": [
+            10,
+            16
+          ],
+          "stake": 1500,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "馬連",
+          "horses": [
+            4,
+            15
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "三連複",
+          "horses": [
+            4,
+            11,
+            15
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "馬連",
+          "horses": [
+            4,
+            11
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "三連複",
+          "horses": [
+            4,
+            15,
+            16
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "馬連",
+          "horses": [
+            4,
+            16
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "馬単",
+          "horses": [
+            8,
+            15
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "ワイド",
+          "horses": [
+            4,
+            16
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "三連複",
+          "horses": [
+            8,
+            10,
+            11
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        },
+        {
+          "type": "馬単",
+          "horses": [
+            8,
+            16
+          ],
+          "stake": 100,
+          "refund": 0,
+          "payout": 0,
+          "status": "不的中"
+        }
+      ]
+    },
+    "参考（市場のみ）": {
+      "stake": 0,
+      "refund": 0,
+      "payout": 0,
+      "profit": 0,
+      "roi": null,
+      "tickets": []
+    },
+    "参考（λ・モデル側）": {
+      "stake": 0,
+      "refund": 0,
+      "payout": 0,
+      "profit": 0,
+      "roi": null,
+      "tickets": []
+    },
+    "参考（λ・両側）": {
+      "stake": 0,
+      "refund": 0,
+      "payout": 0,
+      "profit": 0,
+      "roi": null,
+      "tickets": []
+    }
+  }
+}
