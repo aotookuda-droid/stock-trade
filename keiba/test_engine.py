@@ -268,11 +268,27 @@ class EngineTest(unittest.TestCase):
         self.assertEqual(engine.invalid_odds_reason(999999.9), 'display_cap')
         self.assertEqual(engine.invalid_odds_reason(99999.9), 'display_cap')
         self.assertEqual(engine.invalid_odds_reason([9999.9, 12000.0]), 'display_cap')
-        self.assertEqual(engine.invalid_odds_reason(1.0), 'not_above_one')
+        self.assertIsNone(engine.invalid_odds_reason(1.0))  # 100円元返しは実在する
+        self.assertEqual(engine.invalid_odds_reason(0.0), 'below_one')
         self.assertEqual(engine.invalid_odds_reason(float('nan')), 'not_number')
         self.assertEqual(engine.invalid_odds_reason('---'), 'not_number')
         for ok in (1.1, 999.9, 99999.8, 158465.3, 1e6):
             self.assertIsNone(engine.invalid_odds_reason(ok))
+
+    # 単勝1.0倍の馬がいても、市場確率に残したまま他の馬を含めて計算が完了する（買い目候補にはしない）
+    def test_win_odds_of_one_kept_for_market(self):
+        hs = [horse(i, 60 + i) for i in range(1, 6)]
+        win = {'1': 1.0, '2': 30.0, '3': 50.0, '4': 80.0, '5': 99.0}
+        race = {'race': 'test', 'horses': hs, 'pace': 'middle',
+                'odds': {'win': win, 'place': {'1': [1.0, 1.0], '2': [3.0, 6.0]}}}
+        res = engine.analyze(race)
+        self.assertEqual(res['odds_excluded'], {})
+        self.assertEqual(set(res['win_market_prob']), {1, 2, 3, 4, 5})
+        self.assertGreater(res['win_market_prob'][1], 0.9)
+        self.assertAlmostEqual(sum(res['win_prob'].values()), 1.0)
+        self.assertNotIn(1, [b['horses'][0] for b in res['bets'] if b['type'] in ('単勝', '複勝')])
+        orders = engine.harville({1: 0.97, 2: 0.01, 3: 0.01, 4: 0.01})['trifecta']
+        self.assertEqual(engine.candidate_bets(orders, {'win': {'1': 1.0}, 'place': {'1': [1.0, 1.0]}}), [])
 
     def test_display_cap_odds_excluded_from_market_and_candidates(self):
         hs = [horse(i, 60 + 2 * i) for i in range(1, 6)]

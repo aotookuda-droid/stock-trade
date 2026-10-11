@@ -275,7 +275,7 @@ def order_distribution(scores, odds, model_weight=MODEL_WEIGHT, market='auto', p
 # netkeiba の前売りで、三連単 999999.9・三連複 99999.9 が複数の組に同じ値で並ぶ（人気順だけが違う）。
 # 票がない組か、表示上限を超えた組かを区別できないので、確認できるまでは価格として使わない
 DISPLAY_CAP = re.compile(r'9{4,}\.9')
-ODDS_EXCLUDE_REASONS = {'not_number': '数値でない', 'not_above_one': '1.0倍以下',
+ODDS_EXCLUDE_REASONS = {'not_number': '数値でない', 'below_one': '1.0倍未満',
                         'display_cap': '表示上限と同じ値（票なしか上限超えか区別できない）'}
 
 
@@ -284,12 +284,13 @@ TICKET_JA = {'win': '単勝', 'place': '複勝', 'wakuren': '枠連', 'umaren': 
 
 
 def invalid_odds_reason(o):
-    """払戻倍率として使えないオッズなら除外理由のキー、使えるなら None。"""
+    """市場確率にも払戻倍率にも使えないオッズなら除外理由のキー、使えるなら None。
+    1.0倍（100円元返し）は実在するので残す（買い目候補では期待値1.2に届かないので candidate_bets が別に外す）。"""
     o = _low(o)
     if isinstance(o, bool) or not isinstance(o, (int, float)) or not math.isfinite(o):
         return 'not_number'
-    if o <= 1:
-        return 'not_above_one'
+    if o < 1:
+        return 'below_one'
     if DISPLAY_CAP.fullmatch(f'{o:.1f}'):
         return 'display_cap'
     return None
@@ -445,7 +446,7 @@ def candidate_bets(orders, odds, gates=None, places=3):
         if kind == 'wakuren' and not gates:
             continue
         for k, o in odds.get(kind, {}).items():
-            if invalid_odds_reason(o):
+            if invalid_odds_reason(o) or _low(o) <= 1:
                 continue
             o = _low(o)
             b = _bet(label, parse(k), prob(parse(k)), o)
