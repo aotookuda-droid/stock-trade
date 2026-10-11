@@ -606,19 +606,27 @@ def divergence_warnings(model, market, bets, others=None, gates=None):
     """モデルと市場・他の出どころとの大きなずれ（表示用）。
 
     model・market・others の各値は {馬番: 勝率}。枠連はその枠の出走馬全てを含む買い目として数える（gates が必要）。market は買い目の計算に使った市場（三連単、揃わなければ単勝）の1着確率。買い目に含まれる馬のうち、モデル勝率が市場と others の全ての
-    DIVERGENCE_RATIO 倍以上の馬（その馬を含む買い目の金額の割合つき、割合の大きい順）と、期待値が EV_SUSPICIOUS を
+    DIVERGENCE_RATIO 倍以上の馬（その馬が必須の買い目と、その馬の枠を含む枠連の金額の割合を分けて付ける）と、期待値が EV_SUSPICIOUS を
     超える買い目を返す。期待値が極端に高いときは市場の見落としよりモデル側の誤りを先に疑う。
     """
     sources = {'計算用市場': market, **(others or {})}
     total = sum(b.get('stake', 0) for b in bets)
+    gates = gates or {}
     horses = []
     for n in {h for b in bets for h in bet_horses(b, gates)}:
         p = model.get(n, 0)
         ratios = {name: p / q[n] for name, q in sources.items() if q.get(n, 0) > 0}
         if len(ratios) == len(sources) and min(ratios.values()) >= DIVERGENCE_RATIO:
-            share = sum(b.get('stake', 0) for b in bets if n in bet_horses(b, gates)) / total if total else 0.0
-            horses.append({'num': n, 'model': p, 'ratios': ratios, 'stake_share': share})
-    horses.sort(key=lambda h: (-h['stake_share'], -h['model']))
+            # その馬が来ないと当たらない買い目（必須）と、その馬の枠を含む枠連（同じ枠の他の馬でも当たる）を分ける
+            required = [b for b in bets if b['type'] != '枠連' and n in b['horses']]
+            bracket = [b for b in bets if b['type'] == '枠連' and gates.get(n) in b['horses']]
+            share = lambda bs: sum(b.get('stake', 0) for b in bs) / total if total else 0.0
+            horses.append({'num': n, 'model': p, 'ratios': ratios,
+                           'required_share': share(required), 'required_types': sorted({b['type'] for b in required}),
+                           'bracket_share': share(bracket), 'gate': gates.get(n),
+                           'gate_mates': sorted(k for k, g in gates.items() if g == gates.get(n)) if bracket else [],
+                           'stake_share': share(required + bracket)})
+    horses.sort(key=lambda h: (-h['required_share'], -h['stake_share'], -h['model']))
     tickets = [{'type': b['type'], 'horses': b['horses'], 'ev': b['ev']} for b in bets if b['ev'] > EV_SUSPICIOUS]
     return {'horses': horses, 'tickets': tickets}
 
@@ -706,7 +714,15 @@ def format_warnings(res):
     lines = []
     for h in w.get('horses', []):
         ratios = '・'.join(f"{SOURCE_LABELS.get(name, name)}の{r:.1f}倍" for name, r in h['ratios'].items())
-        lines.append(f"⚠ 乖離 {h['num']}番 モデル勝率{h['model']:.1%}（{ratios}）、買い目の{h['stake_share']:.0%}がこの馬絡み。"
+        dep = []
+        if h.get('required_share'):
+            dep.append(f"{h['num']}番が必須 {h['required_share']:.0%}（{'・'.join(h['required_types'])}）")
+        if h.get('bracket_share'):
+            mates = '・'.join(map(str, h['gate_mates']))
+            dep.append(f"{h['num']}番のいる{h['gate']}枠（{mates}番）を含む枠連 {h['bracket_share']:.0%}")
+        if 'required_share' not in h:  # 2026/10/11 より前の判断記録
+            dep.append(f"{h['num']}番絡み {h['stake_share']:.0%}")
+        lines.append(f"⚠ 乖離 {h['num']}番 モデル勝率{h['model']:.1%}（{ratios}）。買い目の金額のうち{'、'.join(dep)}。"
                      "評価の根拠を見直す")
     for b in w.get('tickets', []):
         lines.append(f"⚠ 期待値{b['ev']:.2f} {b['type']} {'-'.join(map(str, b['horses']))}。市場よりモデルの誤りを先に疑う")

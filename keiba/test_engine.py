@@ -82,11 +82,20 @@ class EngineTest(unittest.TestCase):
         bets = [{'type': '枠連', 'horses': [1, 2], 'ev': 1.3, 'stake': 300},
                 {'type': '馬連', 'horses': [4, 5], 'ev': 1.3, 'stake': 100}]
         w = engine.divergence_warnings(model, market, bets, None, gates)
-        got = {h['num']: h['stake_share'] for h in w['horses']}
+        got = {h['num']: h for h in w['horses']}
         # 枠1（馬1・2）と枠2（馬3・4）を含む。枠番2を馬2と取り違えない
         self.assertEqual(set(got), {1, 4})
-        self.assertAlmostEqual(got[1], 0.75)
-        self.assertAlmostEqual(got[4], 1.0)
+        # 馬1は枠連だけ（同じ枠の馬2でも当たるので必須ではない）。馬4は馬連で必須、枠連は枠2を含む
+        self.assertAlmostEqual(got[1]['required_share'], 0.0)
+        self.assertAlmostEqual(got[1]['bracket_share'], 0.75)
+        self.assertEqual(got[1]['gate_mates'], [1, 2])
+        self.assertAlmostEqual(got[4]['required_share'], 0.25)
+        self.assertEqual(got[4]['required_types'], ['馬連'])
+        self.assertAlmostEqual(got[4]['bracket_share'], 0.75)
+        lines = engine.format_warnings({'warnings': w})
+        self.assertIn('4番が必須 25%（馬連）、4番のいる2枠（3・4番）を含む枠連 75%', lines[0])
+        self.assertIn('1番のいる1枠（1・2番）を含む枠連 75%', lines[1])
+        self.assertNotIn('1番が必須', lines[1])
 
     def test_divergence_warnings(self):
         model = {1: 0.25, 2: 0.15, 3: 0.60}
@@ -96,6 +105,7 @@ class EngineTest(unittest.TestCase):
         w = engine.divergence_warnings(model, market, bets, {'codex': {1: 0.12, 2: 0.2, 3: 0.68}})
         self.assertEqual([h['num'] for h in w['horses']], [1])
         self.assertAlmostEqual(w['horses'][0]['stake_share'], 0.75)
+        self.assertAlmostEqual(w['horses'][0]['required_share'], 0.75)
         self.assertEqual([b['horses'] for b in w['tickets']], [[1, 3]])
         # 他の出どころのどれか1つでも近ければ印を付けない
         w = engine.divergence_warnings(model, market, bets, {'codex': {1: 0.2, 2: 0.2, 3: 0.6}})
