@@ -595,21 +595,28 @@ def market_only_check(bets, market_orders, odds, gates, places, cap, win_odds, h
             'shared_stake': shared_stake, 'shared_share': shared_stake / total if total else 0.0}
 
 
-def divergence_warnings(model, market, bets, others=None):
+def bet_horses(bet, gates=None):
+    """買い目に含まれる馬番。枠連の horses は枠番なので、gates（{馬番: 枠番}）でその枠の出走馬に直す。"""
+    if bet['type'] == '枠連':
+        return {n for n, g in (gates or {}).items() if g in bet['horses']}
+    return set(bet['horses'])
+
+
+def divergence_warnings(model, market, bets, others=None, gates=None):
     """モデルと市場・他の出どころとの大きなずれ（表示用）。
 
-    model・market・others の各値は {馬番: 勝率}。market は買い目の計算に使った市場（三連単、揃わなければ単勝）の1着確率。買い目に含まれる馬のうち、モデル勝率が市場と others の全ての
+    model・market・others の各値は {馬番: 勝率}。枠連はその枠の出走馬全てを含む買い目として数える（gates が必要）。market は買い目の計算に使った市場（三連単、揃わなければ単勝）の1着確率。買い目に含まれる馬のうち、モデル勝率が市場と others の全ての
     DIVERGENCE_RATIO 倍以上の馬（その馬を含む買い目の金額の割合つき、割合の大きい順）と、期待値が EV_SUSPICIOUS を
     超える買い目を返す。期待値が極端に高いときは市場の見落としよりモデル側の誤りを先に疑う。
     """
     sources = {'計算用市場': market, **(others or {})}
     total = sum(b.get('stake', 0) for b in bets)
     horses = []
-    for n in {h for b in bets for h in b['horses']}:
+    for n in {h for b in bets for h in bet_horses(b, gates)}:
         p = model.get(n, 0)
         ratios = {name: p / q[n] for name, q in sources.items() if q.get(n, 0) > 0}
         if len(ratios) == len(sources) and min(ratios.values()) >= DIVERGENCE_RATIO:
-            share = sum(b.get('stake', 0) for b in bets if n in b['horses']) / total if total else 0.0
+            share = sum(b.get('stake', 0) for b in bets if n in bet_horses(b, gates)) / total if total else 0.0
             horses.append({'num': n, 'model': p, 'ratios': ratios, 'stake_share': share})
     horses.sort(key=lambda h: (-h['stake_share'], -h['model']))
     tickets = [{'type': b['type'], 'horses': b['horses'], 'ev': b['ev']} for b in bets if b['ev'] > EV_SUSPICIOUS]
@@ -674,7 +681,7 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others
         'total_stake': sum(b['stake'] for b in bets),
         'growth': growth,
         'skip_reason': skip,
-        'warnings': divergence_warnings(model_win, calc_market_win, bets, others),
+        'warnings': divergence_warnings(model_win, calc_market_win, bets, others, gates),
         'market_only': market_only_check(bets, market_orders, odds, gates, places, cap, win_odds, horses)
         if model_weight > 0 else None,
         'pace_sensitivity': pace_sensitivity(bets, horses, inner_outer, front_back, odds, model_weight, market,

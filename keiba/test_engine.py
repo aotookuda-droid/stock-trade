@@ -74,6 +74,20 @@ class EngineTest(unittest.TestCase):
         self.assertEqual(set(res['pace_sensitivity']), {'slow', 'middle', 'high'})
         self.assertIn('展開別', engine.format_result(res))
 
+    # 枠連の horses は枠番。乖離チェックでは枠番を馬番と取り違えず、その枠の出走馬として数える
+    def test_divergence_warnings_expand_bracket(self):
+        model = {1: 0.1, 2: 0.1, 3: 0.3, 4: 0.3, 5: 0.2}
+        market = {1: 0.02, 2: 0.3, 3: 0.3, 4: 0.18, 5: 0.2}
+        gates = {1: 1, 2: 1, 3: 2, 4: 2, 5: 3}
+        bets = [{'type': '枠連', 'horses': [1, 2], 'ev': 1.3, 'stake': 300},
+                {'type': '馬連', 'horses': [4, 5], 'ev': 1.3, 'stake': 100}]
+        w = engine.divergence_warnings(model, market, bets, None, gates)
+        got = {h['num']: h['stake_share'] for h in w['horses']}
+        # 枠1（馬1・2）と枠2（馬3・4）を含む。枠番2を馬2と取り違えない
+        self.assertEqual(set(got), {1, 4})
+        self.assertAlmostEqual(got[1], 0.75)
+        self.assertAlmostEqual(got[4], 1.0)
+
     def test_divergence_warnings(self):
         model = {1: 0.25, 2: 0.15, 3: 0.60}
         market = {1: 0.10, 2: 0.30, 3: 0.60}
