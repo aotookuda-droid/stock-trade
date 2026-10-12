@@ -6,6 +6,7 @@ from keiba.research import calibration as C
 from keiba.research import form_check as FC
 from keiba.research import market_check as M
 from keiba.research import pacefit_check as F
+from keiba.research import scale_calibration as SC
 from keiba.research import trends as T
 
 
@@ -126,3 +127,18 @@ class FormCheckTest(unittest.TestCase):
         self.assertEqual([FC.level_label(n) for n in (0, 3, 8, 9)], list(FC.LEVEL_LABELS))
         self.assertEqual(FC.after_label(2, 2), 'その後の出走3未満')
         self.assertEqual([FC.after_label(10, k) for k in (1, 2, 4)], ['2割未満', '2〜4割', '4割以上'])
+
+
+class ScaleCalibrationTest(unittest.TestCase):
+    def test_rank_mapping_keeps_market_sizes_in_model_order(self):
+        import numpy as np
+        m = np.array([0.5, 0.3, 0.2])
+        p = SC.by_rank(np.array([1.0, 3.0, 2.0]), m)
+        self.assertEqual(list(p), [0.2, 0.5, 0.3])
+
+    def test_spread_matches_market_log_spread(self):
+        import numpy as np
+        m = np.array([0.5, 0.3, 0.15, 0.05])
+        p = SC.by_spread(1.0)(np.array([70.0, 60.0, 65.0, 50.0]), m)
+        self.assertAlmostEqual(float(np.log(p).std()), float(np.log(m).std()), places=6)
+        self.assertAlmostEqual(float(p.sum()), 1.0)
