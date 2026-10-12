@@ -77,6 +77,12 @@ class RacedayTest(unittest.TestCase):
         self.assertEqual(rec['reference']['market_only']['model_weight'], 0.0)
         for name in ('model_weight_0.5', 'market_only'):
             self.assertAlmostEqual(sum(rec['reference'][name]['win_prob'].values()), 1, places=3)
+        # 乖離ゲートなしと緩い基準（期待値1.0・ゲートなし・混合率0.5）の参考試算
+        self.assertIn('bets', rec['reference']['no_divergence_gate'])
+        loose = rec['reference']['loose']
+        self.assertEqual((loose['model_weight'], loose['ev_threshold'], loose['divergence_gate']), (0.5, 1.0, False))
+        self.assertTrue(all(b['ev'] >= 1.0 for b in loose['bets']))
+        self.assertLessEqual(loose['total_stake'], engine.RACE_CAP)
         # 2・3着の補正 λ の参考試算（混合率・100倍除外は本番と同じ。台帳には入れない）
         for name in ('lambda_model', 'lambda_both'):
             ref = rec['reference'][name]

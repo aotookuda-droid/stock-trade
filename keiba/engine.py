@@ -31,6 +31,10 @@ SOFTMAX_TEMP = 8.0
 # 判断時に 0.5 と市場のみ（0.0）の参考試算も同じ入力・オッズで保存し（台帳には入れない）、記録がたまってから見直す
 MODEL_WEIGHT = 0.25
 REFERENCE_MODEL_WEIGHTS = {'model_weight_0.5': 0.5, 'market_only': 0.0}
+# 緩い基準の参考試算（2026/10/12〜、ユーザー指定。買い目・台帳には使わない）: 本番の基準では買い目がほとんど出ず、
+# 主観評価に価値があるかを確かめる材料が増えないため、期待値1.0以上・乖離ゲートなし・混合率0.5の仮想買い目も判断時に
+# 保存して精算で比べる。予算・100倍除外・券種の上限・基準資金は本番と同じ
+REFERENCE_LOOSE = {'model_weight': 0.5, 'ev_threshold': 1.0, 'divergence_gate': False}
 # 参考試算だけに使う（2026/10/6〜、買い目・台帳には使わない）: 2・3着の Benter 型補正 (λ2, λ3)。
 # P(2着=b | 1着=a) ∝ p_b^λ2、3着も λ3 で同じ形（λ=1 で Harville）。2021〜2024年の重賞で推定し、2025年〜で
 # 三連単の着順の対数損失が下がった（keiba/reports/calibration.md）。モデル側は客観能力の勝率で、単勝代用の市場側は
@@ -431,8 +435,9 @@ def _bet(kind, horses, prob, o):
             'kelly': (prob * o - 1) / (o - 1) if o > 1 else -1.0}
 
 
-def candidate_bets(orders, odds, gates=None, places=3):
-    """着順分布 orders から8券種を独立に評価し、期待値が閾値以上の買い目を返す（券種間の事前除外はしない）。"""
+def candidate_bets(orders, odds, gates=None, places=3, ev_threshold=None):
+    """着順分布 orders から8券種を独立に評価し、期待値が閾値（既定 EV_THRESHOLD）以上の買い目を返す（券種間の事前除外はしない）。"""
+    threshold = EV_THRESHOLD if ev_threshold is None else ev_threshold
     probs = ticket_probabilities(orders, places, gates)
     table = [
         ('単勝', 'win', lambda k: (int(k),), lambda t: probs['win'].get(t[0], 0.0)),
@@ -455,7 +460,7 @@ def candidate_bets(orders, odds, gates=None, places=3):
                 continue
             o = _low(o)
             b = _bet(label, parse(k), prob(parse(k)), o)
-            if b['ev'] >= EV_THRESHOLD:
+            if b['ev'] >= threshold:
                 bets.append(b)
     return bets
 
@@ -648,11 +653,11 @@ def divergence_warnings(model, market, bets, others=None, gates=None):
 
 
 def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others=None, place_discount=None,
-            with_orders=False, divergence_gate=True):
+            with_orders=False, divergence_gate=True, ev_threshold=None):
     """race['scratched'] の馬番は出走取消として除く。複勝の範囲は発売開始時の頭数で決める。
     others（{出どころ: {馬番: 勝率}}、Codex版など）は乖離チェックの表示だけに使い、買い目には使わない。
     with_orders なら着順分布（{(1着,2着,3着): 確率}）を 'orders' に入れて返す（判断時の保存用。JSON にはそのまま書けない）。
-    divergence_gate=False は乖離ゲートなしの参考試算用。"""
+    divergence_gate=False は乖離ゲートなし、ev_threshold は期待値の基準を変えた参考試算用（None なら EV_THRESHOLD）。"""
     scratched = set(race.get('scratched', []))
     horses = [h for h in race['horses'] if h['num'] not in scratched]
     sales_start = race.get('field_size_at_sales_start') or len(race['horses'])
@@ -681,7 +686,7 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others
     confirmed = {int(k) for k in race.get('divergence_confirmed') or {}}
     gated = diverging_horses(model_win, {k: calc_market_win.get(k, 0.0) for k in scores}, confirmed) \
         if divergence_gate and model_weight > 0 else {}
-    cands = [b for b in candidate_bets(orders, odds, gates, places)
+    cands = [b for b in candidate_bets(orders, odds, gates, places, ev_threshold)
              if not involves_longshot(b, win_odds, horses)]
     gate_excluded = [b for b in cands if relies_on(b, gated, horses)]
     cands = [b for b in cands if not relies_on(b, gated, horses)]
@@ -932,7 +937,7 @@ def engine_config():
     """判断時の設定（版・混合率・温度・位置取り点数・ペース確率など）。答え合わせで設定ごとに分けるため記録に残す。"""
     return {'version': CONFIG_VERSION, 'model_weight': MODEL_WEIGHT, 'softmax_temp': SOFTMAX_TEMP,
             'market': 'sanrentan（揃わなければ単勝の Harville）', 'ev_threshold': EV_THRESHOLD,
-            'divergence_gate': DIVERGENCE_GATE,
+            'divergence_gate': DIVERGENCE_GATE, 'reference_loose': REFERENCE_LOOSE,
             'reference_capital': REFERENCE_CAPITAL,
             'pace_fit': PACE_FIT, 'pace_prior': PACE_PRIOR, 'minus': MINUS_WEIGHTS, 'plus': PLUS_WEIGHTS,
             'reference_model_weights': REFERENCE_MODEL_WEIGHTS, 'reference_place_discounts': REFERENCE_PLACE_DISCOUNTS}
@@ -956,6 +961,9 @@ def finalize(race, path, ledger=None, ledger_path=None, extra_probs=None):
     race['reference'] = {'win_market_only': {k: ref[k] for k in keep}}
     # 乖離ゲートなしの参考試算（ゲートで外した買い目が実際にどうだったかを後で比べる）
     race['reference']['no_divergence_gate'] = {k: v for k, v in analyze(race, cap, divergence_gate=False).items() if k in keep}
+    # 緩い基準の参考試算（期待値1.0・ゲートなし・混合率0.5）。主観評価に価値があるかを精算で確かめるための仮想買い目
+    loose = analyze(race, cap, **REFERENCE_LOOSE)
+    race['reference']['loose'] = {**REFERENCE_LOOSE, 'win_prob': loose['win_prob'], **{k: loose[k] for k in keep}}
     for name, w in REFERENCE_MODEL_WEIGHTS.items():
         r = analyze(race, cap, model_weight=w)
         # 勝率も判断時の値をそのまま残す（後日の再計算に頼らず、本番との確率の精度を比べるため）

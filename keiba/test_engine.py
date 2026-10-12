@@ -425,6 +425,13 @@ class EngineTest(unittest.TestCase):
         self.assertFalse(engine.relies_on({'type': '枠連', 'horses': [4, 4]}, {8: 5.0}, hs))
         self.assertTrue(engine.relies_on({'type': '枠連', 'horses': [4, 4]}, {7: 5.0, 8: 5.0}, hs))
 
+    def test_ev_threshold_override(self):
+        p = engine._normalize({i: 1.0 for i in range(1, 6)})
+        orders = engine.harville(p)['trifecta']
+        odds = {'win': {str(i): 1.1 / p[i] for i in range(1, 6)}}
+        self.assertEqual(engine.candidate_bets(orders, odds), [])
+        self.assertEqual(len(engine.candidate_bets(orders, odds, ev_threshold=1.0)), 5)
+
     # 4. 100円単位で選び直し、丸めで消えた場合は理由を分ける
     def test_tiny_edges_still_allocated(self):
         # 旧方式では予算200円を15点に比例配分して全て100円未満→0点になった例
