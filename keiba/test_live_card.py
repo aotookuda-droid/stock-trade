@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from unittest import mock
 
-from keiba import live_card
+from keiba import engine, live_card
 
 RECORD = Path(__file__).parent / 'records' / '20261004_毎日王冠.json'
 
@@ -52,6 +52,10 @@ class LiveCardTest(unittest.TestCase):
             self.assertAlmostEqual(h['calc'], h['mkt'], places=3)
         self.assertIn('単勝オッズで代用', race['market'])
         self.assertIn('total_stake', race['market_only'])
+        # 緩い基準の参考試算も並べる（買わない仮想買い目）
+        self.assertEqual(race['loose']['ev_threshold'], engine.REFERENCE_LOOSE['ev_threshold'])
+        self.assertTrue(all(b['ev'] >= race['loose']['ev_threshold'] for b in race['loose']['bets']))
+        self.assertEqual(race['loose']['stake'], sum(b['stake'] for b in race['loose']['bets']))
 
     def test_scratched_horse_is_excluded(self):
         rec = json.loads(RECORD.read_text(encoding='utf-8'))

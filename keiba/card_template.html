@@ -38,6 +38,8 @@ header p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
 .note{color:var(--muted);font-size:.85rem;margin:0}
 .bets{display:flex;flex-direction:column;gap:6px;font-family:var(--f-num);font-size:.85rem}
 .bets div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding-bottom:4px}
+.bets div.loose-h{border-bottom:0;margin-top:8px;font-family:var(--f-body);font-size:.75rem;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.bets div.loose{color:var(--muted)}
 .caveat{font-family:var(--f-body);font-size:.75rem;color:var(--muted);margin-top:4px}
 .sort{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
 .sort button{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:3px 10px;border-radius:4px;cursor:pointer}
@@ -189,6 +191,12 @@ function render() {
     : `<div><span>見送り</span><span>${esc(r.skip || '期待値1.2以上の馬券なし')}</span></div>`;
   const mo = r.market_only;
   if (mo) bets.innerHTML += `<div><span>市場のみの試算（同じオッズ・予算）</span><span>${mo.bets.length ? `${mo.bets.length}点・${mo.total_stake}円（本番と共通 ${mo.shared.length}点・${mo.shared_stake}円）` : '買い目なし'}</span></div>`;
+  const lo = r.loose;
+  if (lo) {
+    bets.innerHTML += `<div class="loose-h"><span>参考：緩い基準（期待値${lo.ev_threshold.toFixed(1)}以上・乖離ゲート${lo.divergence_gate ? 'あり' : 'なし'}・混合率${lo.model_weight}）※買わない・答え合わせ用</span></div>`;
+    bets.innerHTML += lo.bets.length ? lo.bets.map(b => `<div class="loose"><span>${esc(b.type)} ${b.type === '枠連' ? '枠' : ''}${b.horses.join(sepOf(b.type))}</span><span>${b.stake}円 · ${b.odds.toFixed(1)}倍 · 期待値${b.ev.toFixed(2)}</span></div>`).join('') + `<div class="loose"><span>合計</span><span>${lo.stake}円</span></div>`
+      : `<div class="loose"><span>見送り</span><span>${esc(lo.skip || '期待値の基準以上の馬券なし')}</span></div>`;
+  }
   const wk = D.races.reduce((a, x) => a + x.stake, 0);
   bets.innerHTML += `<div><span>土日合計（全レース）</span><span${wk > 8000 ? ' class="edge-dn"' : ''}>${wk}円 / 8,000円</span></div>`;
   document.getElementById('links').innerHTML = (r.links || []).map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join(' ・ ');

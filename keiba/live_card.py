@@ -277,6 +277,8 @@ def build_race(path, key):
     codex = load_codex(rec['race_id'], scratched, decision_at, [h['num'] for h in running]) if rec.get('race_id') else None
     others = {codex['kind']: codex['win']} if codex and codex['win'] else None
     res = engine.analyze(dict(rec, odds=odds, scratched=sorted(scratched)), others=others)
+    # 緩い基準の参考試算（期待値1.0・乖離ゲートなし・混合率0.5）。買わない仮想買い目で、判断時の reference.loose と同じ条件
+    loose = engine.analyze(dict(rec, odds=odds, scratched=sorted(scratched)), **engine.REFERENCE_LOOSE)
     refs = reference_abilities(rec, running) if rec.get('race_id') else None
     name_m = re.search(r'\d+R (.+?)\(', rec['race'])
     trend_meta, trends = load_trends(name_m.group(1) if name_m else '', win)
@@ -314,6 +316,9 @@ def build_race(path, key):
             'pace': res['pace'], 'pace_probs': res['pace_probs'], 'warnings': engine.format_warnings(res), 'pace_note': rec.get('pace_note', ''), 'horses': horses,
             'bets': bets, 'stake': res['total_stake'], 'live': live, 'asof': asof, 'pred_key': pred_key,
             'missing': missing, 'skip': engine.SKIP_REASONS.get(res['skip_reason'], ''), 'market': engine.market_label(res), 'market_source': res['market_source'],
+            'loose': {'bets': [{k: b[k] for k in ('type', 'horses', 'odds', 'ev', 'stake')} for b in loose['bets']],
+                      'stake': loose['total_stake'], 'skip': engine.SKIP_REASONS.get(loose['skip_reason'], ''),
+                      **engine.REFERENCE_LOOSE},
             'market_only': {k: res['market_only'][k] for k in ('bets', 'total_stake', 'shared', 'shared_stake')}
             if res.get('market_only') else None,
             'codex': {k: v for k, v in codex.items() if k not in ('win', 'notes')} if codex else None,
