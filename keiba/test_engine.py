@@ -410,9 +410,11 @@ class EngineTest(unittest.TestCase):
         tri = engine.harville(p)['trifecta']
         bets = [engine._bet('三連単', o, tri[o], 1.21 / tri[o]) for o in list(tri)[:15]]
         self.assertTrue(all(b['kelly'] < 0.001 for b in bets))
-        kept, reason, _ = engine.allocate(bets, tri)
+        kept, reason, _ = engine.allocate(bets, tri, capital=80000)
         self.assertTrue(kept)
         self.assertIsNone(reason)
+        # 基準資金8,000円では、この薄い優位には100円でも期待対数成長が増えない
+        self.assertEqual(engine.allocate(bets, tri, capital=8000)[:2], ([], 'no_unit_allocation'))
 
     def test_unit_rounding_reason(self):
         p = engine._normalize({i: 1.0 for i in range(1, 9)})

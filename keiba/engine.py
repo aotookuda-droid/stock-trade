@@ -40,11 +40,11 @@ PLACE_DISCOUNT_WIN_MARKET = (0.807, 0.692)
 REFERENCE_PLACE_DISCOUNTS = {'lambda_model': {'model': PLACE_DISCOUNT_MODEL},
                              'lambda_both': {'model': PLACE_DISCOUNT_MODEL, 'win_market': PLACE_DISCOUNT_WIN_MARKET}}
 # 判断記録に残す設定の版。PACE_FIT・PACE_PRIOR・加減点などを変えたら日付を更新する（期間の途中で頻繁に変えない）
-CONFIG_VERSION = '2026-10-11'
+CONFIG_VERSION = '2026-10-12'
 TAKEOUT_WIN = 0.20
 BIAS_FLAT = 0.08
-# 資金配分の基準資金（期待対数成長の計算用）。Codex版 config.json と同じ値で、未検証
-REFERENCE_CAPITAL = 80000
+# 資金配分の基準資金（期待対数成長の計算用）。2026/10/12 ユーザー指定で 80,000 → 8,000円（土日上限と同額）。未検証
+REFERENCE_CAPITAL = 8000
 # 最終提案に使えるオッズ: 発走10分前（判断時刻）以前、かつ判断時刻の5分前以降に取得したもの
 DECISION_BEFORE = timedelta(minutes=10)
 ODDS_WINDOW = timedelta(minutes=5)
@@ -901,6 +901,7 @@ def engine_config():
     """判断時の設定（版・混合率・温度・位置取り点数・ペース確率など）。答え合わせで設定ごとに分けるため記録に残す。"""
     return {'version': CONFIG_VERSION, 'model_weight': MODEL_WEIGHT, 'softmax_temp': SOFTMAX_TEMP,
             'market': 'sanrentan（揃わなければ単勝の Harville）', 'ev_threshold': EV_THRESHOLD,
+            'reference_capital': REFERENCE_CAPITAL,
             'pace_fit': PACE_FIT, 'pace_prior': PACE_PRIOR, 'minus': MINUS_WEIGHTS, 'plus': PLUS_WEIGHTS,
             'reference_model_weights': REFERENCE_MODEL_WEIGHTS, 'reference_place_discounts': REFERENCE_PLACE_DISCOUNTS}
 
