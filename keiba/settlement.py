@@ -39,7 +39,9 @@ PLANS = {'本番': lambda r: r['result']['bets'],
          '参考（市場のみ）': lambda r: r['reference']['market_only']['bets'],
          # 2026/10/6〜の記録だけにある参考試算（2・3着の補正 λ。両側は市場側が単勝代用のときだけモデル側と違う）
          '参考（λ・モデル側）': lambda r: r['reference']['lambda_model']['bets'],
-         '参考（λ・両側）': lambda r: r['reference']['lambda_both']['bets']}
+         '参考（λ・両側）': lambda r: r['reference']['lambda_both']['bets'],
+         # 2026/10/12〜の記録だけにある参考試算（乖離ゲートなし。ゲートで外した買い目の答え合わせ用）
+         '参考（乖離ゲートなし）': lambda r: r['reference']['no_divergence_gate']['bets']}
 
 
 # 着順以外の出走状態。取消・除外は返還、競走中止・失格は不的中（返還しない）

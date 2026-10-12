@@ -145,7 +145,8 @@ class EngineTest(unittest.TestCase):
         race = {'race': 'test', 'horses': hs, 'pace': 'middle',
                 'odds': {'win': {str(i): 8.0 for i in range(1, 8)} | {'8': 30.0},
                          'place': {'8': [6.0, 9.0]}}}
-        res = engine.analyze(race)
+        # 配分の制約だけを見るので乖離ゲートは外す（8番はモデルが市場の2倍以上に見る）
+        res = engine.analyze(race, divergence_gate=False)
         self.assertTrue(res['bets'])
         self.assertLessEqual(res['total_stake'], engine.RACE_CAP)
         self.assertLessEqual(len(res['bets']), engine.MAX_TICKETS)
@@ -402,6 +403,27 @@ class EngineTest(unittest.TestCase):
         self.assertTrue(engine.involves_longshot({'type': '単勝', 'horses': [8]}, {8: 150.0}, hs))
         # 着順分布には残る（他馬の確率は8番の分だけ小さい）
         self.assertIn(8, res['win_prob'])
+
+    def test_divergence_gate(self):
+        hs = [horse(i, 60, gate=(i + 1) // 2) for i in range(1, 9)]
+        hs[7]['ability'] = 90  # 8番だけモデルが市場よりはるかに高く見る
+        win = {str(i): 6.0 for i in range(1, 8)} | {'8': 50.0}
+        race = {'race': 'test', 'horses': hs, 'pace': 'middle', 'odds': {'win': win}}
+        free = engine.analyze(race, divergence_gate=False)
+        self.assertTrue([b for b in free['bets'] if 8 in b['horses']])
+        res = engine.analyze(race)
+        self.assertEqual(list(res['divergence_gate']['horses']), [8])
+        self.assertFalse([b for b in res['bets'] if 8 in b['horses']])
+        self.assertGreater(res['divergence_gate']['excluded'], 0)
+        self.assertEqual(res['skip_reason'], 'divergence_gate')
+        self.assertTrue(any('乖離ゲート' in line for line in engine.format_warnings(res)))
+        # 根拠を確かめた馬はゲートで外さない
+        ok = engine.analyze(dict(race, divergence_confirmed={'8': '確認済み'}))
+        self.assertEqual(ok['divergence_gate']['horses'], {})
+        self.assertTrue([b for b in ok['bets'] if 8 in b['horses']])
+        # 枠連は枠の出走馬が全て該当するときだけ外す
+        self.assertFalse(engine.relies_on({'type': '枠連', 'horses': [4, 4]}, {8: 5.0}, hs))
+        self.assertTrue(engine.relies_on({'type': '枠連', 'horses': [4, 4]}, {7: 5.0, 8: 5.0}, hs))
 
     # 4. 100円単位で選び直し、丸めで消えた場合は理由を分ける
     def test_tiny_edges_still_allocated(self):

@@ -116,6 +116,11 @@ PACE_PRIOR = {
 # の全てのこの倍率以上なら印を付ける。期待値がこの値を超える買い目も見直し対象として表示する
 DIVERGENCE_RATIO = 1.5
 EV_SUSPICIOUS = 2.0
+# 乖離ゲート（2026/10/12〜、ユーザー指定）: 市場前のモデル勝率が計算用市場の1着確率のこの倍率以上の馬は、
+# その馬が来ないと当たらない買い目を候補から外す（枠連は枠の出走馬が全て該当するときだけ）。期待値1.2を超えるのが
+# モデルの誤差が最も大きい人気薄の組み合わせに偏るため。根拠を人が確かめた馬はレコードの divergence_confirmed
+# （{"馬番": "確認した根拠"}）に書けば外さない。倍率2.0は運用上の仮値で未検証
+DIVERGENCE_GATE = 2.0
 FRONTNESS = {'逃げ': 1.0, '先行': 0.5, '差し': -0.5, '追込': -1.0}
 ZONE = {'内': -1, '中': 0, '外': 1}
 
@@ -536,19 +541,30 @@ def allocate(bets, orders, cap=RACE_CAP, gates=None, places=3, capital=REFERENCE
 SKIP_REASONS = {
     'no_value': '期待値1.2以上の馬券なし',
     'no_unit_allocation': '期待値1.2以上の候補はあるが、100円単位では期待対数成長が増えない',
+    'divergence_gate': f'期待値1.2以上の候補は、モデルが市場の{DIVERGENCE_GATE:g}倍以上に評価した馬（根拠未確認）に頼る買い目だけ',
     'no_budget': '土日の残り予算なし（先のレースへの予約・使用済み）',
 }
 
 
 def involves_longshot(bet, win_odds, horses):
     """買い目が単勝 LONGSHOT_ODDS 倍以上の馬に頼るか。枠連は、その枠の出走馬が全て大穴なら頼るとみなす。"""
-    longshot = {n for n, o in win_odds.items() if o >= LONGSHOT_ODDS}
+    return relies_on(bet, {n for n, o in win_odds.items() if o >= LONGSHOT_ODDS}, horses)
+
+
+def diverging_horses(model, market, confirmed=()):
+    """モデル勝率が市場の DIVERGENCE_GATE 倍以上で、根拠の確認がない馬。戻り値 {馬番: 倍率}。"""
+    return {n: model[n] / q for n, q in market.items()
+            if q > 0 and n not in confirmed and model.get(n, 0) / q >= DIVERGENCE_GATE}
+
+
+def relies_on(bet, nums, horses):
+    """買い目が nums の馬に頼るか（その馬が来ないと当たらない）。枠連は、その枠の出走馬が全て nums なら頼るとみなす。"""
     if bet['type'] == '枠連':
         frames = {}
         for h in horses:
             frames.setdefault(h['gate'], []).append(h['num'])
-        return any(frames.get(g) and all(n in longshot for n in frames[g]) for g in bet['horses'])
-    return any(n in longshot for n in bet['horses'])
+        return any(frames.get(g) and all(n in nums for n in frames[g]) for g in bet['horses'])
+    return any(n in nums for n in bet['horses'])
 
 
 def bets_outcome(bets, orders, gates=None, places=3):
@@ -632,10 +648,11 @@ def divergence_warnings(model, market, bets, others=None, gates=None):
 
 
 def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others=None, place_discount=None,
-            with_orders=False):
+            with_orders=False, divergence_gate=True):
     """race['scratched'] の馬番は出走取消として除く。複勝の範囲は発売開始時の頭数で決める。
     others（{出どころ: {馬番: 勝率}}、Codex版など）は乖離チェックの表示だけに使い、買い目には使わない。
-    with_orders なら着順分布（{(1着,2着,3着): 確率}）を 'orders' に入れて返す（判断時の保存用。JSON にはそのまま書けない）。"""
+    with_orders なら着順分布（{(1着,2着,3着): 確率}）を 'orders' に入れて返す（判断時の保存用。JSON にはそのまま書けない）。
+    divergence_gate=False は乖離ゲートなしの参考試算用。"""
     scratched = set(race.get('scratched', []))
     horses = [h for h in race['horses'] if h['num'] not in scratched]
     sales_start = race.get('field_size_at_sales_start') or len(race['horses'])
@@ -657,16 +674,23 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others
         raise ValueError(f"単勝オッズがない馬（取消なら scratched に入れる）: {missing}")
     gates = {h['num']: h['gate'] for h in horses} if all('gate' in h for h in horses) else None
     orders, market_source, tri_missing = order_distribution(scores, odds, model_weight, market, place_discount)
-    cands = [b for b in candidate_bets(orders, odds, gates, places)
-             if not involves_longshot(b, win_odds, horses)]
-    bets, skip, growth = allocate(cands, orders, cap, gates, places)
-    tp = ticket_probabilities(orders, 3)
-    win = tp['win']
-    market_win = _normalize({k: 1 / _low(win_odds[k]) for k in scores})
-    # 計算に使った市場（三連単、揃わなければ単勝の Harville）だけの分布。モデルとの比較と市場のみの試算に使う
+    # 計算に使った市場（三連単、揃わなければ単勝の Harville）だけの分布。モデルとの比較・乖離ゲート・市場のみの試算に使う
     market_orders, _, _ = order_distribution(scores, odds, 0.0, market, place_discount)
     calc_market_win = ticket_probabilities(market_orders, 3)['win']
     model_win = model_probabilities(scores)
+    confirmed = {int(k) for k in race.get('divergence_confirmed') or {}}
+    gated = diverging_horses(model_win, {k: calc_market_win.get(k, 0.0) for k in scores}, confirmed) \
+        if divergence_gate and model_weight > 0 else {}
+    cands = [b for b in candidate_bets(orders, odds, gates, places)
+             if not involves_longshot(b, win_odds, horses)]
+    gate_excluded = [b for b in cands if relies_on(b, gated, horses)]
+    cands = [b for b in cands if not relies_on(b, gated, horses)]
+    bets, skip, growth = allocate(cands, orders, cap, gates, places)
+    if skip == 'no_value' and gate_excluded:
+        skip = 'divergence_gate'
+    tp = ticket_probabilities(orders, 3)
+    win = tp['win']
+    market_win = _normalize({k: 1 / _low(win_odds[k]) for k in scores})
     out = {
         'race': race['race'],
         'bias': {'inner_outer': inner_outer, 'front_back': front_back},
@@ -689,6 +713,8 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others
         'total_stake': sum(b['stake'] for b in bets),
         'growth': growth,
         'skip_reason': skip,
+        'divergence_gate': {'ratio': DIVERGENCE_GATE, 'horses': {n: round(r, 2) for n, r in sorted(gated.items())},
+                            'confirmed': sorted(confirmed), 'excluded': len(gate_excluded)},
         'warnings': divergence_warnings(model_win, calc_market_win, bets, others, gates),
         'market_only': market_only_check(bets, market_orders, odds, gates, places, cap, win_odds, horses)
         if model_weight > 0 else None,
@@ -712,6 +738,11 @@ SOURCE_LABELS = {'codex': 'Codex', 'codex_reference': 'Codex形式の参考'}
 def format_warnings(res):
     w = res.get('warnings') or {}
     lines = []
+    g = res.get('divergence_gate')
+    if g and g['horses']:
+        nums = '・'.join(f"{n}番（{r:.1f}倍）" for n, r in g['horses'].items())
+        lines.append(f"乖離ゲート: モデル勝率が計算用市場の{g['ratio']:.0f}倍以上の {nums} に頼る買い目を外した"
+                     f"（期待値1.2以上の候補のうち{g['excluded']}点）。根拠を確かめた馬は divergence_confirmed に書く")
     for h in w.get('horses', []):
         ratios = '・'.join(f"{SOURCE_LABELS.get(name, name)}の{r:.1f}倍" for name, r in h['ratios'].items())
         dep = []
@@ -901,6 +932,7 @@ def engine_config():
     """判断時の設定（版・混合率・温度・位置取り点数・ペース確率など）。答え合わせで設定ごとに分けるため記録に残す。"""
     return {'version': CONFIG_VERSION, 'model_weight': MODEL_WEIGHT, 'softmax_temp': SOFTMAX_TEMP,
             'market': 'sanrentan（揃わなければ単勝の Harville）', 'ev_threshold': EV_THRESHOLD,
+            'divergence_gate': DIVERGENCE_GATE,
             'reference_capital': REFERENCE_CAPITAL,
             'pace_fit': PACE_FIT, 'pace_prior': PACE_PRIOR, 'minus': MINUS_WEIGHTS, 'plus': PLUS_WEIGHTS,
             'reference_model_weights': REFERENCE_MODEL_WEIGHTS, 'reference_place_discounts': REFERENCE_PLACE_DISCOUNTS}
@@ -922,6 +954,8 @@ def finalize(race, path, ledger=None, ledger_path=None, extra_probs=None):
     ref = analyze(race, cap, market='win')
     race['result'] = res
     race['reference'] = {'win_market_only': {k: ref[k] for k in keep}}
+    # 乖離ゲートなしの参考試算（ゲートで外した買い目が実際にどうだったかを後で比べる）
+    race['reference']['no_divergence_gate'] = {k: v for k, v in analyze(race, cap, divergence_gate=False).items() if k in keep}
     for name, w in REFERENCE_MODEL_WEIGHTS.items():
         r = analyze(race, cap, model_weight=w)
         # 勝率も判断時の値をそのまま残す（後日の再計算に頼らず、本番との確率の精度を比べるため）
