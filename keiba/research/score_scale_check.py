@@ -8,6 +8,8 @@
 3. 全レース: 点数の広がりと、市場の勝率に一番合う温度（市場から見た温度）、客観能力（ability_calibration、温度8で
    推定済みの物差し）の広がりとの比較
 4. 過去の重賞（客観能力）: 1位と2位の点差ごとに、1位の実際の勝率と温度8の予測・市場を比べる
+5. フラグ別・加点の数別: 付いた馬の勝ち・3着以内を市場の想定（単勝勝率と、その Harville の3着以内確率）と比べ、
+   判断時にモデルが市場より何倍に見ていたか（温度8の勝率 ÷ 市場の勝率の幾何平均）を出す
 """
 import json
 import math
@@ -73,7 +75,7 @@ def load_settled():
         win = {int(k): engine._low(v) for k, v in rec['odds']['win'].items() if int(k) in scores}
         final = {int(k): v for k, v in rec['probabilities']['final'].items()}
         out.append({'rec': rec, 'scores': scores, 'win_odds': win, 'final': final, 'winner': finish[rec['race_id']][0],
-                    'asof': rec['odds_meta'].get('official_at')})
+                    'finish': finish[rec['race_id']], 'asof': rec['odds_meta'].get('official_at')})
     return out
 
 
@@ -93,7 +95,8 @@ def load_pending(paths):
         else:
             key = sorted(k for k in horses[0] if k.startswith('pred_odds_'))[-1]
             win, asof = {h['num']: h[key] for h in horses}, f'予想オッズ {key}'
-        out.append({'rec': rec, 'scores': scores, 'win_odds': win, 'final': None, 'winner': None, 'asof': asof})
+        out.append({'rec': rec, 'scores': scores, 'win_odds': win, 'final': None, 'winner': None, 'finish': None,
+                    'asof': asof})
     return out
 
 
@@ -118,6 +121,43 @@ def top5(r, nums, s, order, p8, pa):
                     'flag_names': h.get('plus', []) + h.get('minus', []), 'p8': float(p8[i]),
                     'mkt': 1 / r['win_odds'][nums[i]] / sum(1 / v for v in r['win_odds'].values()),
                     'proxy_p': float(pp[i]) if pp is not None else None})
+    return out
+
+
+def flag_weights(h):
+    """{フラグ: 実際に効いた点数}（flag_adjust の割り引き込み）。"""
+    w = {k: engine.MINUS_WEIGHTS[k] for k in h.get('minus', [])}
+    w.update({k: engine.PLUS_WEIGHTS[k] for k in h.get('plus', [])})
+    for k, adj in (h.get('flag_adjust') or {}).items():
+        w[k] += adj
+    return w
+
+
+def flag_rows(r, nums, p8, m):
+    """馬ごとのフラグと、温度8・市場の勝率、市場の3着以内確率（Harville）、着順。"""
+    horses = {h['num']: h for h in r['rec']['horses']}
+    mp = engine.harville(dict(zip(nums, m)))['place']
+    top3 = set(r['finish'][:3]) if r['finish'] else None
+    return [{'num': n, 'flags': flag_weights(horses[n]), 'p8': float(p8[i]), 'mkt': float(m[i]), 'mkt_place': mp[n],
+             'win': None if top3 is None else n == r['winner'], 'top3': None if top3 is None else n in top3}
+            for i, n in enumerate(nums)]
+
+
+def flag_table(rows, key):
+    """key(馬) が返すグループごとに、精算済みの成績と市場の想定、全レースでのモデル÷市場の幾何平均。"""
+    groups = {}
+    for x in rows:
+        for g in key(x):
+            groups.setdefault(g, []).append(x)
+    out = []
+    for g, xs in groups.items():
+        done = [x for x in xs if x['win'] is not None]
+        pts = sorted({x['flags'][g] for x in xs if g in x['flags']}, reverse=True)
+        label = f'{g}（{"・".join(f"{v:+d}" for v in pts)}）' if pts else g
+        out.append({'group': label, 'n_all': len(xs), 'n': len(done), 'wins': sum(x['win'] for x in done),
+                    'top3': sum(x['top3'] for x in done), 'mkt_wins': sum(x['mkt'] for x in done),
+                    'mkt_top3': sum(x['mkt_place'] for x in done), 'p8_wins': sum(x['p8'] for x in done),
+                    'ratio': math.exp(np.mean([math.log(x['p8'] / x['mkt']) for x in xs]))})
     return out
 
 
@@ -148,6 +188,7 @@ def race_row(r):
         'corr': float(np.corrcoef(s, pa)[0, 1]) if pa is not None else None,
         'top5': top5(r, nums, s, order, p8, pa),
         'gap_for_mkt': gap_for(s, order, m[order[0]]),
+        'horses': flag_rows(r, nums, p8, m),
     }
     if r['winner'] is not None:
         w = nums.index(r['winner'])
@@ -248,7 +289,37 @@ def main(dst, *pending):
                        f'{x["p8"]:.1%} | {pct(x["proxy_p"])} | {x["mkt"]:.1%} |')
         out.append('')
 
-    out += ['## 5. 過去の重賞（客観能力・確定オッズ）: 1位と2位の点差ごとの1位の勝率', '',
+    rows = [x for r in settled + pend for x in r['horses']]
+    head = ['| {} | 全頭数 | 精算済み | 勝ち | 市場の想定勝ち | 温度8の想定勝ち | 3着以内 | 市場の想定3着内 | モデル÷市場 |',
+            '|---|---:|---:|---:|---:|---:|---:|---:|---:|']
+
+    def lines(tab):
+        return [f'| {t["group"]} | {t["n_all"]} | {t["n"]} | {t["wins"]} | {t["mkt_wins"]:.2f} | {t["p8_wins"]:.2f} | '
+                f'{t["top3"]} | {t["mkt_top3"]:.2f} | {t["ratio"]:.2f} |' for t in tab]
+
+    def n_plus(x):
+        k = sum(1 for v in x['flags'].values() if v > 0)
+        return [f'加点 {min(k, 3)}{"個以上" if k >= 3 else "個"}']
+
+    def plus_total(x):
+        s = sum(v for v in x['flags'].values() if v > 0)
+        return ['加点合計 0' if s == 0 else '加点合計 +1〜+3' if s <= 3 else '加点合計 +4〜+5' if s <= 5 else '加点合計 +6以上']
+
+    totals = ('加点合計 0', '加点合計 +1〜+3', '加点合計 +4〜+5', '加点合計 +6以上')
+
+    by_flag = sorted(flag_table(rows, lambda x: list(x['flags'])),
+                     key=lambda t: (-t['n_all'], t['group']))
+    out += ['## 5. フラグ別の答え合わせ（判断時点の記録）', '',
+            '「市場の想定」は判断時の単勝勝率（3着以内はその Harville）の合計で、精算済みの馬だけで数える。'
+            '「モデル÷市場」は温度8の勝率 ÷ 市場の勝率の幾何平均で、未確定レースの馬も含む（1より大きいほど、モデルが市場より高く見ていた）。'
+            'フラグの点数は flag_adjust の割り引き込みで、割り引いた馬がいれば複数の値を並べる。', '',
+            f'**精算済みは {len(settled)} レースだけなので、実際の勝ち・3着以内と想定の差で加点の大きさを決めることはまだできない。**', '',
+            '### 加点の数・合計ごと（積み上がりの確認）', '', head[0].format('グループ'), head[1]]
+    out += lines(sorted(flag_table(rows, n_plus), key=lambda t: t['group']))
+    out += lines(sorted(flag_table(rows, plus_total), key=lambda t: totals.index(t['group'])))
+    out += ['', '### フラグごと', '', head[0].format('フラグ（点数）'), head[1]] + lines(by_flag) + ['']
+
+    out += ['## 6. 過去の重賞（客観能力・確定オッズ）: 1位と2位の点差ごとの1位の勝率', '',
             '客観能力は温度8を前提に推定した点数。点差が大きい帯で実際の勝率が温度8の予測を上回るなら、'
             '温度8は点差を小さく見積もっている。', '',
             '| 1位−2位 | レース数 | 1位の実際の勝率 | 温度8の予測 | 市場 |', '|---|---:|---:|---:|---:|']

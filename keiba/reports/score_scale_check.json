@@ -102,6 +102,223 @@
     }
    ],
    "gap_for_mkt": -4.804557363919372,
+   "horses": [
+    {
+     "num": 1,
+     "flags": {
+      "turf_to_inner": 2,
+      "top_jockey_switch": 4,
+      "big_distance_change": 2
+     },
+     "p8": 0.12421369513471402,
+     "mkt": 0.07568904478257955,
+     "mkt_place": 0.2344726030514586,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 2,
+     "flags": {
+      "turf_to_inner": 2
+     },
+     "p8": 0.09087668068977021,
+     "mkt": 0.055967251423738415,
+     "mkt_place": 0.17748341086059227,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 3,
+     "flags": {
+      "stable_concern": -4,
+      "course_repeater": 3
+     },
+     "p8": 0.14075255649161555,
+     "mkt": 0.1370232707270837,
+     "mkt_place": 0.3916398823678037,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 4,
+     "flags": {
+      "jockey_downgrade": -4,
+      "turf_to_inner": 2,
+      "final_work_strong": 3,
+      "distance_change_try": 1
+     },
+     "p8": 0.23206173379314796,
+     "mkt": 0.09134884715138913,
+     "mkt_place": 0.27753533528280416,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 5,
+     "flags": {
+      "weight_increase": -2,
+      "turf_to_inner": 2
+     },
+     "p8": 0.013092027147162679,
+     "mkt": 0.012574920414827299,
+     "mkt_place": 0.04181476758779422,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 6,
+     "flags": {
+      "big_distance_change": 2
+     },
+     "p8": 0.12421369513471402,
+     "mkt": 0.1419169589673367,
+     "mkt_place": 0.40283164400087723,
+     "win": false,
+     "top3": true
+    },
+    {
+     "num": 7,
+     "flags": {
+      "jockey_downgrade": -4,
+      "second_start": 2
+     },
+     "p8": 0.011553673405924501,
+     "mkt": 0.007372309556744763,
+     "mkt_place": 0.024645816368223845,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 8,
+     "flags": {
+      "jockey_downgrade": -4,
+      "first_blinker": 3
+     },
+     "p8": 0.035587819491824824,
+     "mkt": 0.08454627342734951,
+     "mkt_place": 0.25907087972127935,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 9,
+     "flags": {
+      "old_no_record": -3
+     },
+     "p8": 0.007459612209364278,
+     "mkt": 0.020325702563096813,
+     "mkt_place": 0.067044201570536,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 10,
+     "flags": {
+      "stable_concern": -4
+     },
+     "p8": 0.014835210309316284,
+     "mkt": 0.026056884269412637,
+     "mkt_place": 0.08542735939171306,
+     "win": false,
+     "top3": true
+    },
+    {
+     "num": 11,
+     "flags": {
+      "top_jockey_switch": 4
+     },
+     "p8": 0.045695664751998495,
+     "mkt": 0.04034187666076576,
+     "mkt_place": 0.13021793556942116,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 12,
+     "flags": {
+      "stable_concern": -4,
+      "distance_change_try": 1
+     },
+     "p8": 0.013092027147162679,
+     "mkt": 0.01621908102483848,
+     "mkt_place": 0.05372914491781889,
+     "win": true,
+     "top3": true
+    },
+    {
+     "num": 13,
+     "flags": {
+      "turf_to_outer": -3,
+      "distance_change_try": 1
+     },
+     "p8": 0.004816287630699558,
+     "mkt": 0.01424256219027035,
+     "mkt_place": 0.04727849959082829,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 14,
+     "flags": {
+      "front_runner_bad_pace": -6,
+      "turf_to_outer": -3,
+      "big_distance_change": 2,
+      "top_jockey_switch": 4
+     },
+     "p8": 0.011553673405924501,
+     "mkt": 0.03784452239128978,
+     "mkt_place": 0.12249488548006358,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 15,
+     "flags": {
+      "turf_to_outer": -3
+     },
+     "p8": 0.0012177482178254765,
+     "mkt": 0.008436676966211098,
+     "mkt_place": 0.028173448061911695,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 16,
+     "flags": {
+      "long_layoff": -5
+     },
+     "p8": 0.014835210309316284,
+     "mkt": 0.025149840829654598,
+     "mkt_place": 0.08253352827861654,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 17,
+     "flags": {
+      "front_runner_bad_pace": -6,
+      "weight_increase": -2,
+      "jockey_downgrade": -4
+     },
+     "p8": 0.004524483514546131,
+     "mkt": 0.03217550486708848,
+     "mkt_place": 0.10479381589990872,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 18,
+     "flags": {
+      "second_start": 2,
+      "big_distance_change": 2
+     },
+     "p8": 0.10961820121497234,
+     "mkt": 0.17276847178632293,
+     "mkt_place": 0.4688128419983483,
+     "win": false,
+     "top3": false
+    }
+   ],
    "winner": 12,
    "winner_name": "エコロディノス",
    "winner_score_rank": 12,
@@ -216,6 +433,202 @@
     }
    ],
    "gap_for_mkt": -1.4175758906099958,
+   "horses": [
+    {
+     "num": 1,
+     "flags": {
+      "turf_to_inner": 2,
+      "final_work_strong": 3
+     },
+     "p8": 0.13380510103537505,
+     "mkt": 0.0773250443277174,
+     "mkt_place": 0.25816503158257686,
+     "win": true,
+     "top3": true
+    },
+    {
+     "num": 2,
+     "flags": {
+      "turf_to_inner": 2
+     },
+     "p8": 0.15162104325068562,
+     "mkt": 0.28444569877696047,
+     "mkt_place": 0.6841743290883511,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 3,
+     "flags": {
+      "turf_to_inner": 2
+     },
+     "p8": 0.049224145794782154,
+     "mkt": 0.035397686958910636,
+     "mkt_place": 0.1241781659992662,
+     "win": false,
+     "top3": true
+    },
+    {
+     "num": 4,
+     "flags": {
+      "course_repeater": 3,
+      "second_start": 2,
+      "turf_to_inner": 2
+     },
+     "p8": 0.2499808390931495,
+     "mkt": 0.1448087193773617,
+     "mkt_place": 0.4402773260384822,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 5,
+     "flags": {
+      "top_jockey_switch": 4
+     },
+     "p8": 0.015012516271929507,
+     "mkt": 0.0037908041721822433,
+     "mkt_place": 0.013751188244029423,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 6,
+     "flags": {},
+     "p8": 0.09196281138915609,
+     "mkt": 0.1731408601251064,
+     "mkt_place": 0.5033723462219087,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 7,
+     "flags": {
+      "old_no_record": -3,
+      "stable_concern": -4
+     },
+     "p8": 0.002777036276112705,
+     "mkt": 0.002684354420544285,
+     "mkt_place": 0.009748412276187477,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 8,
+     "flags": {
+      "stable_concern": -4,
+      "big_distance_change": 2
+     },
+     "p8": 0.003795758546206836,
+     "mkt": 0.0026925218275033447,
+     "mkt_place": 0.009777992256880851,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 9,
+     "flags": {},
+     "p8": 0.049224145794782154,
+     "mkt": 0.031480156386382976,
+     "mkt_place": 0.11091312642744572,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 10,
+     "flags": {
+      "weight_drop": 3
+     },
+     "p8": 0.05577826466089331,
+     "mkt": 0.02569186956695127,
+     "mkt_place": 0.09109070221183822,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 11,
+     "flags": {
+      "top_jockey_switch": 4,
+      "second_start": 2
+     },
+     "p8": 0.04344015619626779,
+     "mkt": 0.007793032843204396,
+     "mkt_place": 0.028154478559135197,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 12,
+     "flags": {
+      "turf_to_outer": -3,
+      "weight_increase": -2
+     },
+     "p8": 0.0109833915343594,
+     "mkt": 0.019099471380707177,
+     "mkt_place": 0.06819549833790742,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 13,
+     "flags": {
+      "course_repeater": 3,
+      "second_start": 2
+     },
+     "p8": 0.03601315438501074,
+     "mkt": 0.029829511482228066,
+     "mkt_place": 0.10528732673560949,
+     "win": false,
+     "top3": true
+    },
+    {
+     "num": 14,
+     "flags": {
+      "turf_to_outer": -3,
+      "stable_concern": -4,
+      "weight_increase": -2
+     },
+     "p8": 0.01410295389155044,
+     "mkt": 0.063210155283769,
+     "mkt_place": 0.21473325830956144,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 15,
+     "flags": {
+      "turf_to_outer": -3,
+      "first_blinker": 3
+     },
+     "p8": 0.01598074038588316,
+     "mkt": 0.007162301767765192,
+     "mkt_place": 0.025892475143887147,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 16,
+     "flags": {
+      "turf_to_outer": -3
+     },
+     "p8": 0.05577826466089331,
+     "mkt": 0.0698638558399552,
+     "mkt_place": 0.23542476888839708,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 17,
+     "flags": {
+      "stable_concern": -4
+     },
+     "p8": 0.020519676832962245,
+     "mkt": 0.02158395546275039,
+     "mkt_place": 0.07686357367853766,
+     "win": false,
+     "top3": false
+    }
+   ],
    "winner": 1,
    "winner_name": "セイウンハーデス",
    "winner_score_rank": 3,
@@ -333,6 +746,201 @@
     }
    ],
    "gap_for_mkt": 3.884290408683256,
+   "horses": [
+    {
+     "num": 1,
+     "flags": {
+      "turf_to_inner": 2
+     },
+     "p8": 0.040386390504482575,
+     "mkt": 0.06730366193218802,
+     "mkt_place": 0.2194688460279029,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 2,
+     "flags": {
+      "turf_to_inner": 2
+     },
+     "p8": 0.027757133202796398,
+     "mkt": 0.03008269737878101,
+     "mkt_place": 0.10236171311141455,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 3,
+     "flags": {
+      "turf_to_inner": 2
+     },
+     "p8": 0.08549798936891558,
+     "mkt": 0.12809406625803527,
+     "mkt_place": 0.38574835350345044,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 4,
+     "flags": {
+      "turf_to_inner": 2
+     },
+     "p8": 0.02559105456877724,
+     "mkt": 0.009045366865601579,
+     "mkt_place": 0.031468624412945095,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 5,
+     "flags": {
+      "turf_to_inner": 1,
+      "final_work_strong": 3,
+      "first_blinker": 1
+     },
+     "p8": 0.06138974855160354,
+     "mkt": 0.044367777139654674,
+     "mkt_place": 0.14860020552011619,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 6,
+     "flags": {
+      "slow_start": -4,
+      "weight_increase": -2,
+      "distance_change_try": 1,
+      "second_start": 2
+     },
+     "p8": 0.0016773964505330944,
+     "mkt": 0.003535989362421276,
+     "mkt_place": 0.012370666440050238,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 7,
+     "flags": {
+      "weight_increase": -2,
+      "turf_to_inner": 2
+     },
+     "p8": 0.015521759210342457,
+     "mkt": 0.01451888868006981,
+     "mkt_place": 0.05022652752492614,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 8,
+     "flags": {
+      "top_jockey_switch": 4,
+      "turf_to_inner": 1
+     },
+     "p8": 0.06138974855160354,
+     "mkt": 0.030428475509571593,
+     "mkt_place": 0.1034994184078834,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 9,
+     "flags": {
+      "slow_start": -3,
+      "weight_increase": -2,
+      "fastest_last_unrewarded": 3,
+      "final_work_strong": 3
+     },
+     "p8": 0.020434872128324868,
+     "mkt": 0.03711136499064573,
+     "mkt_place": 0.1253089686601384,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 10,
+     "flags": {
+      "course_repeater": 1
+     },
+     "p8": 0.11469114955931393,
+     "mkt": 0.07219847370907442,
+     "mkt_place": 0.23403752334617142,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 11,
+     "flags": {
+      "turf_to_outer": -2,
+      "course_repeater": 3,
+      "final_work_strong": 2,
+      "second_start": 2
+     },
+     "p8": 0.15973127300705967,
+     "mkt": 0.14439694741814885,
+     "mkt_place": 0.4247208279504688,
+     "win": false,
+     "top3": true
+    },
+    {
+     "num": 12,
+     "flags": {
+      "turf_to_outer": -2
+     },
+     "p8": 0.0190771800602549,
+     "mkt": 0.01890912406666235,
+     "mkt_place": 0.06511447215556226,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 13,
+     "flags": {
+      "turf_to_outer": -3,
+      "breaking_out": 3
+     },
+     "p8": 0.019930333337786765,
+     "mkt": 0.01881950736492461,
+     "mkt_place": 0.06481198214862648,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 14,
+     "flags": {
+      "jockey_downgrade": -4,
+      "turf_to_outer": -2,
+      "weight_increase": -2
+     },
+     "p8": 0.0061934535768012645,
+     "mkt": 0.008162211827336265,
+     "mkt_place": 0.028421798552025635,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 15,
+     "flags": {
+      "final_work_strong": 2,
+      "jockey_switch": 1
+     },
+     "p8": 0.15973127300705967,
+     "mkt": 0.13236386846663642,
+     "mkt_place": 0.39619075082774063,
+     "win": false,
+     "top3": true
+    },
+    {
+     "num": 16,
+     "flags": {
+      "turf_to_outer": -2
+     },
+     "p8": 0.18099924491434455,
+     "mkt": 0.24066157903024807,
+     "mkt_place": 0.6076493214105764,
+     "win": true,
+     "top3": true
+    }
+   ],
    "winner": 16,
    "winner_name": "カムニャック",
    "winner_score_rank": 1,
@@ -452,6 +1060,214 @@
     }
    ],
    "gap_for_mkt": -1.5844054355680441,
+   "horses": [
+    {
+     "num": 1,
+     "flags": {
+      "second_start": 2
+     },
+     "p8": 0.1759090569064896,
+     "mkt": 0.13728925250495935,
+     "mkt_place": 0.39276584216381705,
+     "win": true,
+     "top3": true
+    },
+    {
+     "num": 2,
+     "flags": {
+      "front_runner_bad_pace": -6,
+      "turf_to_inner": 2,
+      "final_work_strong": 3
+     },
+     "p8": 0.04442121361107942,
+     "mkt": 0.03865425555964875,
+     "mkt_place": 0.12520186778555153,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 3,
+     "flags": {
+      "top_jockey_switch": 4,
+      "turf_to_inner": 2
+     },
+     "p8": 0.034638547079046775,
+     "mkt": 0.007059199153623797,
+     "mkt_place": 0.023644897627027504,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 4,
+     "flags": {},
+     "p8": 0.025215708143978385,
+     "mkt": 0.04351244068463193,
+     "mkt_place": 0.1401769356032244,
+     "win": false,
+     "top3": true
+    },
+    {
+     "num": 5,
+     "flags": {
+      "turf_to_inner": 2
+     },
+     "p8": 0.02163564399033516,
+     "mkt": 0.01463745706854346,
+     "mkt_place": 0.048647875831644746,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 6,
+     "flags": {
+      "long_layoff": -5,
+      "turf_to_inner": 2
+     },
+     "p8": 0.07332980474178093,
+     "mkt": 0.04213109336131028,
+     "mkt_place": 0.1359368538906893,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 7,
+     "flags": {},
+     "p8": 0.0036508760020811572,
+     "mkt": 0.0051605811051766955,
+     "mkt_place": 0.017318798197701712,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 8,
+     "flags": {
+      "weight_increase": -2,
+      "stable_concern": -4,
+      "top_jockey_switch": 4
+     },
+     "p8": 0.034638547079046775,
+     "mkt": 0.025278656016786166,
+     "mkt_place": 0.08307769101956435,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 9,
+     "flags": {
+      "turf_to_outer": -3,
+      "course_repeater": 3
+     },
+     "p8": 0.15986698718107845,
+     "mkt": 0.1942140645192108,
+     "mkt_place": 0.5106896978422981,
+     "win": false,
+     "top3": true
+    },
+    {
+     "num": 10,
+     "flags": {
+      "turf_to_outer": -3,
+      "second_start": 2
+     },
+     "p8": 0.024516396518752887,
+     "mkt": 0.027176712099957825,
+     "mkt_place": 0.08913423431651002,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 11,
+     "flags": {
+      "weight_increase": -2,
+      "second_start": 2
+     },
+     "p8": 0.06471332555175485,
+     "mkt": 0.02391224217804097,
+     "mkt_place": 0.07870159391067925,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 12,
+     "flags": {
+      "turf_to_outer": -3,
+      "second_start": 2,
+      "short_interval_unfulfilled": 3
+     },
+     "p8": 0.07323819975090068,
+     "mkt": 0.05170634185251715,
+     "mkt_place": 0.16503413689554783,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 13,
+     "flags": {},
+     "p8": 0.05190121183748278,
+     "mkt": 0.08847529605875158,
+     "mkt_place": 0.2701806787571075,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 14,
+     "flags": {
+      "fillies_to_open": -3,
+      "course_repeater": 3
+     },
+     "p8": 0.02857314067633368,
+     "mkt": 0.03172420974218184,
+     "mkt_place": 0.10353928255219648,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 15,
+     "flags": {
+      "fillies_to_open": -3,
+      "distance_change_try": 1
+     },
+     "p8": 0.050398788614861426,
+     "mkt": 0.09479496006294812,
+     "mkt_place": 0.28716566032326646,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 16,
+     "flags": {},
+     "p8": 0.018540678191352855,
+     "mkt": 0.01238378949500411,
+     "mkt_place": 0.04125391911708313,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 17,
+     "flags": {
+      "turf_to_outer": -3,
+      "fastest_last_unrewarded": 3
+     },
+     "p8": 0.04157367437274361,
+     "mkt": 0.043042035920473745,
+     "mkt_place": 0.1387346126740705,
+     "win": false,
+     "top3": false
+    },
+    {
+     "num": 18,
+     "flags": {
+      "fillies_to_open": -3,
+      "turf_to_outer": -3,
+      "distance_change_try": 1
+     },
+     "p8": 0.07323819975090068,
+     "mkt": 0.11884741261623345,
+     "mkt_place": 0.34879542149202014,
+     "win": false,
+     "top3": false
+    }
+   ],
    "winner": 1,
    "winner_name": "ダイヤモンドノット",
    "winner_score_rank": 1,
@@ -475,7 +1291,7 @@
   {
    "race": "富士ステークス(G2)",
    "title": "2026/10/17 東京11R 富士ステークス(G2) 芝1600 15:45発走",
-   "asof": "前売り 2026-10-17 08:45:41",
+   "asof": "前売り 2026-10-17 08:55:46",
    "n": 14,
    "top": 5,
    "top_name": "アドマイヤズーム",
@@ -483,10 +1299,10 @@
    "gap14": 7.0,
    "sd": 9.668376239428358,
    "top_p8": 0.20666516514503047,
-   "top_mkt": 0.14702228010909044,
+   "top_mkt": 0.14702777329538702,
    "fav": 4,
    "fav_name": "トロヴァトーレ",
-   "fav_mkt": 0.2089263980497601,
+   "fav_mkt": 0.2089342041566026,
    "fav_p8": 0.14848366080163217,
    "fav_score_rank": 2,
    "implied_t": 12.516019898586618,
@@ -507,7 +1323,7 @@
       "weight_increase"
      ],
      "p8": 0.20666516514503047,
-     "mkt": 0.14702228010909044,
+     "mkt": 0.14702777329538702,
      "proxy_p": 0.25388264785028364
     },
     {
@@ -519,7 +1335,7 @@
      "flags": 0,
      "flag_names": [],
      "p8": 0.14848366080163217,
-     "mkt": 0.2089263980497601,
+     "mkt": 0.2089342041566026,
      "proxy_p": 0.10471849507411406
     },
     {
@@ -533,7 +1349,7 @@
       "top_jockey_switch"
      ],
      "p8": 0.10205122814459712,
-     "mkt": 0.03451827446039515,
+     "mkt": 0.03467030461987293,
      "proxy_p": 0.04070266910125658
     },
     {
@@ -548,7 +1364,7 @@
       "turf_to_outer"
      ],
      "p8": 0.08615085813954988,
-     "mkt": 0.024810009768409014,
+     "mkt": 0.02442923002446431,
      "proxy_p": 0.041596143200523544
     },
     {
@@ -560,16 +1376,184 @@
      "flags": 0,
      "flag_names": [],
      "p8": 0.0830838155290905,
-     "mkt": 0.051553267051239506,
+     "mkt": 0.05189215528072484,
      "proxy_p": 0.07007545946781885
     }
    ],
-   "gap_for_mkt": -0.6590307202422849
+   "gap_for_mkt": -0.6586803019578156,
+   "horses": [
+    {
+     "num": 1,
+     "flags": {
+      "turf_to_inner": 2
+     },
+     "p8": 0.07947757639241083,
+     "mkt": 0.062027341858991406,
+     "mkt_place": 0.2052780632171627,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 2,
+     "flags": {
+      "long_layoff": -5,
+      "jockey_downgrade": -4,
+      "weight_increase": -2
+     },
+     "p8": 0.005757336323537401,
+     "mkt": 0.014980188222548867,
+     "mkt_place": 0.05223316380415969,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 3,
+     "flags": {
+      "jockey_downgrade": -4
+     },
+     "p8": 0.007071693071832658,
+     "mkt": 0.005911764525652196,
+     "mkt_place": 0.020805739951776245,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 4,
+     "flags": {},
+     "p8": 0.14848366080163217,
+     "mkt": 0.2089342041566026,
+     "mkt_place": 0.5601633472417289,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 5,
+     "flags": {
+      "weight_increase": -2,
+      "final_work_strong": 3
+     },
+     "p8": 0.20666516514503047,
+     "mkt": 0.14702777329538702,
+     "mkt_place": 0.43449983881246595,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 6,
+     "flags": {
+      "jockey_downgrade": -4,
+      "big_distance_change": 2,
+      "final_work_strong": 3,
+      "turf_to_inner": 2
+     },
+     "p8": 0.07602786546315765,
+     "mkt": 0.024059090175608786,
+     "mkt_place": 0.08309272846786162,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 7,
+     "flags": {},
+     "p8": 0.0830838155290905,
+     "mkt": 0.05189215528072484,
+     "mkt_place": 0.17378025692778185,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 8,
+     "flags": {
+      "turf_to_outer": -3
+     },
+     "p8": 0.037542548780693755,
+     "mkt": 0.06301190284088015,
+     "mkt_place": 0.2082931088771554,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 9,
+     "flags": {
+      "top_jockey_switch": 4
+     },
+     "p8": 0.10205122814459712,
+     "mkt": 0.03467030461987293,
+     "mkt_place": 0.11837534787431607,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 10,
+     "flags": {
+      "weight_increase": -2,
+      "turf_to_outer": -3,
+      "final_work_strong": 3
+     },
+     "p8": 0.07013871499123313,
+     "mkt": 0.2089342041566026,
+     "mkt_place": 0.5601633472417288,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 11,
+     "flags": {
+      "turf_to_outer": -3,
+      "top_jockey_switch": 4
+     },
+     "p8": 0.08615085813954988,
+     "mkt": 0.02442923002446431,
+     "mkt_place": 0.08433781756838557,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 12,
+     "flags": {
+      "long_layoff": -5,
+      "jockey_downgrade": -4,
+      "weight_increase": -2,
+      "turf_to_outer": -3
+     },
+     "p8": 0.004860298831170983,
+     "mkt": 0.029297047077309592,
+     "mkt_place": 0.1006161770246397,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 13,
+     "flags": {
+      "turf_to_outer": -3,
+      "distance_change_try": 1
+     },
+     "p8": 0.013211661993652818,
+     "mkt": 0.02035769168705359,
+     "mkt_place": 0.07058542626081976,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 14,
+     "flags": {
+      "weight_increase": -2,
+      "turf_to_outer": -3,
+      "final_work_strong": 3,
+      "first_after_transfer": 3
+     },
+     "p8": 0.07947757639241083,
+     "mkt": 0.1044671020783013,
+     "mkt_place": 0.3277756367300195,
+     "win": null,
+     "top3": null
+    }
+   ]
   },
   {
    "race": "秋華賞(G1)",
    "title": "2026/10/18 京都11R 秋華賞(G1) 芝2000 15:40発走",
-   "asof": "前売り 2026-10-17 08:48:51",
+   "asof": "前売り 2026-10-17 08:58:01",
    "n": 17,
    "top": 8,
    "top_name": "モンローウォーク",
@@ -577,10 +1561,10 @@
    "gap14": 2.7650000000000006,
    "sd": 9.108557860472638,
    "top_p8": 0.1557025143149201,
-   "top_mkt": 0.562039778302227,
+   "top_mkt": 0.5623435413739517,
    "fav": 8,
    "fav_name": "モンローウォーク",
-   "fav_mkt": 0.562039778302227,
+   "fav_mkt": 0.5623435413739517,
    "fav_p8": 0.1557025143149201,
    "fav_score_rank": 1,
    "implied_t": 6.190159420306986,
@@ -598,7 +1582,7 @@
      "flags": 0,
      "flag_names": [],
      "p8": 0.1557025143149201,
-     "mkt": 0.562039778302227,
+     "mkt": 0.5623435413739517,
      "proxy_p": 0.2612668341363758
     },
     {
@@ -615,7 +1599,7 @@
       "first_long_trip"
      ],
      "p8": 0.14150318521278316,
-     "mkt": 0.05389422531665189,
+     "mkt": 0.05355652774990016,
      "proxy_p": 0.06356394394074304
     },
     {
@@ -630,7 +1614,7 @@
       "stable_concern"
      ],
      "p8": 0.1374069866075506,
-     "mkt": 0.08841075164304693,
+     "mkt": 0.0884585345981497,
      "proxy_p": 0.1623029305394216
     },
     {
@@ -644,7 +1628,7 @@
       "second_start"
      ],
      "p8": 0.11020279145081356,
-     "mkt": 0.03560432984719989,
+     "mkt": 0.03546310621277173,
      "proxy_p": 0.0919048402265059
     },
     {
@@ -659,11 +1643,209 @@
       "turf_to_inner"
      ],
      "p8": 0.09725362211151908,
-     "mkt": 0.008911162962889217,
+     "mkt": 0.009339038646779744,
      "proxy_p": 0.06394802774160457
     }
    ],
-   "gap_for_mkt": 16.285017724730352
+   "gap_for_mkt": 16.294890893213378,
+   "horses": [
+    {
+     "num": 1,
+     "flags": {
+      "long_layoff": -5,
+      "distance_change_try": 1
+     },
+     "p8": 0.07574119705698157,
+     "mkt": 0.021163466610847642,
+     "mkt_place": 0.1040974754435111,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 2,
+     "flags": {
+      "front_runner_bad_pace": -6,
+      "turf_to_inner": 2
+     },
+     "p8": 0.00933898176132481,
+     "mkt": 0.013668072186172437,
+     "mkt_place": 0.06790397644903837,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 3,
+     "flags": {
+      "first_long_trip": -2,
+      "top_jockey_switch": 4,
+      "second_start": 2,
+      "turf_to_inner": 2
+     },
+     "p8": 0.14150318521278316,
+     "mkt": 0.05355652774990016,
+     "mkt_place": 0.2510581867214161,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 4,
+     "flags": {
+      "second_start": 2
+     },
+     "p8": 0.11020279145081356,
+     "mkt": 0.03546310621277173,
+     "mkt_place": 0.1709496289403259,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 5,
+     "flags": {
+      "second_start": 2
+     },
+     "p8": 0.0668413718008357,
+     "mkt": 0.010400012654207823,
+     "mkt_place": 0.05188716757401262,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 6,
+     "flags": {
+      "first_long_trip": -2,
+      "turf_to_inner": 2
+     },
+     "p8": 0.03157362837804123,
+     "mkt": 0.06150632483777596,
+     "mkt_place": 0.2845349535014701,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 7,
+     "flags": {
+      "weight_increase": -2,
+      "turf_to_inner": 2
+     },
+     "p8": 0.010250456356386686,
+     "mkt": 0.006000617057343997,
+     "mkt_place": 0.03010571232773406,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 8,
+     "flags": {},
+     "p8": 0.1557025143149201,
+     "mkt": 0.5623435413739517,
+     "mkt_place": 0.9318254778290544,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 9,
+     "flags": {
+      "second_start": 2,
+      "turf_to_inner": 2
+     },
+     "p8": 0.09725362211151908,
+     "mkt": 0.009339038646779744,
+     "mkt_place": 0.04665717998125156,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 10,
+     "flags": {
+      "turf_to_inner": 2
+     },
+     "p8": 0.015397377876576763,
+     "mkt": 0.0042078084335838185,
+     "mkt_place": 0.021158393289995026,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 11,
+     "flags": {
+      "breaking_out": 4
+     },
+     "p8": 0.03474192695460131,
+     "mkt": 0.021163466610847642,
+     "mkt_place": 0.10409747544351117,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 12,
+     "flags": {
+      "first_long_trip": -2
+     },
+     "p8": 0.03474192695460131,
+     "mkt": 0.04714257233075044,
+     "mkt_place": 0.22326418080275945,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 13,
+     "flags": {
+      "stable_concern": -2,
+      "second_start": 2
+     },
+     "p8": 0.1374069866075506,
+     "mkt": 0.0884585345981497,
+     "mkt_place": 0.38924085272190767,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 14,
+     "flags": {
+      "turf_to_outer": -3,
+      "top_jockey_switch": 4
+     },
+     "p8": 0.05205611270005776,
+     "mkt": 0.021335527315000876,
+     "mkt_place": 0.10491927182148018,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 15,
+     "flags": {
+      "jockey_downgrade": -4
+     },
+     "p8": 0.011615288763468592,
+     "mkt": 0.00633881608634084,
+     "mkt_place": 0.031788971744173174,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 16,
+     "flags": {
+      "turf_to_outer": -3
+     },
+     "p8": 0.012780840673277786,
+     "mkt": 0.025152746259537773,
+     "mkt_place": 0.12304431589026187,
+     "win": null,
+     "top3": null
+    },
+    {
+     "num": 17,
+     "flags": {
+      "weight_increase": -2,
+      "turf_to_outer": -3
+     },
+     "p8": 0.002851791026260038,
+     "mkt": 0.0127598210360378,
+     "mkt_place": 0.0634667795180991,
+     "win": null,
+     "top3": null
+    }
+   ]
   }
  ],
  "history_gaps": [
