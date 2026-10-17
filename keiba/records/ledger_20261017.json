@@ -10,7 +10,10 @@
       "start_at": "2026-10-17T15:45:00+09:00",
       "status": "decided",
       "stake": 100,
-      "decided_at": "2026-10-17T15:32:34+09:00"
+      "decided_at": "2026-10-17T15:32:34+09:00",
+      "purchased": false,
+      "purchased_stake": 0,
+      "user_decision": "見送り"
     },
     {
       "race_id": "202608040711",

@@ -8892,6 +8892,10 @@
   },
   "decision": {
     "stake": 100,
-    "decided_at": "2026-10-17T15:32:34+09:00"
+    "decided_at": "2026-10-17T15:32:34+09:00",
+    "purchased": false,
+    "purchased_stake": 0,
+    "user_decision": "見送り",
+    "user_note": "10/17 15:38 ユーザー判断で見送り（購入なし）。エンジン提案はワイド1-5 100円のまま記録（仮想精算用）"
   }
 }
