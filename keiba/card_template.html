@@ -32,12 +32,13 @@ header p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;min-width:0}
 .panel h2{font-size:.75rem;letter-spacing:.12em;color:var(--muted);margin:0 0 6px;font-weight:700}
 .race-title{font-size:1.15rem;font-weight:900;margin:0}
-.pace{display:inline-flex;align-items:center;gap:8px;margin:8px 0}
+.pace{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:8px 0}
 .warn{font-size:.8rem;color:var(--front);background:var(--front-bg);padding:6px 10px;border-radius:6px;margin:4px 0 8px}
 .pill{font-weight:700;font-size:.8rem;padding:2px 10px;border-radius:999px;background:var(--front-bg);color:var(--front)}
 .note{color:var(--muted);font-size:.85rem;margin:0}
 .bets{display:flex;flex-direction:column;gap:6px;font-family:var(--f-num);font-size:.85rem}
 .bets div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding-bottom:4px}
+.bets div{flex-wrap:wrap}.bets div>span:last-child:not(:only-child){margin-left:auto;text-align:right}
 .bets div.loose-h{border-bottom:0;margin-top:8px;font-family:var(--f-body);font-size:.75rem;letter-spacing:.06em;color:var(--muted);font-weight:700}
 .bets div.loose{color:var(--muted)}
 .caveat{font-family:var(--f-body);font-size:.75rem;color:var(--muted);margin-top:4px}
