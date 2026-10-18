@@ -161,14 +161,16 @@ if (D.asof_iso) {
   if (age > 75 && Date.now() < new Date(D.end_iso)) { const el = document.getElementById('stale'); el.hidden = false; el.textContent = `オッズが${Math.round(age)}分前のものです。自動更新が止まっている可能性があります。`; }
 }
 let cur = 0, sortKey = 'num', open = new Set();
-try { const s = localStorage.getItem('keiba-tab'); if (s !== null) cur = +s || 0; } catch (e) {}
+// 選んだタブはレースIDで覚える（日によってレース数が変わるので番号では覚えない）
+try { const s = localStorage.getItem('keiba-race'); const i = D.races.findIndex(r => r.race_id === s); if (i >= 0) cur = i; } catch (e) {}
 if (location.hash === '#kyoto') cur = 1; if (location.hash === '#mainichi') cur = 0;
+if (!D.races[cur]) cur = 0;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const tabs = document.getElementById('tabs');
 D.races.forEach((r, i) => {
   const b = document.createElement('button');
   b.type = 'button'; b.role = 'tab'; b.id = 'tab-' + r.key; b.textContent = r.short;
-  b.onclick = () => { cur = i; open.clear(); try { localStorage.setItem('keiba-tab', i); } catch (e) {} render(); };
+  b.onclick = () => { cur = i; open.clear(); try { localStorage.setItem('keiba-race', r.race_id); } catch (e) {} render(); };
   tabs.appendChild(b);
 });
 ['num','score','ability','edge','codex'].forEach(k => document.getElementById('s-' + k).onclick = () => { sortKey = k; render(); });
