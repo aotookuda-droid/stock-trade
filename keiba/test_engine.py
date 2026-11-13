@@ -476,6 +476,14 @@ class EngineTest(unittest.TestCase):
         self.assertEqual(engine.raise_to_minimum(big, orders, 4000), (big, None))
         self.assertEqual(engine.raise_to_minimum([], orders, 4000), ([], None))
 
+    def test_frame_and_zone(self):
+        self.assertEqual([engine.frame_of(n, 18) for n in (1, 2, 3, 13, 15, 16, 18)], [1, 1, 2, 7, 7, 8, 8])
+        self.assertEqual([engine.frame_of(n, 16) for n in (1, 11, 16)], [1, 6, 8])
+        self.assertEqual([engine.frame_of(n, 10) for n in (3, 7, 10)], [3, 7, 8])
+        self.assertEqual([engine.frame_of(n, 12) for n in (4, 5, 11)], [4, 5, 8])
+        self.assertEqual(engine.frame_of(5, 7), 5)
+        self.assertEqual([engine.gate_zone_of(g) for g in range(1, 9)], ['内', '内', '中', '中', '中', '中', '外', '外'])
+
     def test_rules_change_date_recorded(self):
         cfg = engine.engine_config()
         self.assertEqual(cfg['rules_changed'][0]['date'], '2026-11-13')

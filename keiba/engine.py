@@ -136,6 +136,33 @@ EV_SUSPICIOUS = 2.0
 # モデルの誤差が最も大きい人気薄の組み合わせに偏っていたため（2026/11/13 の 1.05 への変更後もそのまま）。根拠を人が確かめた馬はレコードの divergence_confirmed
 # （{"馬番": "確認した根拠"}）に書けば外さない。倍率2.0は運用上の仮値で未検証
 DIVERGENCE_GATE = 2.0
+# 枠の位置（2026/11/13〜、ユーザー指定）: 1・2枠＝内、7・8枠＝外、それ以外は中。前走の枠も同じ基準で判定し、
+# turf_to_inner・turf_to_outer・dirt_to_inner・dirt_to_outer はこの区分が変わったときだけ付ける。少頭数はその都度ユーザーが決める
+INNER_GATES = (1, 2)
+OUTER_GATES = (7, 8)
+SMALL_FIELD = 8  # この頭数以下は上の基準を自動では当てはめない（都度決める）
+
+
+def frame_of(num, field_size):
+    """馬番と頭数から枠番（JRA の割り当て: 9頭以上は8枠から順に2頭目、17頭以上は8枠・7枠から3頭目）。"""
+    if field_size <= 8:
+        return num
+    count = [1] * 9
+    for k in range(field_size - 8):
+        count[8 - k % 8] += 1
+    total = 0
+    for f in range(1, 9):
+        total += count[f]
+        if num <= total:
+            return f
+    raise ValueError(f'馬番{num}は{field_size}頭立てにない')
+
+
+def gate_zone_of(gate):
+    """枠番から 内 / 中 / 外。"""
+    return '内' if gate in INNER_GATES else '外' if gate in OUTER_GATES else '中'
+
+
 FRONTNESS = {'逃げ': 1.0, '先行': 0.5, '差し': -0.5, '追込': -1.0}
 ZONE = {'内': -1, '中': 0, '外': 1}
 

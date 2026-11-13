@@ -258,6 +258,15 @@ def _split(text, tag, seen):
     return text[:m.start()], m.group(1), text[m.end():]
 
 
+def zone_warnings(rec):
+    """gate_zone が枠の基準（1・2枠＝内、7・8枠＝外）と違う馬。少頭数（SMALL_FIELD 以下）は都度決めるので調べない。"""
+    if len(rec['horses']) <= engine.SMALL_FIELD:
+        return []
+    bad = [f"{h['num']}番（{h['gate']}枠: {h['gate_zone']}→{engine.gate_zone_of(h['gate'])}）"
+           for h in rec['horses'] if 'gate' in h and h['gate_zone'] != engine.gate_zone_of(h['gate'])]
+    return [f"⚠ 枠の位置が基準と違う: {'・'.join(bad)}。gate_zone と枠替わりのフラグを見直す"] if bad else []
+
+
 def build_race(path, key):
     rec = json.loads(Path(path).read_text(encoding='utf-8'))
     pred_key = sorted(k for k in rec['horses'][0] if k.startswith('pred_odds_'))[-1]
@@ -313,7 +322,7 @@ def build_race(path, key):
     name = re.search(r'\d+R (.+?)\(', rec['race'])
     return {'key': key, 'short': name.group(1) if name else key, 'race': rec['race'], 'race_id': rec.get('race_id', ''),
             'status': rec.get('status', ''),
-            'pace': res['pace'], 'pace_probs': res['pace_probs'], 'warnings': engine.format_warnings(res) + rec.get('card_notes', []), 'pace_note': rec.get('pace_note', ''), 'horses': horses,
+            'pace': res['pace'], 'pace_probs': res['pace_probs'], 'warnings': engine.format_warnings(res) + zone_warnings(rec) + rec.get('card_notes', []), 'pace_note': rec.get('pace_note', ''), 'horses': horses,
             'bets': bets, 'stake': res['total_stake'], 'kelly_stake': res['kelly_stake'], 'live': live, 'asof': asof, 'pred_key': pred_key,
             'missing': missing, 'skip': engine.SKIP_REASONS.get(res['skip_reason'], ''), 'market': engine.market_label(res), 'market_source': res['market_source'],
             'loose': {'bets': [{k: b[k] for k in ('type', 'horses', 'odds', 'ev', 'stake')} for b in loose['bets']],
