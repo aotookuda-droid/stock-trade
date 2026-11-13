@@ -99,6 +99,9 @@ class EngineTest(unittest.TestCase):
         p = {1: 0.5, 2: 0.48, 3: 0.02}
         bets = engine.candidate_bets(p, {'win': {'1': 3.0, '2': 1.5, '3': 200.0}})
         self.assertEqual([b['horses'] for b in bets], [[1]])
+        # 連系は大穴を紐に含めても対象になる
+        combo = engine.candidate_bets(p, {'wide': {'1-3': [10.0, 12.0]}})
+        self.assertEqual([b['horses'] for b in combo], [[1, 3]])
 
     def test_min_budget(self):
         bets = [{'kelly': 0.01}, {'kelly': 0.005}]
