@@ -95,6 +95,18 @@ class EngineTest(unittest.TestCase):
                  {'name': 'C', 'field_size': 18, 'fav_odds': 3.0}]
         self.assertEqual([r['name'] for r in engine.select_races(races)], ['B', 'C'])
 
+    def test_longshot_singles_excluded(self):
+        p = {1: 0.5, 2: 0.48, 3: 0.02}
+        bets = engine.candidate_bets(p, {'win': {'1': 3.0, '2': 1.5, '3': 200.0}})
+        self.assertEqual([b['horses'] for b in bets], [[1]])
+
+    def test_min_budget(self):
+        bets = [{'kelly': 0.01}, {'kelly': 0.005}]
+        stakes = engine.allocate(bets)
+        self.assertEqual(sum(b['stake'] for b in stakes), engine.MIN_BUDGET)
+        big = engine.allocate([{'kelly': 0.5}])
+        self.assertEqual(big[0]['stake'], engine.RACE_CAP)
+
 
 if __name__ == '__main__':
     unittest.main()

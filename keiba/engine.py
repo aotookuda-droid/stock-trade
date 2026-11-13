@@ -10,7 +10,9 @@ from itertools import combinations, permutations
 RACE_CAP = 4000
 UNIT = 100
 MAX_TICKETS = 15
-EV_THRESHOLD = 1.2
+EV_THRESHOLD = 1.05
+MIN_SINGLE_PROB = 0.03  # 単勝・複勝は推定勝率3%未満の大穴を対象外にする
+MIN_BUDGET = 1000  # 買う馬券が1点でもあれば最低この額を投資する
 SOFTMAX_TEMP = 8.0
 MODEL_WEIGHT = 0.5
 TAKEOUT_WIN = 0.20
@@ -221,9 +223,11 @@ def candidate_bets(p, odds, gates=None):
     probs = harville(p)
     bets = []
     for k, o in odds.get('win', {}).items():
-        bets.append(_bet('単勝', (int(k),), p[int(k)], o))
+        if p[int(k)] >= MIN_SINGLE_PROB:
+            bets.append(_bet('単勝', (int(k),), p[int(k)], o))
     for k, o in odds.get('place', {}).items():
-        bets.append(_bet('複勝', (int(k),), probs['place'][int(k)], _low(o)))
+        if p[int(k)] >= MIN_SINGLE_PROB:
+            bets.append(_bet('複勝', (int(k),), probs['place'][int(k)], _low(o)))
     for k, o in odds.get('wide', {}).items():
         bets.append(_bet('ワイド', _key(k), probs['wide'].get(_key(k), 0.0), _low(o)))
     bets += pair_bets(p, odds, probs, gates)
@@ -247,7 +251,7 @@ def allocate(bets, cap=RACE_CAP):
     if not bets:
         return []
     total_f = sum(b['kelly'] for b in bets)
-    budget = int(cap * min(1.0, total_f * 4) // UNIT * UNIT)
+    budget = int(max(MIN_BUDGET, cap * min(1.0, total_f * 4)) // UNIT * UNIT)
     for b in bets:
         b['stake'] = int(budget * b['kelly'] / total_f // UNIT * UNIT)
     kept = [b for b in bets if b['stake'] > 0]
@@ -286,7 +290,7 @@ def analyze(race):
 def format_result(res):
     lines = [f"■ {res['race']}  ペース:{res['pace']}  バイアス:{res['bias']['inner_outer']}/{res['bias']['front_back']}"]
     if not res['bets']:
-        lines.append('見送り（期待値1.2以上の馬券なし）')
+        lines.append(f'見送り（期待値{EV_THRESHOLD}以上の馬券なし）')
         return '\n'.join(lines)
     for b in res['bets']:
         sep = '>' if b['type'] in ('馬単', '三連単') else '-'
