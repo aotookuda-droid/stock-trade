@@ -344,7 +344,8 @@ def page_title(races, today=None):
     dates = sorted({m.group(1) for r in races if (m := re.match(r'(\d{4}/\d{2}/\d{2})', r['race']))})
     label = '・'.join(re.sub(r'(^|/)0', r'\1', d[5:]) for d in dates)
     today = (today or datetime.now()).strftime('%Y/%m/%d')
-    return f"{label} 重賞 {'前日馬柱' if dates and today < dates[0] else '馬柱'}".strip()
+    name = races[0].get('short') if len(races) == 1 and races[0].get('short') else '重賞'
+    return f"{label} {name} {'前日馬柱' if dates and today < dates[0] else '馬柱'}".strip()
 
 
 def main(out, *paths):

@@ -29,11 +29,14 @@ class LiveCardTest(unittest.TestCase):
             out = Path(d) / 'card.html'
             live_card.main(str(out), str(RECORD))
             html = out.read_text(encoding='utf-8')
-        self.assertIn('<title>10/4 重賞 ', html)
+        self.assertIn('<title>10/4 毎日王冠 ', html)
         self.assertNotIn('__TITLE__', html)
         races = [{'race': '2026/10/11 東京11R'}, {'race': '2026/10/12 京都11R'}]
         self.assertEqual(live_card.page_title(races, datetime(2026, 10, 9)), '10/11・10/12 重賞 前日馬柱')
         self.assertEqual(live_card.page_title(races, datetime(2026, 10, 11, 15)), '10/11・10/12 重賞 馬柱')
+        one = [{'race': '2026/11/15 京都11R エリザベス女王杯(G1)', 'short': 'エリザベス女王杯'}]
+        self.assertEqual(live_card.page_title(one, datetime(2026, 11, 15, 9)), '11/15 エリザベス女王杯 馬柱')
+        self.assertEqual(live_card.page_title(one, datetime(2026, 11, 14, 9)), '11/15 エリザベス女王杯 前日馬柱')
 
     def test_falls_back_to_predicted_odds(self):
         d = self.build(None)
