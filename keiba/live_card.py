@@ -313,11 +313,12 @@ def build_race(path, key):
     name = re.search(r'\d+R (.+?)\(', rec['race'])
     return {'key': key, 'short': name.group(1) if name else key, 'race': rec['race'], 'race_id': rec.get('race_id', ''),
             'status': rec.get('status', ''),
-            'pace': res['pace'], 'pace_probs': res['pace_probs'], 'warnings': engine.format_warnings(res), 'pace_note': rec.get('pace_note', ''), 'horses': horses,
-            'bets': bets, 'stake': res['total_stake'], 'live': live, 'asof': asof, 'pred_key': pred_key,
+            'pace': res['pace'], 'pace_probs': res['pace_probs'], 'warnings': engine.format_warnings(res) + rec.get('card_notes', []), 'pace_note': rec.get('pace_note', ''), 'horses': horses,
+            'bets': bets, 'stake': res['total_stake'], 'kelly_stake': res['kelly_stake'], 'live': live, 'asof': asof, 'pred_key': pred_key,
             'missing': missing, 'skip': engine.SKIP_REASONS.get(res['skip_reason'], ''), 'market': engine.market_label(res), 'market_source': res['market_source'],
             'loose': {'bets': [{k: b[k] for k in ('type', 'horses', 'odds', 'ev', 'stake')} for b in loose['bets']],
-                      'stake': loose['total_stake'], 'skip': engine.SKIP_REASONS.get(loose['skip_reason'], ''),
+                      'stake': loose['total_stake'], 'skip': engine.SKIP_REASONS.get(loose['skip_reason'], '').replace(
+                          f'期待値{engine.EV_THRESHOLD:g}', f"期待値{engine.REFERENCE_LOOSE['ev_threshold']:g}"),
                       **engine.REFERENCE_LOOSE},
             'market_only': {k: res['market_only'][k] for k in ('bets', 'total_stake', 'shared', 'shared_stake')}
             if res.get('market_only') else None,
@@ -354,6 +355,7 @@ def main(out, *paths):
               + '買い目は参考試算。最終提案は発走10分前に実取得オッズで keiba.raceday が出す。')
     starts = sorted(r['start_at'] for r in races if r['start_at'])
     data = {'races': races, 'plus': engine.PLUS_WEIGHTS, 'minus': engine.MINUS_WEIGHTS,
+            'ev_threshold': engine.EV_THRESHOLD, 'win_place_min_prob': engine.WIN_PLACE_MIN_PROB, 'min_stake': engine.MIN_STAKE,
             'header': header, 'odds_label': label,
             'asof_iso': asofs[-1].replace(' ', 'T') + '+09:00' if asofs else None,
             'end_iso': starts[-1] if starts else None}

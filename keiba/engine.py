@@ -22,7 +22,18 @@ TYPE_LIMITS = {'馬連・馬単': (('馬連', '馬単'), 5)}
 # 暫定（2026/10/4〜）: 判断時の単勝がこの倍率以上の馬を含む買い目は買わない。過去5年の重賞で100倍以上は
 # 勝率0.2%（市場0.5%）・単勝回収率30%と市場以上に来ないため。オッズ帯ごとの補正を入れたら外す
 LONGSHOT_ODDS = 100
-EV_THRESHOLD = 1.2
+# 購入基準（2026/11/13 ユーザー指定で 1.2 → 1.05。11/15 エリザベス女王杯から）。1.2 はモデル勝率が市場の約2倍ないと
+# 届かず、ほぼ毎回見送りで、越えるのは誤差を拾った大穴ばかりだったため。1.05 も未検証の仮値
+EV_THRESHOLD = 1.05
+# 単勝・複勝だけ、混合後の推定勝率がこの値未満の馬を買わない（2026/11/13〜、ユーザー指定）。ワイド・馬連・枠連・馬単・
+# 三連系には適用しない（人気薄を相手・紐に入れるのは可）
+WIN_PLACE_MIN_PROB = 0.03
+# 買い目が1点でもあれば、提案額をこの額まで引き上げる（2026/11/13〜、ユーザー指定）。配分の比率は期待対数成長（ケリー）の
+# 貪欲配分のまま保ち、1レース上限・土日の残額を超えない
+MIN_STAKE = 1000
+# 購入ルールを変えた日。30レースごとの見直しで、この日の前後を分けて比べる（engine_config.rules_changed に残す）
+RULES_CHANGED = [{'date': '2026-11-13', 'first_race': '2026/11/15 京都11R エリザベス女王杯',
+                  'change': '期待値1.2→1.05、単勝・複勝は混合後勝率3%未満を除外、買い目があれば最低1,000円（ケリー比率で配分）'}]
 SOFTMAX_TEMP = 8.0
 # 着順分布でのモデルの重み。モデル（Harville）と市場（三連単オッズ）の上位3頭の着順確率を
 # 対数空間でこの比率で混ぜ、1つの分布にする。1.0 でモデルのみ。
@@ -44,7 +55,7 @@ PLACE_DISCOUNT_WIN_MARKET = (0.807, 0.692)
 REFERENCE_PLACE_DISCOUNTS = {'lambda_model': {'model': PLACE_DISCOUNT_MODEL},
                              'lambda_both': {'model': PLACE_DISCOUNT_MODEL, 'win_market': PLACE_DISCOUNT_WIN_MARKET}}
 # 判断記録に残す設定の版。PACE_FIT・PACE_PRIOR・加減点などを変えたら日付を更新する（期間の途中で頻繁に変えない）
-CONFIG_VERSION = '2026-10-12'
+CONFIG_VERSION = '2026-11-13'
 TAKEOUT_WIN = 0.20
 BIAS_FLAT = 0.08
 # 資金配分の基準資金（期待対数成長の計算用）。2026/10/12 ユーザー指定で 80,000 → 8,000円（土日上限と同額）。未検証
@@ -121,8 +132,8 @@ PACE_PRIOR = {
 DIVERGENCE_RATIO = 1.5
 EV_SUSPICIOUS = 2.0
 # 乖離ゲート（2026/10/12〜、ユーザー指定）: 市場前のモデル勝率が計算用市場の1着確率のこの倍率以上の馬は、
-# その馬が来ないと当たらない買い目を候補から外す（枠連は枠の出走馬が全て該当するときだけ）。期待値1.2を超えるのが
-# モデルの誤差が最も大きい人気薄の組み合わせに偏るため。根拠を人が確かめた馬はレコードの divergence_confirmed
+# その馬が来ないと当たらない買い目を候補から外す（枠連は枠の出走馬が全て該当するときだけ）。導入時（期待値1.2）は、基準を超えるのが
+# モデルの誤差が最も大きい人気薄の組み合わせに偏っていたため（2026/11/13 の 1.05 への変更後もそのまま）。根拠を人が確かめた馬はレコードの divergence_confirmed
 # （{"馬番": "確認した根拠"}）に書けば外さない。倍率2.0は運用上の仮値で未検証
 DIVERGENCE_GATE = 2.0
 FRONTNESS = {'逃げ': 1.0, '先行': 0.5, '差し': -0.5, '追込': -1.0}
@@ -294,7 +305,7 @@ TICKET_JA = {'win': '単勝', 'place': '複勝', 'wakuren': '枠連', 'umaren': 
 
 def invalid_odds_reason(o):
     """市場確率にも払戻倍率にも使えないオッズなら除外理由のキー、使えるなら None。
-    1.0倍（100円元返し）は実在するので残す（買い目候補では期待値1.2に届かないので candidate_bets が別に外す）。"""
+    1.0倍（100円元返し）は実在するので残す（期待値が1を超えないので candidate_bets が別に外す）。"""
     o = _low(o)
     if isinstance(o, bool) or not isinstance(o, (int, float)) or not math.isfinite(o):
         return 'not_number'
@@ -543,10 +554,39 @@ def allocate(bets, orders, cap=RACE_CAP, gates=None, places=3, capital=REFERENCE
     return kept, (None if kept else 'no_unit_allocation'), growth
 
 
+def raise_to_minimum(bets, orders, cap, gates=None, places=3, capital=REFERENCE_CAPITAL, minimum=MIN_STAKE):
+    """買い目が1点でもあれば、合計を minimum（cap が小さければ cap）まで引き上げる。配分の比率（期待対数成長の貪欲配分）は
+    最大剰余法で100円単位に丸めて保ち、各買い目は100円以上。戻り値は (買い目, 引き上げ後の期待対数成長)。"""
+    total = sum(b['stake'] for b in bets)
+    target = min(minimum, cap) // UNIT * UNIT
+    if not bets or total >= target:
+        return bets, None
+    units = target // UNIT
+    exact = [b['stake'] / total * units for b in bets]
+    base = [max(1, int(x)) for x in exact]
+    for i in sorted(range(len(bets)), key=lambda i: -(exact[i] - int(exact[i])))[:max(0, units - sum(base))]:
+        base[i] += 1
+    out = [dict(b, stake=u * UNIT, kelly_stake=b['stake']) for b, u in zip(bets, base)]
+    out.sort(key=lambda b: (-b['stake'], -b['ev']))
+    wealth = [float(capital)] * len(orders)
+    for b in out:
+        wealth = [w - b['stake'] for w in wealth]
+        for i in _hits(b, list(orders), gates, places):
+            wealth[i] += b['stake'] * b['odds']
+    growth = math.fsum(q * math.log(w / capital) for q, w in zip(orders.values(), wealth) if w > 0)
+    return out, growth
+
+
+def low_win_single(bet, win):
+    """単勝・複勝で、混合後の推定勝率が WIN_PLACE_MIN_PROB 未満の馬の買い目か（連系には適用しない）。"""
+    return bet['type'] in ('単勝', '複勝') and win.get(bet['horses'][0], 0.0) < WIN_PLACE_MIN_PROB
+
+
 SKIP_REASONS = {
-    'no_value': '期待値1.2以上の馬券なし',
-    'no_unit_allocation': '期待値1.2以上の候補はあるが、100円単位では期待対数成長が増えない',
-    'divergence_gate': f'期待値1.2以上の候補は、モデルが市場の{DIVERGENCE_GATE:g}倍以上に評価した馬（根拠未確認）に頼る買い目だけ',
+    'no_value': f'期待値{EV_THRESHOLD:g}以上の馬券なし',
+    'no_unit_allocation': f'期待値{EV_THRESHOLD:g}以上の候補はあるが、100円単位では期待対数成長が増えない',
+    'divergence_gate': f'期待値{EV_THRESHOLD:g}以上の候補は、モデルが市場の{DIVERGENCE_GATE:g}倍以上に評価した馬（根拠未確認）に頼る買い目だけ',
+    'low_win_single': f'期待値{EV_THRESHOLD:g}以上の候補は、推定勝率{WIN_PLACE_MIN_PROB:.0%}未満の馬の単勝・複勝だけ',
     'no_budget': '土日の残り予算なし（先のレースへの予約・使用済み）',
 }
 
@@ -605,8 +645,11 @@ def market_only_check(bets, market_orders, odds, gates, places, cap, win_odds, h
     """同じオッズ・予算・制約（100倍除外・券種の上限）で、市場の分布だけから買い目を作った試算と、本番との重なり。
     市場だけで買い目が出るのは券種間のオッズのずれ（発表時刻の差・売上の薄さなど）を拾っている可能性があり、
     モデル固有の優位の証拠にはならない。ただし、それだけで期待値が偽とも断定しない（再確認の警告に使う）。"""
-    cands = [b for b in candidate_bets(market_orders, odds, gates, places) if not involves_longshot(b, win_odds, horses)]
+    mwin = ticket_probabilities(market_orders, 3)['win']
+    cands = [b for b in candidate_bets(market_orders, odds, gates, places)
+             if not involves_longshot(b, win_odds, horses) and not low_win_single(b, mwin)]
     mbets, skip, _ = allocate(cands, market_orders, cap, gates, places)
+    mbets, _ = raise_to_minimum(mbets, market_orders, cap, gates, places)
     shared = {_ticket(b) for b in mbets} & {_ticket(b) for b in bets}
     total = sum(b['stake'] for b in bets)
     shared_stake = sum(b['stake'] for b in bets if _ticket(b) in shared)
@@ -686,15 +729,24 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others
     confirmed = {int(k) for k in race.get('divergence_confirmed') or {}}
     gated = diverging_horses(model_win, {k: calc_market_win.get(k, 0.0) for k in scores}, confirmed) \
         if divergence_gate and model_weight > 0 else {}
+    tp = ticket_probabilities(orders, 3)
+    win = tp['win']
     cands = [b for b in candidate_bets(orders, odds, gates, places, ev_threshold)
              if not involves_longshot(b, win_odds, horses)]
+    # 単勝・複勝は混合後の推定勝率3%未満の馬を外す（連系は残す）
+    low_excluded = [b for b in cands if low_win_single(b, win)]
+    cands = [b for b in cands if not low_win_single(b, win)]
     gate_excluded = [b for b in cands if relies_on(b, gated, horses)]
     cands = [b for b in cands if not relies_on(b, gated, horses)]
     bets, skip, growth = allocate(cands, orders, cap, gates, places)
+    kelly_stake = sum(b['stake'] for b in bets)
+    bets, raised = raise_to_minimum(bets, orders, cap, gates, places)
+    if raised is not None:
+        growth = raised
     if skip == 'no_value' and gate_excluded:
         skip = 'divergence_gate'
-    tp = ticket_probabilities(orders, 3)
-    win = tp['win']
+    elif skip == 'no_value' and low_excluded:
+        skip = 'low_win_single'
     market_win = _normalize({k: 1 / _low(win_odds[k]) for k in scores})
     out = {
         'race': race['race'],
@@ -716,7 +768,10 @@ def analyze(race, cap=RACE_CAP, model_weight=MODEL_WEIGHT, market='auto', others
         'place_prob': {k: tp['place'].get(k, 0.0) for k in scores},
         'bets': bets,
         'total_stake': sum(b['stake'] for b in bets),
+        'kelly_stake': kelly_stake,
         'growth': growth,
+        'candidates': len(cands),
+        'low_win_excluded': len(low_excluded),
         'skip_reason': skip,
         'divergence_gate': {'ratio': DIVERGENCE_GATE, 'horses': {n: round(r, 2) for n, r in sorted(gated.items())},
                             'confirmed': sorted(confirmed), 'excluded': len(gate_excluded)},
@@ -747,7 +802,7 @@ def format_warnings(res):
     if g and g['horses']:
         nums = '・'.join(f"{n}番（{r:.1f}倍）" for n, r in g['horses'].items())
         lines.append(f"乖離ゲート: モデル勝率が計算用市場の{g['ratio']:.0f}倍以上の {nums} に頼る買い目を外した"
-                     f"（期待値1.2以上の候補のうち{g['excluded']}点）。根拠を確かめた馬は divergence_confirmed に書く")
+                     f"（期待値{EV_THRESHOLD:g}以上の候補のうち{g['excluded']}点）。根拠を確かめた馬は divergence_confirmed に書く")
     for h in w.get('horses', []):
         ratios = '・'.join(f"{SOURCE_LABELS.get(name, name)}の{r:.1f}倍" for name, r in h['ratios'].items())
         dep = []
@@ -777,7 +832,7 @@ def format_result(res):
              f"  上限:{res.get('cap', RACE_CAP)}円  {market_label(res)}"]
     lines += format_warnings(res)
     if not res['bets']:
-        lines.append(f"見送り（{SKIP_REASONS.get(res.get('skip_reason'), '期待値1.2以上の馬券なし')}）")
+        lines.append(f"見送り（{SKIP_REASONS.get(res.get('skip_reason'), SKIP_REASONS['no_value'])}）")
         return '\n'.join(lines)
     for b in res['bets']:
         sep = '>' if b['type'] in ('馬単', '三連単') else '-'
@@ -786,7 +841,8 @@ def format_result(res):
             horses = '枠' + horses
         lines.append(f"{b['type']:<4} {horses:<8} {b['stake']:>5}円  オッズ{b['odds']:>6.1f}  "
                      f"確率{b['prob']:.3f}  期待値{b['ev']:.2f}")
-    lines.append(f"合計 {res['total_stake']}円")
+    k = res.get('kelly_stake')
+    lines.append(f"合計 {res['total_stake']}円" + (f"（ケリー配分 {k}円を最低{MIN_STAKE:,}円に引き上げ）" if k and k < res['total_stake'] else ''))
     sens = res.get('pace_sensitivity')
     if sens:
         lines.append('展開別（そのペースに決め打ち）: ' + ' / '.join(
@@ -937,6 +993,7 @@ def engine_config():
     """判断時の設定（版・混合率・温度・位置取り点数・ペース確率など）。答え合わせで設定ごとに分けるため記録に残す。"""
     return {'version': CONFIG_VERSION, 'model_weight': MODEL_WEIGHT, 'softmax_temp': SOFTMAX_TEMP,
             'market': 'sanrentan（揃わなければ単勝の Harville）', 'ev_threshold': EV_THRESHOLD,
+            'win_place_min_prob': WIN_PLACE_MIN_PROB, 'min_stake': MIN_STAKE, 'rules_changed': RULES_CHANGED,
             'divergence_gate': DIVERGENCE_GATE, 'reference_loose': REFERENCE_LOOSE,
             'reference_capital': REFERENCE_CAPITAL,
             'pace_fit': PACE_FIT, 'pace_prior': PACE_PRIOR, 'minus': MINUS_WEIGHTS, 'plus': PLUS_WEIGHTS,
@@ -955,7 +1012,7 @@ def finalize(race, path, ledger=None, ledger_path=None, extra_probs=None):
     res['warning_review'] = race.get('warning_review')
     race['probabilities'] = decision_probabilities(race, res, extra_probs)
     # 検証用の参考試算（市場側を単勝の Harville だけにした旧方式相当）。台帳には入れず、後で公式払戻と照合する
-    keep = ('bets', 'total_stake', 'growth', 'skip_reason')
+    keep = ('bets', 'total_stake', 'kelly_stake', 'growth', 'skip_reason')
     ref = analyze(race, cap, market='win')
     race['result'] = res
     race['reference'] = {'win_market_only': {k: ref[k] for k in keep}}

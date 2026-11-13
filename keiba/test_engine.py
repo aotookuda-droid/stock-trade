@@ -428,9 +428,58 @@ class EngineTest(unittest.TestCase):
     def test_ev_threshold_override(self):
         p = engine._normalize({i: 1.0 for i in range(1, 6)})
         orders = engine.harville(p)['trifecta']
-        odds = {'win': {str(i): 1.1 / p[i] for i in range(1, 6)}}
+        odds = {'win': {str(i): 1.03 / p[i] for i in range(1, 6)}}
         self.assertEqual(engine.candidate_bets(orders, odds), [])
         self.assertEqual(len(engine.candidate_bets(orders, odds, ev_threshold=1.0)), 5)
+
+    # 2026/11/13 の購入ルール変更（期待値1.05・単複の勝率3%未満除外・最低1,000円）
+    def test_threshold_is_105(self):
+        self.assertEqual(engine.EV_THRESHOLD, 1.05)
+        p = engine._normalize({i: 1.0 for i in range(1, 6)})
+        orders = engine.harville(p)['trifecta']
+        self.assertEqual(len(engine.candidate_bets(orders, {'win': {str(i): 1.06 / p[i] for i in range(1, 6)}})), 5)
+        self.assertEqual(engine.candidate_bets(orders, {'win': {str(i): 1.04 / p[i] for i in range(1, 6)}}), [])
+
+    def test_low_win_single_only_for_win_and_place(self):
+        win = {1: 0.029, 2: 0.03}
+        self.assertTrue(engine.low_win_single({'type': '単勝', 'horses': [1]}, win))
+        self.assertTrue(engine.low_win_single({'type': '複勝', 'horses': [1]}, win))
+        self.assertFalse(engine.low_win_single({'type': '単勝', 'horses': [2]}, win))
+        for t in ('ワイド', '馬連', '馬単', '三連複', '三連単'):
+            self.assertFalse(engine.low_win_single({'type': t, 'horses': [1, 2]}, win))
+
+    def test_analyze_drops_longshot_win_but_keeps_exotics(self):
+        nums = range(1, 9)
+        race = {'race': 'T', 'horses': [{'num': n, 'gate': n, 'name': str(n), 'ability': 70, 'style': '差し',
+                                         'gate_zone': '中', 'minus': [], 'plus': []} for n in nums]}
+        # 8番は混合後の勝率が3%未満。単勝・ワイドとも期待値1.05を超えるオッズを付ける（乖離ゲートは別の仕組みなので外す）
+        win = {str(n): 3.5 for n in range(1, 8)}
+        win['8'] = 90.0
+        race['odds'] = {'win': win, 'wide': {'1-8': [200.0, 220.0]}}
+        res = engine.analyze(race, market='win', divergence_gate=False)
+        self.assertLess(res['win_prob'][8], engine.WIN_PLACE_MIN_PROB)
+        self.assertFalse(any(b['type'] == '単勝' and b['horses'] == [8] for b in res['bets']))
+        self.assertGreaterEqual(res['low_win_excluded'], 1)
+        self.assertTrue(any(b['type'] == 'ワイド' and b['horses'] == [1, 8] for b in res['bets']))
+
+    def test_raise_to_minimum_keeps_ratio(self):
+        p = engine._normalize({i: 1.0 for i in range(1, 6)})
+        orders = engine.harville(p)['trifecta']
+        bets = [dict(engine._bet('単勝', (1,), p[1], 6.0), stake=300), dict(engine._bet('単勝', (2,), p[2], 6.0), stake=100)]
+        out, growth = engine.raise_to_minimum(bets, orders, 4000)
+        self.assertEqual(sum(b['stake'] for b in out), 1000)
+        self.assertEqual([(b['horses'], b['stake'], b['kelly_stake']) for b in out], [([1], 800, 300), ([2], 200, 100)])
+        self.assertIsNotNone(growth)
+        # 上限（土日の残額）が1,000円未満ならそこまで。1,000円以上なら変えない。買い目がなければ0円のまま
+        self.assertEqual(sum(b['stake'] for b in engine.raise_to_minimum(bets, orders, 600)[0]), 600)
+        big = [dict(bets[0], stake=1200)]
+        self.assertEqual(engine.raise_to_minimum(big, orders, 4000), (big, None))
+        self.assertEqual(engine.raise_to_minimum([], orders, 4000), ([], None))
+
+    def test_rules_change_date_recorded(self):
+        cfg = engine.engine_config()
+        self.assertEqual(cfg['rules_changed'][0]['date'], '2026-11-13')
+        self.assertEqual((cfg['ev_threshold'], cfg['win_place_min_prob'], cfg['min_stake']), (1.05, 0.03, 1000))
 
     # 4. 100円単位で選び直し、丸めで消えた場合は理由を分ける
     def test_tiny_edges_still_allocated(self):

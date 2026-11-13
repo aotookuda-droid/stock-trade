@@ -263,6 +263,23 @@ def _weekend(s):
     return datetime.fromordinal(d.toordinal() - back).strftime('%Y/%m/%d週')
 
 
+def rule_periods(items, name):
+    """購入ルールの変更日（engine.RULES_CHANGED）で区切った期間ごとの (表示名, レース数, [提案額, 返還, 払戻])。
+    発走日が変更日より後のレースを新しい期間に入れる（変更日当日に判断したレースはない前提）。30レースごとの見直し用。"""
+    cuts = [c['date'] for c in engine.RULES_CHANGED]
+    labels = [f"〜{cuts[0]}（変更前）"] + [f"{c}〜（{engine.RULES_CHANGED[i]['change']}）" for i, c in enumerate(cuts)]
+    out = [[label, 0, [0, 0, 0]] for label in labels]
+    for s in items:
+        v = s['plans'].get(name)
+        if not v:
+            continue
+        i = sum(s['start_at'][:10] > c for c in cuts)
+        out[i][1] += 1
+        for j, k in enumerate(('stake', 'refund', 'payout')):
+            out[i][2][j] += v[k]
+    return [tuple(x) for x in out]
+
+
 def report(directory=SETTLEMENT_DIR):
     """レース別・週末別・累計の表（Markdown）を返す。記録が精算後に変わっていれば警告する。"""
     items = sorted((engine._read_json(p) for p in directory.glob('*.json')), key=lambda s: s['start_at'])
@@ -301,6 +318,8 @@ def report(directory=SETTLEMENT_DIR):
                 acc[2] += v['payout']
         lines += ['', '### 週末別', ''] + header
         lines += [row(k, _summary(*w)) for k, w in weeks.items()]
+        lines += ['', '### 購入ルール変更の前後', ''] + header
+        lines += [row(f"{label}（{n}レース）", _summary(*acc)) for label, n, acc in rule_periods(items, name)]
         lines += ['', '### 累計', ''] + header + [row(f'{len(items)}レース', _summary(*total)), '']
     lines += probability_check(items)
     lines += order_check(items)

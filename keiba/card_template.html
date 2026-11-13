@@ -121,7 +121,7 @@ tr.scr td{opacity:.45}
     <div class="panel">
       <h2 id="bets-h">買い目試算</h2>
       <div class="bets" id="bets"></div>
-      <p class="caveat">✓＝オッズが1割下がっても期待値1.2以上（Codex版の下落補正）。参考値。最終判断は発走10分前のオッズ・バイアス・馬体重で再計算します。</p>
+      <p class="caveat" id="caveat"></p>
     </div>
   </section>
   <section class="panel" id="codex-panel" hidden>
@@ -160,6 +160,8 @@ if (D.asof_iso) {
   const age = (Date.now() - new Date(D.asof_iso)) / 60000;
   if (age > 75 && Date.now() < new Date(D.end_iso)) { const el = document.getElementById('stale'); el.hidden = false; el.textContent = `オッズが${Math.round(age)}分前のものです。自動更新が止まっている可能性があります。`; }
 }
+const EVT = D.ev_threshold ?? 1.2, MIN = D.min_stake ?? 0;
+document.getElementById('caveat').textContent = `✓＝オッズが1割下がっても期待値${EVT}以上（Codex版の下落補正）。単勝・複勝は推定勝率（混合後）${Math.round((D.win_place_min_prob ?? 0) * 100)}%未満の馬を買わない（連系は対象外）。買い目があれば最低${MIN.toLocaleString()}円。参考値。最終判断は発走10分前のオッズ・バイアス・馬体重で再計算します。`;
 let cur = 0, sortKey = 'num', open = new Set();
 // 選んだタブはレースIDで覚える（日によってレース数が変わるので番号では覚えない）
 try { const s = localStorage.getItem('keiba-race'); const i = D.races.findIndex(r => r.race_id === s); if (i >= 0) cur = i; } catch (e) {}
@@ -190,13 +192,13 @@ function render() {
   const bets = document.getElementById('bets');
   document.getElementById('bets-h').textContent = '買い目試算（' + D.odds_label + (r.market ? '・' + r.market : '') + '）';
   const sepOf = t => (t === '馬単' || t === '三連単') ? '>' : '-';
-  bets.innerHTML = r.bets.length ? r.bets.map(b => `<div><span>${esc(b.type)} ${b.type === '枠連' ? '枠' : ''}${b.horses.join(sepOf(b.type))}</span><span>${b.stake}円 · ${b.odds.toFixed(1)}倍 · 期待値${b.ev.toFixed(2)} <span class="${b.ev * 0.9 >= 1.2 ? 'robust' : 'fragile'}">${b.ev * 0.9 >= 1.2 ? '✓' : '—'}</span></span></div>`).join('') + `<div><span>合計</span><span>${r.stake}円</span></div>`
-    : `<div><span>見送り</span><span>${esc(r.skip || '期待値1.2以上の馬券なし')}</span></div>`;
+  bets.innerHTML = r.bets.length ? r.bets.map(b => `<div><span>${esc(b.type)} ${b.type === '枠連' ? '枠' : ''}${b.horses.join(sepOf(b.type))}</span><span>${b.stake}円 · ${b.odds.toFixed(1)}倍 · 期待値${b.ev.toFixed(2)} <span class="${b.ev * 0.9 >= EVT ? 'robust' : 'fragile'}">${b.ev * 0.9 >= EVT ? '✓' : '—'}</span></span></div>`).join('') + `<div><span>合計</span><span>${r.stake}円${r.kelly_stake && r.kelly_stake < r.stake ? `（ケリー配分 ${r.kelly_stake}円を最低${MIN.toLocaleString()}円に引き上げ、比率は同じ）` : ''}</span></div>`
+    : `<div><span>見送り</span><span>${esc(r.skip || `期待値${EVT}以上の馬券なし`)}</span></div>`;
   const mo = r.market_only;
   if (mo) bets.innerHTML += `<div><span>市場のみの試算（同じオッズ・予算）</span><span>${mo.bets.length ? `${mo.bets.length}点・${mo.total_stake}円（本番と共通 ${mo.shared.length}点・${mo.shared_stake}円）` : '買い目なし'}</span></div>`;
   const lo = r.loose;
   if (lo) {
-    bets.innerHTML += `<div class="loose-h"><span>参考：緩い基準（期待値${lo.ev_threshold.toFixed(1)}以上・乖離ゲート${lo.divergence_gate ? 'あり' : 'なし'}・混合率${lo.model_weight}）※買わない・答え合わせ用</span></div>`;
+    bets.innerHTML += `<div class="loose-h"><span>参考：緩い基準（期待値${lo.ev_threshold.toFixed(1)}以上・乖離ゲート${lo.divergence_gate ? 'あり' : 'なし'}・混合率${lo.model_weight}。単複3%未満除外・最低1,000円は本番と同じ）※買わない・答え合わせ用。本番との差は主に乖離ゲートと混合率</span></div>`;
     bets.innerHTML += lo.bets.length ? lo.bets.map(b => `<div class="loose"><span>${esc(b.type)} ${b.type === '枠連' ? '枠' : ''}${b.horses.join(sepOf(b.type))}</span><span>${b.stake}円 · ${b.odds.toFixed(1)}倍 · 期待値${b.ev.toFixed(2)}</span></div>`).join('') + `<div class="loose"><span>合計</span><span>${lo.stake}円</span></div>`
       : `<div class="loose"><span>見送り</span><span>${esc(lo.skip || '期待値の基準以上の馬券なし')}</span></div>`;
   }
